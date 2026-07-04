@@ -3,9 +3,11 @@ package com.hackerrank.app.data.local
 import android.content.Context
 import androidx.room.Room
 import com.hackerrank.app.data.local.dao.DataStructureDao
+import com.hackerrank.app.data.local.dao.ProblemDao
 import com.hackerrank.app.data.local.dao.ProfileDao
 import com.hackerrank.app.data.local.dao.ProgressDao
 import com.hackerrank.app.data.local.dao.QuizQuestionDao
+import com.hackerrank.app.data.local.dao.SolvedProblemDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -44,4 +46,12 @@ object DatabaseModule {
     @Provides
     fun provideProfileDao(database: HackerRankDatabase): ProfileDao =
         database.profileDao()
+
+    @Provides
+    fun provideProblemDao(database: HackerRankDatabase): ProblemDao =
+        database.problemDao()
+
+    @Provides
+    fun provideSolvedProblemDao(database: HackerRankDatabase): SolvedProblemDao =
+        database.solvedProblemDao()
 }

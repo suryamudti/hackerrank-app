@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import com.hackerrank.app.core.ThemeManager
 import com.hackerrank.app.core.navigation.NavGraph
 import com.hackerrank.app.core.theme.HackerRankTheme
 import com.hackerrank.app.data.seed.SeedInitializer
@@ -27,6 +28,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var recordLoginUseCase: RecordLoginUseCase
 
+    @Inject
+    lateinit var themeManager: ThemeManager
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,9 +44,9 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            HackerRankTheme {
+            HackerRankTheme(themeManager = themeManager) {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    NavGraph()
+                    NavGraph(themeManager = themeManager)
                 }
             }
         }
