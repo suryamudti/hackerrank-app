@@ -84,7 +84,8 @@ fun BrowseScreen(
                     CategorySection(
                         category = category,
                         structures = structures,
-                        onStructureClick = onStructureClick
+                        onStructureClick = onStructureClick,
+                        progressMap = uiState.progressMap
                     )
                 }
             }
@@ -96,7 +97,8 @@ fun BrowseScreen(
 private fun CategorySection(
     category: DataStructureCategory,
     structures: List<DataStructure>,
-    onStructureClick: (String) -> Unit
+    onStructureClick: (String) -> Unit,
+    progressMap: Map<String, Float>
 ) {
     Column {
         Text(
@@ -112,7 +114,8 @@ private fun CategorySection(
             items(structures, key = { it.id }) { structure ->
                 StructureCard(
                     structure = structure,
-                    onClick = { onStructureClick(structure.slug) }
+                    onClick = { onStructureClick(structure.slug) },
+                    progress = progressMap[structure.id] ?: 0f
                 )
             }
         }
@@ -122,32 +125,25 @@ private fun CategorySection(
 @Composable
 private fun StructureCard(
     structure: DataStructure,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    progress: Float = 0f
 ) {
     Card(
         modifier = Modifier
             .width(160.dp)
+            .height(140.dp)
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             StructureCardBackground(slug = structure.slug, name = structure.name)
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .align(Alignment.BottomCenter)
+                    .padding(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                MasteryRing(
-                    progress = 0.0f,
-                    size = 48.dp,
-                    strokeWidth = 4.dp,
-                    trackColor = Color.White.copy(alpha = 0.3f),
-                    progressColor = Color.White
-                )
-                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = structure.name,
                     style = MaterialTheme.typography.titleSmall,
@@ -156,13 +152,27 @@ private fun StructureCard(
                     overflow = TextOverflow.Ellipsis,
                     color = Color.White
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = structure.difficulty.displayName,
                     style = MaterialTheme.typography.labelSmall,
-                    color = Color.White.copy(alpha = 0.8f)
+                    color = when (structure.difficulty) {
+                        Difficulty.EASY -> Color(0xFF4CAF50)
+                        Difficulty.MEDIUM -> Color(0xFFFF9800)
+                        Difficulty.HARD -> Color(0xFFF44336)
+                    }
                 )
             }
+            MasteryRing(
+                progress = progress,
+                size = 20.dp,
+                strokeWidth = 3.dp,
+                trackColor = Color.White.copy(alpha = 0.3f),
+                progressColor = Color.White,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(6.dp)
+            )
         }
     }
 }

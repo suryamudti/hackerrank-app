@@ -3,13 +3,29 @@ package com.hackerrank.app.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountTree
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.FilterNone
+import androidx.compose.material.icons.filled.Hub
+import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.ShowChart
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.TableChart
+import androidx.compose.material.icons.filled.TableRows
+import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import coil.compose.AsyncImage
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 
 private val gradientPairs = listOf(
@@ -31,23 +47,23 @@ private val gradientPairs = listOf(
     listOf(Color(0xFFe0c3fc), Color(0xFF8ec5fc))
 )
 
-private val imageKeywords = mapOf(
-    "array" to "array-programming",
-    "linked_list" to "linked-list-chain",
-    "stack" to "stack-blocks",
-    "queue" to "queue-line-people",
-    "binary_tree" to "tree-nature",
-    "bst" to "binary-search-tree",
-    "avl_tree" to "avl-tree-balanced",
-    "heap" to "heap-pile-stones",
-    "trie" to "prefix-tree-dictionary",
-    "graph" to "graph-network-nodes",
-    "weighted_graph" to "weighted-graph-map",
-    "graph_algorithms" to "graph-algorithm-path",
-    "hash_table" to "hash-table-key-value",
-    "hash_set" to "hash-set-unique",
-    "union_find" to "union-find-connect",
-    "segment_tree" to "segment-tree-array"
+private val iconMap = mapOf(
+    "array" to Icons.Default.TableRows,
+    "linked-list" to Icons.Default.Link,
+    "stack" to Icons.Default.Layers,
+    "queue" to Icons.AutoMirrored.Filled.List,
+    "binary-tree" to Icons.Default.AccountTree,
+    "binary-search-tree" to Icons.Default.AccountTree,
+    "avl-tree" to Icons.Default.AccountTree,
+    "heap" to Icons.Default.BarChart,
+    "trie" to Icons.Default.TextFields,
+    "graph" to Icons.Default.Hub,
+    "weighted-graph" to Icons.Default.Hub,
+    "graph-algorithms" to Icons.Default.Share,
+    "hash-table" to Icons.Default.TableChart,
+    "hash-set" to Icons.Default.FilterNone,
+    "disjoint-set" to Icons.Default.AccountTree,
+    "segment-tree" to Icons.AutoMirrored.Filled.ShowChart
 )
 
 private fun pickGradient(name: String): List<Color> {
@@ -58,10 +74,6 @@ private fun pickGradient(name: String): List<Color> {
     return gradientPairs[abs(hash) % gradientPairs.size]
 }
 
-private fun searchKeyword(slug: String): String {
-    return imageKeywords[slug] ?: slug.replace("_", "-")
-}
-
 @Composable
 fun StructureCardBackground(
     slug: String,
@@ -69,24 +81,25 @@ fun StructureCardBackground(
     modifier: Modifier = Modifier
 ) {
     val colors = remember(slug) { pickGradient(name) }
-    val keyword = remember(slug) { searchKeyword(slug) }
-    val url = "https://loremflickr.com/400/300/$keyword"
+    val icon = remember(slug) { iconMap[slug] ?: Icons.Default.TableRows }
 
     Box(modifier = modifier.fillMaxSize()) {
-        AsyncImage(
-            model = url,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     brush = Brush.linearGradient(
-                        colors = colors.map { it.copy(alpha = 0.7f) }
+                        colors = colors
                     )
                 )
+        )
+        Icon(
+            imageVector = icon,
+            contentDescription = name,
+            tint = Color.White.copy(alpha = 0.85f),
+            modifier = Modifier
+                .align(Alignment.Center)
+                .size(72.dp)
         )
     }
 }
