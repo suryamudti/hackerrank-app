@@ -29,6 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.hackerrank.app.core.ThemeManager
 import com.hackerrank.app.ui.achievements.AchievementsScreen
 import com.hackerrank.app.ui.browse.BrowseScreen
 import com.hackerrank.app.ui.detail.DetailScreen
@@ -60,7 +61,7 @@ sealed class DetailRoute(val route: String) {
 val bottomNavScreens = listOf(Screen.Browse, Screen.Problems, Screen.Progress, Screen.Achievements)
 
 @Composable
-fun NavGraph() {
+fun NavGraph(themeManager: ThemeManager? = null) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -98,6 +99,7 @@ fun NavGraph() {
             ) {
                 composable(Screen.Browse.route) {
                     BrowseScreen(
+                        themeManager = themeManager,
                         onStructureClick = { slug ->
                             navController.navigate(DetailRoute.StructureDetail.createRoute(slug))
                         },

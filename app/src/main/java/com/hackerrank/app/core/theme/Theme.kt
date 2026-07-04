@@ -13,16 +13,19 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import com.hackerrank.app.core.ThemeManager
+import com.hackerrank.app.core.ThemeMode
 
 private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFFBB86FC),
@@ -75,10 +78,17 @@ private val AppShapes = Shapes(
 
 @Composable
 fun HackerRankTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeManager: ThemeManager,
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    val themeMode by themeManager.themeMode.collectAsState()
+    val darkTheme = when (themeMode) {
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+    }
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
