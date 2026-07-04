@@ -3,6 +3,7 @@ package com.hackerrank.app.domain.gamification
 import com.hackerrank.app.core.Constants
 import com.hackerrank.app.domain.model.Badge
 import com.hackerrank.app.domain.model.BadgeDefinition
+import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.domain.model.GamificationResult
 import com.hackerrank.app.domain.model.StreakInfo
 import com.hackerrank.app.domain.model.UserProfile
@@ -60,6 +61,48 @@ class GamificationEngine @Inject constructor(
         currentBadges.addAll(newBadges.map { it.id })
 
         // Persist
+        val updatedProfile = profile.copy(
+            totalXp = newTotalXp,
+            currentStreak = streakResult.currentStreak,
+            longestStreak = streakResult.longestStreak,
+            lastActiveDate = streakResult.lastActiveDate,
+            earnedBadgeIds = currentBadges.toList()
+        )
+        progressRepository.upsertProfile(updatedProfile)
+
+        return GamificationResult(
+            xpAwarded = xpGained,
+            newTotalXp = newTotalXp,
+            newLevel = newLevel,
+            previousLevel = oldLevel,
+            newBadges = newBadges,
+            streakInfo = streakResult
+        )
+    }
+
+    suspend fun recordProblemSolved(difficulty: Difficulty): GamificationResult {
+        val xpGained = when (difficulty) {
+            Difficulty.EASY -> Constants.PROBLEM_EASY_XP
+            Difficulty.MEDIUM -> Constants.PROBLEM_MEDIUM_XP
+            Difficulty.HARD -> Constants.PROBLEM_HARD_XP
+        }
+        val profile = progressRepository.getProfileSync() ?: UserProfile()
+        val streakResult = updateStreak(profile)
+        val oldLevel = Constants.getLevel(profile.totalXp)
+        val newTotalXp = profile.totalXp + xpGained
+        val newLevel = Constants.getLevel(newTotalXp)
+
+        val currentBadges = profile.earnedBadgeIds.toMutableSet()
+        val newBadges = evaluateBadges(
+            profile = profile.copy(totalXp = newTotalXp, currentStreak = streakResult.currentStreak),
+            isPerfect = false,
+            elapsedTimeMs = 0L,
+            structureId = "",
+            allProgress = emptyList(),
+            earnedBadgeIds = currentBadges
+        )
+        currentBadges.addAll(newBadges.map { it.id })
+
         val updatedProfile = profile.copy(
             totalXp = newTotalXp,
             currentStreak = streakResult.currentStreak,

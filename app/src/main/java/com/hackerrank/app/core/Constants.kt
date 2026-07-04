@@ -29,6 +29,11 @@ object Constants {
         return Pair(totalXp - currentLevelXp, nextLevelXp - currentLevelXp)
     }
 
+    // Problem XP
+    const val PROBLEM_EASY_XP = 10
+    const val PROBLEM_MEDIUM_XP = 25
+    const val PROBLEM_HARD_XP = 50
+
     // Category order for display
     val categoryOrder = listOf(
         "Linear", "Trees", "Graphs", "Hash-Based", "Other"

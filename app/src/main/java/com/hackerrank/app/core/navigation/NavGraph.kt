@@ -4,9 +4,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -31,12 +32,15 @@ import androidx.navigation.navArgument
 import com.hackerrank.app.ui.achievements.AchievementsScreen
 import com.hackerrank.app.ui.browse.BrowseScreen
 import com.hackerrank.app.ui.detail.DetailScreen
+import com.hackerrank.app.ui.problems.ProblemDetailScreen
+import com.hackerrank.app.ui.problems.ProblemsScreen
 import com.hackerrank.app.ui.progress.ProgressScreen
 import com.hackerrank.app.ui.quiz.QuizScreen
 import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     data object Browse : Screen("browse", "Structures", Icons.Default.Home)
+    data object Problems : Screen("problems", "Problems", Icons.Default.Code)
     data object Progress : Screen("progress", "Progress", Icons.Default.Star)
     data object Achievements : Screen("achievements", "Badges", Icons.Default.EmojiEvents)
 }
@@ -48,9 +52,12 @@ sealed class DetailRoute(val route: String) {
     data object Quiz : DetailRoute("quiz/{structureSlug}") {
         fun createRoute(slug: String) = "quiz/$slug"
     }
+    data object ProblemDetail : DetailRoute("problem/{problemId}") {
+        fun createRoute(id: String) = "problem/$id"
+    }
 }
 
-val bottomNavScreens = listOf(Screen.Browse, Screen.Progress, Screen.Achievements)
+val bottomNavScreens = listOf(Screen.Browse, Screen.Problems, Screen.Progress, Screen.Achievements)
 
 @Composable
 fun NavGraph() {
@@ -100,6 +107,17 @@ fun NavGraph() {
                     )
                 }
 
+                composable(Screen.Problems.route) {
+                    ProblemsScreen(
+                        onProblemClick = { id ->
+                            navController.navigate(DetailRoute.ProblemDetail.createRoute(id))
+                        },
+                        onError = { msg ->
+                            scope.launch { snackbarHostState.showSnackbar(msg) }
+                        }
+                    )
+                }
+
                 composable(Screen.Progress.route) {
                     ProgressScreen(
                         onError = { msg ->
@@ -135,6 +153,17 @@ fun NavGraph() {
                     val slug = backStackEntry.arguments?.getString("structureSlug") ?: return@composable
                     QuizScreen(
                         structureSlug = slug,
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+
+                composable(
+                    route = DetailRoute.ProblemDetail.route,
+                    arguments = listOf(navArgument("problemId") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val problemId = backStackEntry.arguments?.getString("problemId") ?: return@composable
+                    ProblemDetailScreen(
+                        problemId = problemId,
                         onBackClick = { navController.popBackStack() }
                     )
                 }
