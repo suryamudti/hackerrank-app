@@ -31,6 +31,25 @@ private val gradientPairs = listOf(
     listOf(Color(0xFFe0c3fc), Color(0xFF8ec5fc))
 )
 
+private val imageKeywords = mapOf(
+    "array" to "array-programming",
+    "linked_list" to "linked-list-chain",
+    "stack" to "stack-blocks",
+    "queue" to "queue-line-people",
+    "binary_tree" to "tree-nature",
+    "bst" to "binary-search-tree",
+    "avl_tree" to "avl-tree-balanced",
+    "heap" to "heap-pile-stones",
+    "trie" to "prefix-tree-dictionary",
+    "graph" to "graph-network-nodes",
+    "weighted_graph" to "weighted-graph-map",
+    "graph_algorithms" to "graph-algorithm-path",
+    "hash_table" to "hash-table-key-value",
+    "hash_set" to "hash-set-unique",
+    "union_find" to "union-find-connect",
+    "segment_tree" to "segment-tree-array"
+)
+
 private fun pickGradient(name: String): List<Color> {
     var hash = 7
     for (c in name) {
@@ -39,20 +58,19 @@ private fun pickGradient(name: String): List<Color> {
     return gradientPairs[abs(hash) % gradientPairs.size]
 }
 
-private fun imageUrl(name: String): String {
-    val slug = name.lowercase()
-        .replace(Regex("[^a-z0-9 ]"), "")
-        .replace(Regex("\\s+"), "-")
-    return "https://picsum.photos/seed/$slug/400/300"
+private fun searchKeyword(slug: String): String {
+    return imageKeywords[slug] ?: slug.replace("_", "-")
 }
 
 @Composable
 fun StructureCardBackground(
+    slug: String,
     name: String,
     modifier: Modifier = Modifier
 ) {
-    val colors = remember(name) { pickGradient(name) }
-    val url = remember(name) { imageUrl(name) }
+    val colors = remember(slug) { pickGradient(name) }
+    val keyword = remember(slug) { searchKeyword(slug) }
+    val url = "https://loremflickr.com/400/300/$keyword"
 
     Box(modifier = modifier.fillMaxSize()) {
         AsyncImage(

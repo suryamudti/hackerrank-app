@@ -132,7 +132,7 @@ private fun StructureCard(
         colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            StructureCardBackground(name = structure.name)
+            StructureCardBackground(slug = structure.slug, name = structure.name)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
