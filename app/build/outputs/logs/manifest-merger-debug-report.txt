@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:2:1-22:12
-INJECTED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:2:1-22:12
-INJECTED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:2:1-22:12
-INJECTED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:2:1-22:12
+ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:2:1-24:12
+INJECTED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:2:1-24:12
+INJECTED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:2:1-24:12
+INJECTED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:2:1-24:12
 MERGED from [androidx.hilt:hilt-navigation-compose:1.2.0] C:\Users\groun\.gradle\caches\8.9\transforms\496b43d198ef181319874790f286ee62\transformed\hilt-navigation-compose-1.2.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.hilt:hilt-navigation:1.2.0] C:\Users\groun\.gradle\caches\8.9\transforms\13e4df23094f4e0f6deb59a9806844d5\transformed\hilt-navigation-1.2.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.navigation:navigation-common:2.8.0] C:\Users\groun\.gradle\caches\8.9\transforms\3ad7804dc8359c210008943c799e8d29\transformed\navigation-common-2.8.0\AndroidManifest.xml:17:1-22:12
@@ -95,9 +95,13 @@ MERGED from [com.google.dagger:dagger-lint-aar:2.51.1] C:\Users\groun\.gradle\ca
 		INJECTED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml
 	xmlns:android
 		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:2:11-69
+uses-permission#android.permission.INTERNET
+ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:4:5-67
+	android:name
+		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:4:22-64
 application
-ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:4:5-20:19
-INJECTED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:4:5-20:19
+ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:6:5-22:19
+INJECTED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:6:5-22:19
 MERGED from [com.airbnb.android:lottie:6.4.0] C:\Users\groun\.gradle\caches\8.9\transforms\ca218efb9330c1cbf8521710ef985549\transformed\lottie-6.4.0\AndroidManifest.xml:7:5-20
 MERGED from [com.airbnb.android:lottie:6.4.0] C:\Users\groun\.gradle\caches\8.9\transforms\ca218efb9330c1cbf8521710ef985549\transformed\lottie-6.4.0\AndroidManifest.xml:7:5-20
 MERGED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\groun\.gradle\caches\8.9\transforms\d808ff3795228b00d08a3b396cca86a8\transformed\ui-tooling-release\AndroidManifest.xml:22:5-26:19
@@ -123,35 +127,35 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\groun\.gradle\cach
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.13.1] C:\Users\groun\.gradle\caches\8.9\transforms\a605fee12c8389c5fbeea03a232b2c9f\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:9:9-35
+		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:11:9-35
 	android:label
-		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:8:9-41
+		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:10:9-41
 	android:icon
-		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:7:9-56
+		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:9:9-56
 	android:allowBackup
-		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:6:9-35
+		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:8:9-35
 	android:theme
-		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:10:9-51
+		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:12:9-51
 	android:name
-		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:5:9-38
+		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:7:9-38
 activity#com.hackerrank.app.MainActivity
-ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:11:9-19:20
+ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:13:9-21:20
 	android:exported
-		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:13:13-36
+		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:15:13-36
 	android:theme
-		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:14:13-55
+		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:16:13-55
 	android:name
-		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:12:13-41
+		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:14:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:15:13-18:29
+ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:17:13-20:29
 action#android.intent.action.MAIN
-ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:16:17-69
+ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:18:17-69
 	android:name
-		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:16:25-66
+		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:18:25-66
 category#android.intent.category.LAUNCHER
-ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:17:17-77
+ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:19:17-77
 	android:name
-		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:17:27-74
+		ADDED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml:19:27-74
 uses-sdk
 INJECTED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Flutter\hackerrank-app\app\src\main\AndroidManifest.xml
