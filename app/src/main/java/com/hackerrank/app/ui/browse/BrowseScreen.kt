@@ -128,15 +128,18 @@ private fun StructureCard(
         modifier = Modifier
             .width(160.dp)
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Box {
+        Box(modifier = Modifier.fillMaxSize()) {
             StructureCardBackground(name = structure.name)
             Column(
-                modifier = Modifier.padding(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
                 MasteryRing(
                     progress = 0.0f,
                     size = 48.dp,

@@ -1,18 +1,16 @@
 package com.hackerrank.app.ui.components
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import kotlin.math.abs
 
-private val palette = listOf(
+private val gradientPairs = listOf(
     listOf(Color(0xFF667eea), Color(0xFF764ba2)),
     listOf(Color(0xFFf093fb), Color(0xFFf5576c)),
     listOf(Color(0xFF4facfe), Color(0xFF00f2fe)),
@@ -31,12 +29,12 @@ private val palette = listOf(
     listOf(Color(0xFFe0c3fc), Color(0xFF8ec5fc))
 )
 
-private fun hashSeed(name: String): Int {
+private fun pickGradient(name: String): List<Color> {
     var hash = 7
     for (c in name) {
         hash = hash * 31 + c.code
     }
-    return abs(hash)
+    return gradientPairs[abs(hash) % gradientPairs.size]
 }
 
 @Composable
@@ -44,31 +42,11 @@ fun StructureCardBackground(
     name: String,
     modifier: Modifier = Modifier
 ) {
-    val index = remember(name) { hashSeed(name) % palette.size }
-    val colors = palette[index]
+    val colors = remember(name) { pickGradient(name) }
 
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val w = size.width
-        val h = size.height
-
-        drawRect(
-            brush = Brush.linearGradient(
-                colors = colors,
-                start = Offset(0f, 0f),
-                end = Offset(w, h)
-            )
-        )
-
-        val alpha = 0.08f
-        drawCircle(
-            color = Color.White.copy(alpha = alpha),
-            radius = w * 0.6f,
-            center = Offset(w * 0.8f, h * 0.2f)
-        )
-        drawCircle(
-            color = Color.White.copy(alpha = alpha),
-            radius = w * 0.4f,
-            center = Offset(w * 0.2f, h * 0.8f)
-        )
-    }
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(brush = Brush.linearGradient(colors = colors))
+    )
 }
