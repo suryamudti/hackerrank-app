@@ -22,4 +22,5 @@
 # Gson rules
 -keepattributes Signature, *Annotation*, EnclosingMethod, InnerClasses
 -keep class com.google.gson.** { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
 -dontwarn com.google.gson.**
