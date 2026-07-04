@@ -8,6 +8,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import kotlin.math.abs
 
 private val gradientPairs = listOf(
@@ -37,16 +39,36 @@ private fun pickGradient(name: String): List<Color> {
     return gradientPairs[abs(hash) % gradientPairs.size]
 }
 
+private fun imageUrl(name: String): String {
+    val slug = name.lowercase()
+        .replace(Regex("[^a-z0-9 ]"), "")
+        .replace(Regex("\\s+"), "-")
+    return "https://picsum.photos/seed/$slug/400/300"
+}
+
 @Composable
 fun StructureCardBackground(
     name: String,
     modifier: Modifier = Modifier
 ) {
     val colors = remember(name) { pickGradient(name) }
+    val url = remember(name) { imageUrl(name) }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(brush = Brush.linearGradient(colors = colors))
-    )
+    Box(modifier = modifier.fillMaxSize()) {
+        AsyncImage(
+            model = url,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = colors.map { it.copy(alpha = 0.7f) }
+                    )
+                )
+        )
+    }
 }
