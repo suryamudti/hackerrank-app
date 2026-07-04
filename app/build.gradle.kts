@@ -15,8 +15,12 @@ android {
         applicationId = "com.hackerrank.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        // Define base version
+        val baseVersionName = "1.0"
+        
+        // Check if version overrides are passed from the CI command line
+        versionCode = if (project.hasProperty("versionCode")) project.property("versionCode").toString().toInt() else 1
+        versionName = if (project.hasProperty("versionName")) project.property("versionName").toString() else baseVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
