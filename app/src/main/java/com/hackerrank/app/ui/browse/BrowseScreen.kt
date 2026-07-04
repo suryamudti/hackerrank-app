@@ -29,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -39,6 +40,7 @@ import com.hackerrank.app.domain.model.DataStructureCategory
 import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.ui.components.EmptyState
 import com.hackerrank.app.ui.components.MasteryRing
+import com.hackerrank.app.ui.components.StructureCardBackground
 
 @Composable
 fun BrowseScreen(
@@ -128,33 +130,36 @@ private fun StructureCard(
             .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            MasteryRing(
-                progress = 0.0f,
-                size = 48.dp,
-                strokeWidth = 4.dp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = structure.name,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = structure.difficulty.displayName,
-                style = MaterialTheme.typography.labelSmall,
-                color = when (structure.difficulty) {
-                    Difficulty.EASY -> MaterialTheme.colorScheme.primary
-                    Difficulty.MEDIUM -> MaterialTheme.colorScheme.tertiary
-                    Difficulty.HARD -> MaterialTheme.colorScheme.error
-                }
-            )
+        Box {
+            StructureCardBackground(name = structure.name)
+            Column(
+                modifier = Modifier.padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(8.dp))
+                MasteryRing(
+                    progress = 0.0f,
+                    size = 48.dp,
+                    strokeWidth = 4.dp,
+                    trackColor = Color.White.copy(alpha = 0.3f),
+                    progressColor = Color.White
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = structure.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = structure.difficulty.displayName,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White.copy(alpha = 0.8f)
+                )
+            }
         }
     }
 }
