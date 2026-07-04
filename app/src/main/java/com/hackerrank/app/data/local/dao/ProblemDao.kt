@@ -23,5 +23,5 @@ interface ProblemDao {
     suspend fun insertAll(problems: List<ProblemEntity>)
 
     @Query("SELECT COUNT(*) FROM problems")
-    fun count(): Flow<Int>
+    suspend fun count(): Int
 }
