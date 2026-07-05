@@ -35,6 +35,8 @@ class ProblemDetailViewModelTest {
         id = "1",
         title = "Two Sum",
         description = "Find two...",
+        inputExample = "nums = [2,7], target = 9",
+        outputExample = "[0,1]",
         solutionCode = "code",
         approachExplanation = "explanation",
         difficulty = Difficulty.EASY,
@@ -54,6 +56,21 @@ class ProblemDetailViewModelTest {
             assertFalse(state.isLoading)
             assertEquals(sampleProblem, state.problem)
             assertFalse(state.isSolved)
+        }
+    }
+
+    @Test
+    fun `loadProblem preserves input and output examples in uiState`() = runTest {
+        every { problemRepository.getProblemById("1") } returns flowOf(sampleProblem)
+        every { problemRepository.isSolved("1") } returns flowOf(false)
+
+        viewModel.loadProblem("1")
+
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertNotNull(state.problem)
+            assertEquals("nums = [2,7], target = 9", state.problem?.inputExample)
+            assertEquals("[0,1]", state.problem?.outputExample)
         }
     }
 

@@ -4,6 +4,8 @@ data class Problem(
     val id: String,
     val title: String,
     val description: String,
+    val inputExample: String,
+    val outputExample: String,
     val solutionCode: String,
     val approachExplanation: String,
     val difficulty: Difficulty,

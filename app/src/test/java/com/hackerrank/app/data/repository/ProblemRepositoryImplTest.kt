@@ -29,6 +29,8 @@ class ProblemRepositoryImplTest {
         id = "prob1",
         title = "Two Sum",
         description = "Find two numbers...",
+        inputExample = "nums = [2,7], target = 9",
+        outputExample = "[0,1]",
         solutionCode = "fun twoSum()...",
         approachExplanation = "Use map...",
         difficulty = "Medium",
@@ -47,6 +49,8 @@ class ProblemRepositoryImplTest {
             assertEquals("prob1", domain.id)
             assertEquals("Two Sum", domain.title)
             assertEquals("Find two numbers...", domain.description)
+            assertEquals("nums = [2,7], target = 9", domain.inputExample)
+            assertEquals("[0,1]", domain.outputExample)
             assertEquals("fun twoSum()...", domain.solutionCode)
             assertEquals("Use map...", domain.approachExplanation)
             assertEquals(Difficulty.MEDIUM, domain.difficulty)

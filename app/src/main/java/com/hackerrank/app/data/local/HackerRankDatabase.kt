@@ -24,7 +24,7 @@ import com.hackerrank.app.data.local.entity.UserProgressEntity
         ProblemEntity::class,
         SolvedProblemEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class HackerRankDatabase : RoomDatabase() {

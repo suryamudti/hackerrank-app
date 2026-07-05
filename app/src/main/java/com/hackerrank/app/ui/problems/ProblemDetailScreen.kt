@@ -136,6 +136,9 @@ fun ProblemDetailScreen(
                 style = MaterialTheme.typography.bodyLarge
             )
 
+            Spacer(Modifier.height(12.dp))
+            ExampleCard(input = problem.inputExample, output = problem.outputExample)
+
             Spacer(Modifier.height(20.dp))
             HorizontalDivider()
             Spacer(Modifier.height(20.dp))
@@ -250,6 +253,51 @@ private fun CodeBlock(code: String) {
                 fontFamily = FontFamily.Monospace,
                 modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
             )
+        }
+    }
+}
+
+@Composable
+private fun ExampleCard(input: String, output: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Example",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.height(8.dp))
+            Row {
+                Text(
+                    text = "Input: ",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = input,
+                    fontFamily = FontFamily.Monospace,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Spacer(Modifier.height(6.dp))
+            Row {
+                Text(
+                    text = "Output: ",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = output,
+                    fontFamily = FontFamily.Monospace,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }
