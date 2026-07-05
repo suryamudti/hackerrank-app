@@ -40,6 +40,8 @@ class ProblemRepositoryImpl @Inject constructor(
         id = id,
         title = title,
         description = description,
+        inputExample = inputExample,
+        outputExample = outputExample,
         solutionCode = solutionCode,
         approachExplanation = approachExplanation,
         difficulty = when (difficulty) {

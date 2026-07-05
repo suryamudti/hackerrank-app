@@ -8,6 +8,7 @@ object ProblemSeedData {
         /* ═══════════════ ARRAYS (12) ═══════════════ */
         ProblemEntity("p001", "Two Sum",
             "Given an array of integers `nums` and an integer `target`, return indices of the two numbers that add up to target. You may assume each input has exactly one solution, and you may not use the same element twice.",
+            "nums = [2, 7, 11, 15], target = 9", "[0, 1]",
             """fun twoSum(nums: IntArray, target: Int): IntArray {
     val map = mutableMapOf<Int, Int>()
     for ((i, num) in nums.withIndex()) {
@@ -23,6 +24,7 @@ object ProblemSeedData {
 
         ProblemEntity("p002", "Maximum Subarray",
             "Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.",
+            "nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4]", "6",
             """fun maxSubArray(nums: IntArray): Int {
     var maxSum = nums[0]
     var currentSum = nums[0]
@@ -37,6 +39,7 @@ object ProblemSeedData {
 
         ProblemEntity("p003", "Rotate Array",
             "Given an integer array `nums`, rotate the array to the right by `k` steps, where k is non-negative.",
+            "nums = [1, 2, 3, 4, 5, 6, 7], k = 3", "[5, 6, 7, 1, 2, 3, 4]",
             """fun rotate(nums: IntArray, k: Int) {
     val n = nums.size
     val shift = k % n
@@ -49,6 +52,7 @@ object ProblemSeedData {
 
         ProblemEntity("p004", "Find All Duplicates in an Array",
             "Given an integer array `nums` of length n where all integers are in the range [1, n], find all elements that appear twice.",
+            "nums = [4, 3, 2, 7, 8, 2, 3, 1]", "[2, 3]",
             """fun findDuplicates(nums: IntArray): List<Int> {
     val result = mutableListOf<Int>()
     for (num in nums) {
@@ -63,6 +67,7 @@ object ProblemSeedData {
 
         ProblemEntity("p005", "Product of Array Except Self",
             "Given an integer array `nums`, return an array `answer` such that answer[i] is the product of all elements except nums[i]. Solve without division in O(n) time.",
+            "nums = [1, 2, 3, 4]", "[24, 12, 8, 6]",
             """fun productExceptSelf(nums: IntArray): IntArray {
     val n = nums.size
     val result = IntArray(n) { 1 }
@@ -83,6 +88,7 @@ object ProblemSeedData {
 
         ProblemEntity("p006", "Merge Sorted Array",
             "Given two sorted integer arrays `nums1` and `nums2`, merge nums2 into nums1 as one sorted array. nums1 has enough space (size m+n) to hold additional elements from nums2.",
+            "nums1 = [1, 2, 3, 0, 0, 0], m = 3, nums2 = [2, 5, 6], n = 3", "[1, 2, 2, 3, 5, 6]",
             """fun merge(nums1: IntArray, m: Int, nums2: IntArray, n: Int) {
     var p1 = m - 1
     var p2 = n - 1
@@ -99,6 +105,7 @@ object ProblemSeedData {
 
         ProblemEntity("p007", "Remove Duplicates from Sorted Array",
             "Given a sorted integer array `nums`, remove duplicates in-place so each element appears only once. Return the number of unique elements.",
+            "nums = [1, 1, 2]", "2",
             """fun removeDuplicates(nums: IntArray): Int {
     if (nums.isEmpty()) return 0
     var k = 1
@@ -113,6 +120,7 @@ object ProblemSeedData {
 
         ProblemEntity("p008", "Move Zeroes",
             "Given an integer array `nums`, move all zeroes to the end while maintaining the relative order of non-zero elements. Do this in-place.",
+            "nums = [0, 1, 0, 3, 12]", "[1, 3, 12, 0, 0]",
             """fun moveZeroes(nums: IntArray) {
     var pos = 0
     for (i in nums.indices) {
@@ -127,6 +135,7 @@ object ProblemSeedData {
 
         ProblemEntity("p009", "Best Time to Buy and Sell Stock",
             "Given an array `prices` where prices[i] is the price on day i, find the maximum profit from buying and selling one stock (buy before sell).",
+            "prices = [7, 1, 5, 3, 6, 4]", "5",
             """fun maxProfit(prices: IntArray): Int {
     var minPrice = Int.MAX_VALUE
     var maxProfit = 0
@@ -141,6 +150,7 @@ object ProblemSeedData {
 
         ProblemEntity("p010", "Contains Duplicate",
             "Given an integer array `nums`, return true if any value appears at least twice, false if all are distinct.",
+            "nums = [1, 2, 3, 1]", "true",
             """fun containsDuplicate(nums: IntArray): Boolean {
     val seen = mutableSetOf<Int>()
     for (num in nums) {
@@ -154,6 +164,7 @@ object ProblemSeedData {
 
         ProblemEntity("p011", "Find Minimum in Rotated Sorted Array",
             "Given a rotated sorted array of unique elements, find the minimum element in O(log n) time.",
+            "nums = [3, 4, 5, 1, 2]", "1",
             """fun findMin(nums: IntArray): Int {
     var left = 0
     var right = nums.lastIndex
@@ -169,6 +180,7 @@ object ProblemSeedData {
 
         ProblemEntity("p012", "Majority Element",
             "Given an array of size n, find the element that appears more than ⌊n/2⌋ times. Assume the array is non-empty and a majority always exists.",
+            "nums = [3, 2, 3]", "3",
             """fun majorityElement(nums: IntArray): Int {
     var count = 0
     var candidate = 0
@@ -184,6 +196,7 @@ object ProblemSeedData {
         /* ═══════════════ STRINGS (12) ═══════════════ */
         ProblemEntity("p013", "Reverse String",
             "Write a function that reverses a string in-place. The input is given as a `CharArray`.",
+            "s = [\"h\",\"e\",\"l\",\"l\",\"o\"]", "[\"o\",\"l\",\"l\",\"e\",\"h\"]",
             """fun reverseString(s: CharArray) {
     var left = 0
     var right = s.lastIndex
@@ -199,6 +212,7 @@ object ProblemSeedData {
 
         ProblemEntity("p014", "Valid Anagram",
             "Given two strings `s` and `t`, return true if t is an anagram of s, false otherwise.",
+            "s = \"anagram\", t = \"nagaram\"", "true",
             """fun isAnagram(s: String, t: String): Boolean {
     if (s.length != t.length) return false
     val counts = IntArray(26)
@@ -213,6 +227,7 @@ object ProblemSeedData {
 
         ProblemEntity("p015", "Valid Palindrome",
             "Given a string `s`, determine if it's a palindrome considering only alphanumeric characters and ignoring case.",
+            "s = \"A man, a plan, a canal: Panama\"", "true",
             """fun isPalindrome(s: String): Boolean {
     var left = 0
     var right = s.lastIndex
@@ -229,6 +244,7 @@ object ProblemSeedData {
 
         ProblemEntity("p016", "Longest Substring Without Repeating Characters",
             "Given a string `s`, find the length of the longest substring without repeating characters.",
+            "s = \"abcabcbb\"", "3",
             """fun lengthOfLongestSubstring(s: String): Int {
     val map = mutableMapOf<Char, Int>()
     var maxLen = 0
@@ -246,6 +262,7 @@ object ProblemSeedData {
 
         ProblemEntity("p017", "Group Anagrams",
             "Given an array of strings `strs`, group the anagrams together. Return the groups in any order.",
+            "strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]", "[[\"bat\"],[\"nat\",\"tan\"],[\"ate\",\"eat\",\"tea\"]]",
             """fun groupAnagrams(strs: Array<String>): List<List<String>> {
     val map = mutableMapOf<String, MutableList<String>>()
     for (s in strs) {
@@ -259,6 +276,7 @@ object ProblemSeedData {
 
         ProblemEntity("p018", "Longest Palindromic Substring",
             "Given a string `s`, return the longest palindromic substring in s.",
+            "s = \"babad\"", "\"bab\"",
             """fun longestPalindrome(s: String): String {
     var start = 0; var end = 0
     fun expand(l: Int, r: Int) {
@@ -279,6 +297,7 @@ object ProblemSeedData {
 
         ProblemEntity("p019", "String Compression",
             "Compress a string by replacing consecutive repeated characters with the character followed by the count. Only append count if > 1. Return the new length of the compressed char array.",
+            "chars = [\"a\",\"a\",\"b\",\"b\",\"c\",\"c\",\"c\"]", "6",
             """fun compress(chars: CharArray): Int {
     var write = 0; var i = 0
     while (i < chars.size) {
@@ -297,6 +316,7 @@ object ProblemSeedData {
 
         ProblemEntity("p020", "Implement strStr()",
             "Return the index of the first occurrence of `needle` in `haystack`, or -1 if not present.",
+            "haystack = \"sadbutsad\", needle = \"sad\"", "0",
             """fun strStr(haystack: String, needle: String): Int {
     if (needle.isEmpty()) return 0
     val n = haystack.length; val m = needle.length
@@ -310,6 +330,7 @@ object ProblemSeedData {
 
         ProblemEntity("p021", "First Unique Character in a String",
             "Given a string `s`, find the first non-repeating character and return its index. If none exists, return -1.",
+            "s = \"leetcode\"", "0",
             """fun firstUniqChar(s: String): Int {
     val counts = IntArray(26)
     for (c in s) counts[c - 'a']++
@@ -323,6 +344,7 @@ object ProblemSeedData {
 
         ProblemEntity("p022", "Reverse Words in a String",
             "Given a string `s`, reverse the order of words. A word is a sequence of non-space characters. Remove extra spaces.",
+            "s = \"the sky is blue\"", "\"blue is sky the\"",
             """fun reverseWords(s: String): String {
     return s.trim().split("\\s+".toRegex())
         .reversed().joinToString(" ")
@@ -332,6 +354,7 @@ object ProblemSeedData {
 
         ProblemEntity("p023", "Longest Common Prefix",
             "Find the longest common prefix string amongst an array of strings. Return empty string if none.",
+            "strs = [\"flower\",\"flow\",\"flight\"]", "\"fl\"",
             """fun longestCommonPrefix(strs: Array<String>): String {
     if (strs.isEmpty()) return ""
     var prefix = strs[0]
@@ -347,6 +370,7 @@ object ProblemSeedData {
 
         ProblemEntity("p024", "Count and Say",
             "The count-and-say sequence is a sequence of strings. Each term describes the previous term: count consecutive digits and say them. Return the nth term. 1 <= n <= 30.",
+            "n = 4", "\"1211\"",
             """fun countAndSay(n: Int): String {
     var result = "1"
     for (i in 2..n) {
@@ -368,6 +392,7 @@ object ProblemSeedData {
         /* ═══════════════ LINKED LISTS (8) ═══════════════ */
         ProblemEntity("p025", "Reverse Linked List",
             "Reverse a singly linked list and return the new head.",
+            "head = [1, 2, 3, 4, 5]", "[5, 4, 3, 2, 1]",
             """fun reverseList(head: ListNode?): ListNode? {
     var prev: ListNode? = null
     var curr = head
@@ -384,6 +409,7 @@ object ProblemSeedData {
 
         ProblemEntity("p026", "Linked List Cycle Detection",
             "Given the head of a linked list, determine if it has a cycle.",
+            "head = [3, 2, 0, -4], pos = 1", "true",
             """fun hasCycle(head: ListNode?): Boolean {
     var slow = head
     var fast = head
@@ -399,6 +425,7 @@ object ProblemSeedData {
 
         ProblemEntity("p027", "Merge Two Sorted Lists",
             "Merge two sorted linked lists into one sorted list.",
+            "list1 = [1, 2, 4], list2 = [1, 3, 4]", "[1, 1, 2, 3, 4, 4]",
             """fun mergeTwoLists(l1: ListNode?, l2: ListNode?): ListNode? {
     val dummy = ListNode(0)
     var curr = dummy
@@ -419,6 +446,7 @@ object ProblemSeedData {
 
         ProblemEntity("p028", "Remove Nth Node From End",
             "Given the head of a linked list, remove the nth node from the end and return the head.",
+            "head = [1, 2, 3, 4, 5], n = 2", "[1, 2, 3, 5]",
             """fun removeNthFromEnd(head: ListNode?, n: Int): ListNode? {
     val dummy = ListNode(0)
     dummy.next = head
@@ -437,6 +465,7 @@ object ProblemSeedData {
 
         ProblemEntity("p029", "Middle of the Linked List",
             "Return the middle node of a linked list. If two middle nodes exist, return the second one.",
+            "head = [1, 2, 3, 4, 5]", "3",
             """fun middleNode(head: ListNode?): ListNode? {
     var slow = head
     var fast = head
@@ -451,6 +480,7 @@ object ProblemSeedData {
 
         ProblemEntity("p030", "Palindrome Linked List",
             "Given the head of a singly linked list, return true if it's a palindrome.",
+            "head = [1, 2, 2, 1]", "true",
             """fun isPalindrome(head: ListNode?): Boolean {
     var slow = head; var fast = head
     while (fast?.next != null) {
@@ -473,6 +503,7 @@ object ProblemSeedData {
 
         ProblemEntity("p031", "Intersection of Two Linked Lists",
             "Given two singly linked lists, return the node where they intersect. If they don't intersect, return null.",
+            "intersectVal = 8, listA = [4, 1, 8, 4, 5], listB = [5, 6, 1, 8, 4, 5]", "8",
             """fun getIntersectionNode(headA: ListNode?, headB: ListNode?): ListNode? {
     var a = headA; var b = headB
     while (a != b) {
@@ -486,6 +517,7 @@ object ProblemSeedData {
 
         ProblemEntity("p032", "Remove Duplicates from Sorted List",
             "Given a sorted linked list, remove all duplicates so each element appears only once.",
+            "head = [1, 1, 2]", "[1, 2]",
             """fun deleteDuplicates(head: ListNode?): ListNode? {
     var curr = head
     while (curr?.next != null) {
@@ -502,6 +534,7 @@ object ProblemSeedData {
         /* ═══════════════ STACKS & QUEUES (8) ═══════════════ */
         ProblemEntity("p033", "Valid Parentheses",
             "Given a string containing just the characters '(', ')', '{', '}', '[' and ']', determine if it's valid.",
+            "s = \"()[]{}\"", "true",
             """fun isValid(s: String): Boolean {
     val stack = ArrayDeque<Char>()
     for (c in s) {
@@ -519,6 +552,7 @@ object ProblemSeedData {
 
         ProblemEntity("p034", "Min Stack",
             "Design a stack that supports push, pop, top, and retrieving the minimum element in O(1) time.",
+            "[\"MinStack\",\"push\",\"push\",\"push\",\"getMin\",\"pop\",\"top\",\"getMin\"]\\n[[],[-2],[0],[-3],[],[],[],[]]", "[null,null,null,null,-3,null,0,-2]",
             """class MinStack() {
     private val stack = ArrayDeque<Int>()
     private val minStack = ArrayDeque<Int>()
@@ -539,6 +573,7 @@ object ProblemSeedData {
 
         ProblemEntity("p035", "Implement Queue using Stacks",
             "Implement a FIFO queue using only two stacks.",
+            "[\"MyQueue\",\"push\",\"push\",\"peek\",\"pop\",\"empty\"]\\n[[],[1],[2],[],[],[]]", "[null,null,null,1,1,false]",
             """class MyQueue() {
     private val s1 = ArrayDeque<Int>()
     private val s2 = ArrayDeque<Int>()
@@ -559,6 +594,7 @@ object ProblemSeedData {
 
         ProblemEntity("p036", "Evaluate Reverse Polish Notation",
             "Evaluate an expression in Reverse Polish Notation (postfix). Valid operators are +, -, *, /. Division truncates toward zero.",
+            "tokens = [\"2\",\"1\",\"+\",\"3\",\"*\"]", "9",
             """fun evalRPN(tokens: Array<String>): Int {
     val stack = ArrayDeque<Int>()
     for (t in tokens) {
@@ -577,6 +613,7 @@ object ProblemSeedData {
 
         ProblemEntity("p037", "Daily Temperatures",
             "Given an array of temperatures, return an array where answer[i] is the number of days until a warmer temperature. If no warmer day, answer[i] = 0.",
+            "temperatures = [73, 74, 75, 71, 69, 72, 76, 73]", "[1, 1, 4, 2, 1, 1, 0, 0]",
             """fun dailyTemperatures(temperatures: IntArray): IntArray {
     val result = IntArray(temperatures.size)
     val stack = ArrayDeque<Int>()
@@ -594,6 +631,7 @@ object ProblemSeedData {
 
         ProblemEntity("p038", "Implement Stack using Queues",
             "Implement a LIFO stack using only two queues.",
+            "[\"MyStack\",\"push\",\"push\",\"top\",\"pop\",\"empty\"]\\n[[],[1],[2],[],[],[]]", "[null,null,null,2,2,false]",
             """class MyStack() {
     private val q1 = ArrayDeque<Int>()
     private val q2 = ArrayDeque<Int>()
@@ -612,6 +650,7 @@ object ProblemSeedData {
 
         ProblemEntity("p039", "Next Greater Element",
             "Given an array, find the next greater element for each element. The next greater element is the first greater element to its right. Return -1 if none.",
+            "nums1 = [4, 1, 2], nums2 = [1, 3, 4, 2]", "[-1, 3, -1]",
             """fun nextGreaterElement(nums: IntArray): IntArray {
     val result = IntArray(nums.size) { -1 }
     val stack = ArrayDeque<Int>()
@@ -627,6 +666,7 @@ object ProblemSeedData {
 
         ProblemEntity("p040", "Backspace String Compare",
             "Given two strings s and t, return true if they are equal when typed into empty text editors. '#' represents a backspace character.",
+            "s = \"ab#c\", t = \"ad#c\"", "true",
             """fun backspaceCompare(s: String, t: String): Boolean {
     fun process(str: String): String {
         val stack = ArrayDeque<Char>()
@@ -644,6 +684,7 @@ object ProblemSeedData {
         /* ═══════════════ TREES (10) ═══════════════ */
         ProblemEntity("p041", "Maximum Depth of Binary Tree",
             "Given the root of a binary tree, find its maximum depth (number of nodes along the longest root-to-leaf path).",
+            "root = [3, 9, 20, null, null, 15, 7]", "3",
             """fun maxDepth(root: TreeNode?): Int {
     if (root == null) return 0
     return 1 + maxOf(maxDepth(root.left), maxDepth(root.right))
@@ -653,6 +694,7 @@ object ProblemSeedData {
 
         ProblemEntity("p042", "Validate Binary Search Tree",
             "Given the root of a binary tree, determine if it's a valid BST (all left values < node, all right values > node).",
+            "root = [2, 1, 3]", "true",
             """fun isValidBST(root: TreeNode?): Boolean {
     fun validate(node: TreeNode?, min: Long, max: Long): Boolean {
         if (node == null) return true
@@ -667,6 +709,7 @@ object ProblemSeedData {
 
         ProblemEntity("p043", "Binary Tree Inorder Traversal",
             "Given the root of a binary tree, return the inorder traversal as a list.",
+            "root = [1, null, 2, 3]", "[1, 3, 2]",
             """fun inorderTraversal(root: TreeNode?): List<Int> {
     val result = mutableListOf<Int>()
     val stack = ArrayDeque<TreeNode>()
@@ -684,6 +727,7 @@ object ProblemSeedData {
 
         ProblemEntity("p044", "Same Tree",
             "Given the roots of two binary trees, check if they are structurally identical and have the same values.",
+            "p = [1, 2, 3], q = [1, 2, 3]", "true",
             """fun isSameTree(p: TreeNode?, q: TreeNode?): Boolean {
     if (p == null && q == null) return true
     if (p == null || q == null || p.value != q.value) return false
@@ -694,6 +738,7 @@ object ProblemSeedData {
 
         ProblemEntity("p045", "Symmetric Tree",
             "Given the root of a binary tree, check if it's a mirror of itself (symmetric around its center).",
+            "root = [1, 2, 2, 3, 4, 4, 3]", "true",
             """fun isSymmetric(root: TreeNode?): Boolean {
     fun check(left: TreeNode?, right: TreeNode?): Boolean {
         if (left == null && right == null) return true
@@ -707,6 +752,7 @@ object ProblemSeedData {
 
         ProblemEntity("p046", "Binary Tree Level Order Traversal",
             "Return the level-order traversal of a binary tree (left to right, level by level).",
+            "root = [3, 9, 20, null, null, 15, 7]", "[[3], [9, 20], [15, 7]]",
             """fun levelOrder(root: TreeNode?): List<List<Int>> {
     val result = mutableListOf<MutableList<Int>>()
     val queue = ArrayDeque<TreeNode>()
@@ -728,6 +774,7 @@ object ProblemSeedData {
 
         ProblemEntity("p047", "Invert Binary Tree",
             "Given the root of a binary tree, invert it (swap left and right children for every node).",
+            "root = [4, 2, 7, 1, 3, 6, 9]", "[4, 7, 2, 9, 6, 3, 1]",
             """fun invertTree(root: TreeNode?): TreeNode? {
     if (root == null) return null
     val temp = root.left
@@ -740,6 +787,7 @@ object ProblemSeedData {
 
         ProblemEntity("p048", "Balanced Binary Tree",
             "Check if a binary tree is height-balanced (depth difference of subtrees never exceeds 1).",
+            "root = [3, 9, 20, null, null, 15, 7]", "true",
             """fun isBalanced(root: TreeNode?): Boolean {
     fun height(node: TreeNode?): Int {
         if (node == null) return 0
@@ -757,6 +805,7 @@ object ProblemSeedData {
 
         ProblemEntity("p049", "Path Sum",
             "Given a binary tree and a target sum, determine if there's a root-to-leaf path where node values sum to target.",
+            "root = [5, 4, 8, 11, null, 13, 4, 7, 2, null, null, 5, 1], targetSum = 22", "true",
             """fun hasPathSum(root: TreeNode?, targetSum: Int): Boolean {
     if (root == null) return false
     if (root.left == null && root.right == null)
@@ -769,6 +818,7 @@ object ProblemSeedData {
 
         ProblemEntity("p050", "Lowest Common Ancestor of BST",
             "Given a BST and two nodes, find their lowest common ancestor.",
+            "root = [6, 2, 8, 0, 4, 7, 9, null, null, 3, 5], p = 2, q = 8", "6",
             """fun lowestCommonAncestor(root: TreeNode?, p: TreeNode?, q: TreeNode?): TreeNode? {
     var curr = root
     while (curr != null) {
@@ -786,6 +836,7 @@ object ProblemSeedData {
         /* ═══════════════ GRAPHS (8) ═══════════════ */
         ProblemEntity("p051", "Clone Graph",
             "Given a reference to a node in a connected undirected graph, return a deep copy of the graph.",
+            "adjList = [[2, 4], [1, 3], [2, 4], [1, 3]]", "[[2, 4], [1, 3], [2, 4], [1, 3]]",
             """fun cloneGraph(node: Node?): Node? {
     if (node == null) return null
     val map = mutableMapOf<Int, Node>()
@@ -804,6 +855,7 @@ object ProblemSeedData {
 
         ProblemEntity("p052", "Number of Islands",
             "Given a 2D grid of '1's (land) and '0's (water), count the number of islands (connected 1s).",
+            "grid = [[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"1\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"1\",\"1\"]]", "3",
             """fun numIslands(grid: Array<CharArray>): Int {
     var count = 0
     fun dfs(r: Int, c: Int) {
@@ -821,6 +873,7 @@ object ProblemSeedData {
 
         ProblemEntity("p053", "Course Schedule",
             "Given n courses labeled 0 to n-1 and prerequisites pairs [a, b] meaning b must be taken before a, determine if it's possible to finish all courses.",
+            "numCourses = 2, prerequisites = [[1, 0]]", "true",
             """fun canFinish(numCourses: Int, prerequisites: Array<IntArray>): Boolean {
     val graph = Array(numCourses) { mutableListOf<Int>() }
     val inDegree = IntArray(numCourses)
@@ -844,6 +897,7 @@ object ProblemSeedData {
 
         ProblemEntity("p054", "Word Search",
             "Given a 2D board of characters and a word, determine if the word exists in the grid through adjacent cells (no reuse of same cell).",
+            "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCCED\"", "true",
             """fun exist(board: Array<CharArray>, word: String): Boolean {
     fun dfs(r: Int, c: Int, i: Int): Boolean {
         if (i == word.length) return true
@@ -863,6 +917,7 @@ object ProblemSeedData {
 
         ProblemEntity("p055", "Flood Fill",
             "Perform a flood fill on a 2D image: change the starting pixel and all connected same-colored pixels to a new color.",
+            "image = [[1, 1, 1], [1, 1, 0], [1, 0, 1]], sr = 1, sc = 1, color = 2", "[[2, 2, 2], [2, 2, 0], [2, 0, 1]]",
             """fun floodFill(image: Array<IntArray>, sr: Int, sc: Int, color: Int): Array<IntArray> {
     val original = image[sr][sc]
     if (original == color) return image
@@ -879,6 +934,7 @@ object ProblemSeedData {
 
         ProblemEntity("p056", "Find the Town Judge",
             "In a town of n people, the town judge trusts nobody and is trusted by everyone else. Find the judge or return -1.",
+            "n = 2, trust = [[1, 2]]", "2",
             """fun findJudge(n: Int, trust: Array<IntArray>): Int {
     val trustCount = IntArray(n + 1)
     val trustedBy = IntArray(n + 1)
@@ -895,6 +951,7 @@ object ProblemSeedData {
 
         ProblemEntity("p057", "Pacific Atlantic Water Flow",
             "Find cells in a matrix from which water can flow to both the Pacific (top/left) and Atlantic (bottom/right) oceans.",
+            "heights = [[1, 2, 2, 3, 5], [3, 2, 3, 4, 4], [2, 4, 5, 3, 1], [6, 7, 1, 4, 5], [5, 1, 1, 2, 4]]", "[[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]]",
             """fun pacificAtlantic(heights: Array<IntArray>): List<List<Int>> {
     val m = heights.size; val n = heights[0].size
     val pac = Array(m) { BooleanArray(n) }
@@ -914,6 +971,7 @@ object ProblemSeedData {
 
         ProblemEntity("p058", "Graph Valid Tree",
             "Given n nodes labeled 0 to n-1 and an edge list, check if the edges form a valid tree (connected and acyclic).",
+            "n = 5, edges = [[0, 1], [0, 2], [0, 3], [1, 4]]", "true",
             """fun validTree(n: Int, edges: Array<IntArray>): Boolean {
     if (edges.size != n - 1) return false
     val parent = IntArray(n) { it }
@@ -935,6 +993,7 @@ object ProblemSeedData {
         /* ═══════════════ DYNAMIC PROGRAMMING (10) ═══════════════ */
         ProblemEntity("p059", "Fibonacci Number",
             "Compute the nth Fibonacci number. F(0) = 0, F(1) = 1, F(n) = F(n-1) + F(n-2).",
+            "n = 4", "3",
             """fun fib(n: Int): Int {
     if (n <= 1) return n
     var a = 0; var b = 1
@@ -946,6 +1005,7 @@ object ProblemSeedData {
 
         ProblemEntity("p060", "Climbing Stairs",
             "You're climbing a staircase with n steps. Each time you can climb 1 or 2 steps. How many distinct ways to reach the top?",
+            "n = 3", "3",
             """fun climbStairs(n: Int): Int {
     if (n <= 2) return n
     var a = 1; var b = 2
@@ -957,6 +1017,7 @@ object ProblemSeedData {
 
         ProblemEntity("p061", "Coin Change",
             "Given an array of coin denominations and a target amount, find the minimum number of coins needed to make that amount. Return -1 if impossible.",
+            "coins = [1, 2, 5], amount = 11", "3",
             """fun coinChange(coins: IntArray, amount: Int): Int {
     val dp = IntArray(amount + 1) { amount + 1 }
     dp[0] = 0
@@ -970,6 +1031,7 @@ object ProblemSeedData {
 
         ProblemEntity("p062", "Longest Increasing Subsequence",
             "Given an integer array, find the length of the longest strictly increasing subsequence.",
+            "nums = [10, 9, 2, 5, 3, 7, 101, 18]", "4",
             """fun lengthOfLIS(nums: IntArray): Int {
     val dp = IntArray(nums.size) { 1 }
     var maxLen = 1
@@ -986,6 +1048,7 @@ object ProblemSeedData {
 
         ProblemEntity("p063", "Longest Common Subsequence",
             "Given two strings, find the length of their longest common subsequence.",
+            "text1 = \"abcde\", text2 = \"ace\"", "3",
             """fun longestCommonSubsequence(text1: String, text2: String): Int {
     val m = text1.length; val n = text2.length
     val dp = Array(m + 1) { IntArray(n + 1) }
@@ -1000,6 +1063,7 @@ object ProblemSeedData {
 
         ProblemEntity("p064", "House Robber",
             "Given an array of money in houses, find the maximum amount you can rob without robbing adjacent houses.",
+            "nums = [1, 2, 3, 1]", "4",
             """fun rob(nums: IntArray): Int {
     if (nums.isEmpty()) return 0
     if (nums.size == 1) return nums[0]
@@ -1016,6 +1080,7 @@ object ProblemSeedData {
 
         ProblemEntity("p065", "Edit Distance",
             "Given two strings, find the minimum operations (insert, delete, replace) to convert one into the other.",
+            "word1 = \"horse\", word2 = \"ros\"", "3",
             """fun minDistance(word1: String, word2: String): Int {
     val m = word1.length; val n = word2.length
     val dp = Array(m + 1) { IntArray(n + 1) { it } }
@@ -1031,6 +1096,7 @@ object ProblemSeedData {
 
         ProblemEntity("p066", "Unique Paths",
             "A robot is at the top-left corner of an m×n grid. It can only move down or right. How many unique paths to the bottom-right corner?",
+            "m = 3, n = 7", "28",
             """fun uniquePaths(m: Int, n: Int): Int {
     val dp = IntArray(n) { 1 }
     for (i in 1 until m)
@@ -1043,6 +1109,7 @@ object ProblemSeedData {
 
         ProblemEntity("p067", "0/1 Knapsack",
             "Given weights and values of n items and a knapsack capacity, find the maximum value that can be carried.",
+            "weights = [1, 2, 3], values = [6, 10, 12], capacity = 5", "22",
             """fun knapsack(weights: IntArray, values: IntArray, capacity: Int): Int {
     val n = weights.size
     val dp = Array(n + 1) { IntArray(capacity + 1) }
@@ -1058,6 +1125,7 @@ object ProblemSeedData {
 
         ProblemEntity("p068", "Maximum Product Subarray",
             "Find the contiguous subarray with the largest product within an integer array (may contain negative numbers).",
+            "nums = [2, 3, -2, 4]", "6",
             """fun maxProduct(nums: IntArray): Int {
     var maxProd = nums[0]
     var currMax = nums[0]
@@ -1076,6 +1144,7 @@ object ProblemSeedData {
         /* ═══════════════ SORTING & SEARCHING (8) ═══════════════ */
         ProblemEntity("p069", "Binary Search",
             "Given a sorted array of integers and a target, return the index of the target. Return -1 if not found.",
+            "nums = [-1, 0, 3, 5, 9, 12], target = 9", "4",
             """fun binarySearch(nums: IntArray, target: Int): Int {
     var left = 0; var right = nums.lastIndex
     while (left <= right) {
@@ -1093,6 +1162,7 @@ object ProblemSeedData {
 
         ProblemEntity("p070", "First Bad Version",
             "You have n versions [1..n] and want to find the first bad version. The API isBadVersion(version) tells if a version is bad.",
+            "n = 5, bad = 4", "4",
             """fun firstBadVersion(n: Int): Int {
     var left = 1; var right = n
     while (left < right) {
@@ -1107,6 +1177,7 @@ object ProblemSeedData {
 
         ProblemEntity("p071", "Merge Sort",
             "Implement merge sort on an integer array.",
+            "arr = [38, 27, 43, 3, 9, 82, 10]", "[3, 9, 10, 27, 38, 43, 82]",
             """fun mergeSort(arr: IntArray): IntArray {
     if (arr.size <= 1) return arr
     val mid = arr.size / 2
@@ -1124,6 +1195,7 @@ object ProblemSeedData {
 
         ProblemEntity("p072", "Quick Sort",
             "Implement quick sort on an integer array.",
+            "arr = [10, 7, 8, 9, 1, 5]", "[1, 5, 7, 8, 9, 10]",
             """fun quickSort(arr: IntArray, low: Int, high: Int) {
     if (low >= high) return
     val pivot = partition(arr, low, high)
@@ -1144,6 +1216,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p073", "Search Insert Position",
             "Given a sorted array and a target, return the index where target would be inserted to maintain order.",
+            "nums = [1, 3, 5, 6], target = 5", "2",
             """fun searchInsert(nums: IntArray, target: Int): Int {
     var left = 0; var right = nums.lastIndex
     while (left <= right) {
@@ -1159,6 +1232,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p074", "Find Peak Element",
             "Find a peak element in an array (greater than its neighbors). The array may have multiple peaks; return any peak's index.",
+            "nums = [1, 2, 3, 1]", "2",
             """fun findPeakElement(nums: IntArray): Int {
     var left = 0; var right = nums.lastIndex
     while (left < right) {
@@ -1173,6 +1247,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p075", "Merge Intervals",
             "Given an array of intervals [start, end], merge all overlapping intervals.",
+            "intervals = [[1, 3], [2, 6], [8, 10], [15, 18]]", "[[1, 6], [8, 10], [15, 18]]",
             """fun merge(intervals: Array<IntArray>): Array<IntArray> {
     if (intervals.isEmpty()) return emptyArray()
     intervals.sortBy { it[0] }
@@ -1191,6 +1266,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p076", "Sort Colors",
             "Given an array containing only 0, 1, and 2, sort it in-place. (Dutch national flag problem).",
+            "nums = [2, 0, 2, 1, 1, 0]", "[0, 0, 1, 1, 2, 2]",
             """fun sortColors(nums: IntArray) {
     var left = 0; var mid = 0; var right = nums.lastIndex
     while (mid <= right) {
@@ -1207,6 +1283,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
         /* ═══════════════ HASH-BASED (6) ═══════════════ */
         ProblemEntity("p077", "Contains Duplicate II",
             "Given an array and an integer k, check if there are two distinct indices i, j with nums[i] == nums[j] and |i - j| <= k.",
+            "nums = [1, 2, 3, 1], k = 3", "true",
             """fun containsNearbyDuplicate(nums: IntArray, k: Int): Boolean {
     val map = mutableMapOf<Int, Int>()
     for ((i, num) in nums.withIndex()) {
@@ -1220,6 +1297,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p078", "Intersection of Two Arrays",
             "Given two arrays, return their intersection (elements appearing in both, without duplicates).",
+            "nums1 = [1, 2, 2, 1], nums2 = [2, 2]", "[2]",
             """fun intersection(nums1: IntArray, nums2: IntArray): IntArray {
     val set1 = nums1.toSet()
     return nums2.filter { it in set1 }.distinct().toIntArray()
@@ -1229,6 +1307,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p079", "Single Number",
             "Given a non-empty array where every element appears twice except one, find the single element. Use O(n) time and O(1) space.",
+            "nums = [4, 1, 2, 1, 2]", "4",
             """fun singleNumber(nums: IntArray): Int {
     var result = 0
     for (num in nums) result = result xor num
@@ -1239,6 +1318,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p080", "Happy Number",
             "A number is happy if repeatedly replacing it by the sum of squares of its digits eventually reaches 1. Determine if a number is happy.",
+            "n = 19", "true",
             """fun isHappy(n: Int): Boolean {
     fun sumSquares(x: Int): Int {
         var s = 0; var num = x
@@ -1257,6 +1337,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p081", "Isomorphic Strings",
             "Given two strings s and t, determine if they are isomorphic (characters can be replaced to get the other string).",
+            "s = \"egg\", t = \"add\"", "true",
             """fun isIsomorphic(s: String, t: String): Boolean {
     if (s.length != t.length) return false
     val mapST = mutableMapOf<Char, Char>()
@@ -1273,6 +1354,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p082", "Ransom Note",
             "Given a ransom note string and a magazine string, determine if the note can be constructed from the magazine's letters (each letter used at most once).",
+            "ransomNote = \"a\", magazine = \"b\"", "false",
             """fun canConstruct(ransomNote: String, magazine: String): Boolean {
     val counts = IntArray(26)
     for (c in magazine) counts[c - 'a']++
@@ -1288,6 +1370,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
         /* ═══════════════ RECURSION & MATH (8) ═══════════════ */
         ProblemEntity("p083", "Pow(x, n)",
             "Implement pow(x, n) calculating x raised to the power n (n may be negative).",
+            "x = 2.00000, n = 10", "1024.00000",
             """fun myPow(x: Double, n: Int): Double {
     if (n == 0) return 1.0
     val exp = n.toLong()
@@ -1306,6 +1389,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p084", "Generate Parentheses",
             "Given n pairs of parentheses, generate all valid combinations.",
+            "n = 3", "[\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]",
             """fun generateParenthesis(n: Int): List<String> {
     val result = mutableListOf<String>()
     fun backtrack(curr: String, open: Int, close: Int) {
@@ -1321,6 +1405,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p085", "Permutations",
             "Given an array of distinct integers, return all possible permutations.",
+            "nums = [1, 2, 3]", "[[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]",
             """fun permute(nums: IntArray): List<List<Int>> {
     val result = mutableListOf<MutableList<Int>>()
     val current = mutableListOf<Int>()
@@ -1342,6 +1427,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p086", "Subsets",
             "Given an array of distinct integers, return all possible subsets (the power set).",
+            "nums = [1, 2, 3]", "[[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]]",
             """fun subsets(nums: IntArray): List<List<Int>> {
     val result = mutableListOf<List<Int>>()
     val current = mutableListOf<Int>()
@@ -1361,6 +1447,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p087", "Letter Combinations of a Phone Number",
             "Given digits 2-9, return all possible letter combinations from the phone keypad.",
+            "digits = \"23\"", "[\"ad\", \"ae\", \"af\", \"bd\", \"be\", \"bf\", \"cd\", \"ce\", \"cf\"]",
             """fun letterCombinations(digits: String): List<String> {
     if (digits.isEmpty()) return emptyList()
     val map = mapOf('2' to "abc", '3' to "def", '4' to "ghi",
@@ -1378,6 +1465,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p088", "Count Good Numbers",
             "A digit string is good if even-indexed digits are even (0,2,4,6,8) and odd-indexed digits are prime (2,3,5,7). Count good digit strings of length n modulo 10^9+7.",
+            "n = 4", "400",
             """fun countGoodNumbers(n: Long): Int {
     val MOD = 1_000_000_007L
     fun pow(a: Long, b: Long): Long {
@@ -1395,6 +1483,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p089", "Ugly Number",
             "An ugly number is a positive integer whose prime factors are limited to 2, 3, and 5. Determine if a given number is ugly.",
+            "n = 6", "true",
             """fun isUgly(n: Int): Boolean {
     if (n <= 0) return false
     var num = n
@@ -1407,6 +1496,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p090", "Factorial Trailing Zeroes",
             "Given an integer n, return the number of trailing zeroes in n! (n factorial).",
+            "n = 5", "1",
             """fun trailingZeroes(n: Int): Int {
     var count = 0
     var num = n
@@ -1419,6 +1509,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
         /* ═══════════════ BIT MANIPULATION (5) ═══════════════ */
         ProblemEntity("p091", "Number of 1 Bits",
             "Write a function that takes an unsigned integer and returns the number of '1' bits (Hamming weight).",
+            "n = 11", "3",
             """fun hammingWeight(n: Int): Int {
     var count = 0
     var num = n
@@ -1430,6 +1521,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p092", "Power of Two",
             "Given an integer n, return true if it's a power of two.",
+            "n = 16", "true",
             """fun isPowerOfTwo(n: Int): Boolean =
     n > 0 && (n and (n - 1)) == 0""",
             "A power of two has exactly one bit set. n & (n-1) clears that bit, so the result is 0 only for powers of two. O(1) time, O(1) space.",
@@ -1437,6 +1529,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p093", "Reverse Bits",
             "Reverse the bits of a 32-bit unsigned integer.",
+            "n = 43261596", "964176192",
             """fun reverseBits(n: Int): Int {
     var result = 0
     var num = n
@@ -1451,6 +1544,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p094", "Missing Number",
             "Given an array containing n distinct numbers from [0, n], find the missing number.",
+            "nums = [3, 0, 1]", "2",
             """fun missingNumber(nums: IntArray): Int {
     var result = nums.size
     for ((i, num) in nums.withIndex()) result = result xor i xor num
@@ -1461,6 +1555,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p095", "Counting Bits",
             "Given an integer n, return an array of length n+1 where ans[i] is the number of 1 bits in the binary representation of i.",
+            "n = 5", "[0, 1, 1, 2, 1, 3]",
             """fun countBits(n: Int): IntArray {
     val dp = IntArray(n + 1)
     for (i in 1..n) dp[i] = dp[i shr 1] + (i and 1)
@@ -1472,6 +1567,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
         /* ═══════════════ MISCELLANEOUS (5) ═══════════════ */
         ProblemEntity("p096", "Fizz Buzz",
             "Given an integer n, return a string array where for numbers 1..n: multiples of 3 → 'Fizz', 5 → 'Buzz', both → 'FizzBuzz', else the number.",
+            "n = 15", "[\"1\",\"2\",\"Fizz\",\"4\",\"Buzz\",...]",
             """fun fizzBuzz(n: Int): List<String> {
     return (1..n).map { i ->
         when {
@@ -1487,6 +1583,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p097", "Roman to Integer",
             "Convert a Roman numeral string to an integer. Input is guaranteed to be valid (1-3999).",
+            "s = \"LVIII\"", "58",
             """fun romanToInt(s: String): Int {
     val values = mapOf('I' to 1, 'V' to 5, 'X' to 10, 'L' to 50, 'C' to 100, 'D' to 500, 'M' to 1000)
     var total = 0; var prev = 0
@@ -1502,6 +1599,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p098", "Pascal's Triangle",
             "Given numRows, generate the first numRows of Pascal's triangle.",
+            "numRows = 5", "[[1], [1, 1], [1, 2, 1], [1, 3, 3, 1], [1, 4, 6, 4, 1]]",
             """fun generate(numRows: Int): List<List<Int>> {
     val triangle = mutableListOf<List<Int>>()
     for (row in 0 until numRows) {
@@ -1518,6 +1616,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p099", "Plus One",
             "Given a large integer represented as a digit array, add one and return the result as an array.",
+            "digits = [1, 2, 3]", "[1, 2, 4]",
             """fun plusOne(digits: IntArray): IntArray {
     for (i in digits.indices.reversed()) {
         if (digits[i] < 9) { digits[i]++; return digits }
@@ -1530,6 +1629,7 @@ fun partition(arr: IntArray, low: Int, high: Int): Int {
 
         ProblemEntity("p100", "Excel Sheet Column Title",
             "Given a positive integer, return its corresponding column title as it appears in an Excel sheet (1 → A, 28 → AB, 701 → ZY).",
+            "columnNumber = 28", "\"AB\"",
             """fun convertToTitle(columnNumber: Int): String {
     val sb = StringBuilder()
     var n = columnNumber
