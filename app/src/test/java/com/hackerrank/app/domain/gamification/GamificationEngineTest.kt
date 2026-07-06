@@ -165,4 +165,73 @@ class GamificationEngineTest {
         assertEquals(1, result.streakInfo.currentStreak)
         assertEquals(5, result.streakInfo.longestStreak) // longest streak doesn't decrease
     }
+
+    @Test
+    fun `recordQuizComplete awards ARRAY_ACE when all linear structures are mastered`() = runTest {
+        val today = LocalDate.now().format(dateFormatter)
+        val initialProfile = UserProfile(
+            totalXp = 100,
+            currentStreak = 1,
+            longestStreak = 1,
+            lastActiveDate = today,
+            earnedBadgeIds = emptyList()
+        )
+
+        coEvery { progressRepository.getProfileSync() } returns initialProfile
+        val progressList = listOf(
+            UserProgress("array", masteryLevel = 85),
+            UserProgress("linked_list", masteryLevel = 90),
+            UserProgress("stack", masteryLevel = 80),
+            UserProgress("queue", masteryLevel = 80)
+        )
+        every { progressRepository.getAllProgress() } returns flowOf(progressList)
+        coEvery { progressRepository.upsertProfile(any()) } returns Unit
+
+        val result = engine.recordQuizComplete(
+            score = 8,
+            totalQuestions = 8,
+            elapsedTimeMs = 90_000L,
+            structureId = "queue"
+        )
+
+        val badgeIds = result.newBadges.map { it.id }
+        assertTrue(badgeIds.contains(BadgeDefinition.ARRAY_ACE.id))
+    }
+
+    @Test
+    fun `recordQuizComplete awards COMPLETIONIST when all structures are mastered`() = runTest {
+        val today = LocalDate.now().format(dateFormatter)
+        val initialProfile = UserProfile(
+            totalXp = 100,
+            currentStreak = 1,
+            longestStreak = 1,
+            lastActiveDate = today,
+            earnedBadgeIds = emptyList()
+        )
+
+        coEvery { progressRepository.getProfileSync() } returns initialProfile
+        val allIds = listOf(
+            "array", "linked_list", "stack", "queue",
+            "binary_tree", "bst", "avl_tree", "heap", "trie",
+            "graph", "weighted_graph", "graph_algorithms",
+            "hash_table", "hash_set",
+            "disjoint_set", "segment_tree"
+        )
+        val progressList = allIds.map { UserProgress(it, masteryLevel = 80) }
+        every { progressRepository.getAllProgress() } returns flowOf(progressList)
+        coEvery { progressRepository.upsertProfile(any()) } returns Unit
+
+        val result = engine.recordQuizComplete(
+            score = 8,
+            totalQuestions = 8,
+            elapsedTimeMs = 90_000L,
+            structureId = "segment_tree"
+        )
+
+        val badgeIds = result.newBadges.map { it.id }
+        assertTrue(badgeIds.contains(BadgeDefinition.COMPLETIONIST.id))
+        assertTrue(badgeIds.contains(BadgeDefinition.ARRAY_ACE.id))
+        assertTrue(badgeIds.contains(BadgeDefinition.TREE_WHISPERER.id))
+        assertTrue(badgeIds.contains(BadgeDefinition.GRAPH_GURU.id))
+    }
 }
