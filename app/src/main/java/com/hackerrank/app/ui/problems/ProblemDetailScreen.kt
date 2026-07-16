@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -67,11 +68,12 @@ fun ProblemDetailScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     LaunchedEffect(uiState.solveResult) {
         uiState.solveResult?.let { result ->
             snackbarHostState.showSnackbar(
-                stringResource(R.string.xp_earned, result.xpAwarded, result.newLevel)
+                context.getString(R.string.xp_earned, result.xpAwarded, result.newLevel)
             )
             viewModel.clearSolveResult()
         }

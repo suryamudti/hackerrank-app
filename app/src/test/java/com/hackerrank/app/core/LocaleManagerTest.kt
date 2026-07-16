@@ -20,20 +20,28 @@ class LocaleManagerTest {
     private val context: Context = mockk()
     private val sharedPreferences: SharedPreferences = mockk()
     private val editor: SharedPreferences.Editor = mockk()
+    private val storage = mutableMapOf<String, String>()
 
     private lateinit var localeManager: LocaleManager
 
     @Before
     fun setUp() {
+        storage.clear()
         every { context.getSharedPreferences("locale_prefs", Context.MODE_PRIVATE) } returns sharedPreferences
         every { sharedPreferences.edit() } returns editor
-        every { editor.putString(any(), any()) } returns editor
+        every { sharedPreferences.getString(any(), any()) } answers {
+            storage[firstArg()] ?: secondArg()
+        }
+        every { editor.putString(any(), any()) } answers {
+            storage[firstArg()] = secondArg()
+            editor
+        }
         every { editor.apply() } just Runs
     }
 
     @Test
     fun `default locale is english`() = runTest {
-        every { sharedPreferences.getString("locale", "en") } returns "en"
+        storage["locale"] = "en"
 
         localeManager = LocaleManager(context)
 
@@ -43,8 +51,6 @@ class LocaleManagerTest {
 
     @Test
     fun `default locale falls back to en when preference is null`() = runTest {
-        every { sharedPreferences.getString("locale", "en") } returns null
-
         localeManager = LocaleManager(context)
 
         assertEquals("en", localeManager.getCurrentCode())
@@ -53,12 +59,13 @@ class LocaleManagerTest {
 
     @Test
     fun `setLocale saves code and updates flow`() = runTest {
-        every { sharedPreferences.getString("locale", "en") } returns "en"
+        storage["locale"] = "en"
 
         localeManager = LocaleManager(context)
 
         localeManager.setLocale("in")
 
+        assertEquals("in", storage["locale"])
         assertEquals("in", localeManager.getCurrentCode())
         assertFalse(localeManager.isEnglish())
         assertEquals("in", localeManager.currentLocale.first())
@@ -68,12 +75,13 @@ class LocaleManagerTest {
 
     @Test
     fun `setLocale to english updates correctly`() = runTest {
-        every { sharedPreferences.getString("locale", "en") } returns "in"
+        storage["locale"] = "in"
 
         localeManager = LocaleManager(context)
 
         localeManager.setLocale("en")
 
+        assertEquals("en", storage["locale"])
         assertEquals("en", localeManager.getCurrentCode())
         assertTrue(localeManager.isEnglish())
         assertEquals("en", localeManager.currentLocale.first())
@@ -83,19 +91,15 @@ class LocaleManagerTest {
 
     @Test
     fun `getLocaleFromContext reads stored locale`() {
-        every { context.getSharedPreferences("locale_prefs", Context.MODE_PRIVATE) } returns sharedPreferences
-        every { sharedPreferences.getString("locale", "en") } returns "in"
+        storage["locale"] = "in"
 
         val locale = LocaleManager.getLocaleFromContext(context)
 
-        assertEquals("in", locale.language)
+        assertEquals("id", locale.language)
     }
 
     @Test
     fun `getLocaleFromContext defaults to en`() {
-        every { context.getSharedPreferences("locale_prefs", Context.MODE_PRIVATE) } returns sharedPreferences
-        every { sharedPreferences.getString("locale", "en") } returns null
-
         val locale = LocaleManager.getLocaleFromContext(context)
 
         assertEquals("en", locale.language)

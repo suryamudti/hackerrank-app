@@ -153,9 +153,10 @@ fun DetailScreen(
             // Code Example
             SectionHeader(stringResource(R.string.section_code_example))
             Spacer(Modifier.height(8.dp))
+            val codeCopiedText = stringResource(R.string.code_copied)
             CodeBlock(
                 code = structure.codeExample,
-                onCopy = { scope.launch { snackbarHostState.showSnackbar(stringResource(R.string.code_copied)) } }
+                onCopy = { scope.launch { snackbarHostState.showSnackbar(codeCopiedText) } }
             )
 
             Spacer(Modifier.height(20.dp))
