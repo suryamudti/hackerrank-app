@@ -179,9 +179,10 @@ fun BrowseScreen(
             confirmButton = {}
         )
     }
+}
 
-    @Composable
-    private fun CategorySection(
+@Composable
+private fun CategorySection(
     category: DataStructureCategory,
     structures: List<DataStructure>,
     onStructureClick: (String) -> Unit,
