@@ -1,13 +1,17 @@
 package com.hackerrank.app.data.repository
 
+import android.content.Context
 import com.hackerrank.app.data.local.dao.ProfileDao
 import com.hackerrank.app.data.local.dao.ProgressDao
+import com.hackerrank.app.data.remote.DailyChallengeResponse
 import com.hackerrank.app.domain.model.UserProfile
 import com.hackerrank.app.domain.model.UserProgress
 import com.hackerrank.app.domain.repository.ProgressRepository
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,10 +19,13 @@ import javax.inject.Singleton
 @Singleton
 class ProgressRepositoryImpl @Inject constructor(
     private val progressDao: ProgressDao,
-    private val profileDao: ProfileDao
+    private val profileDao: ProfileDao,
+    @ApplicationContext private val context: Context
 ) : ProgressRepository {
 
     private val gson = Gson()
+    private val prefs = context.getSharedPreferences("daily_challenge_prefs", Context.MODE_PRIVATE)
+    private val _dailyChallengeState = MutableStateFlow(loadDailyChallenge())
 
     override fun getProgressByStructureId(structureId: String): Flow<UserProgress?> {
         return progressDao.getProgressByStructureId(structureId).map { entity ->
@@ -70,6 +77,34 @@ class ProgressRepositoryImpl @Inject constructor(
 
     override fun getMasteredCount(): Flow<Int> {
         return progressDao.getMasteredCount()
+    }
+
+    override fun getDailyChallengeState(): Flow<DailyChallengeResponse?> = _dailyChallengeState
+
+    override suspend fun setDailyChallengeCompleted(date: String) {
+        prefs.edit().putString("completed_date", date).apply()
+    }
+
+    override suspend fun isDailyChallengeCompleted(date: String): Boolean {
+        return prefs.getString("completed_date", null) == date
+    }
+
+    fun updateDailyChallengeState(response: DailyChallengeResponse?) {
+        _dailyChallengeState.value = response
+    }
+
+    private fun loadDailyChallenge(): DailyChallengeResponse? {
+        val json = prefs.getString("cached_response", null) ?: return null
+        return try {
+            gson.fromJson(json, DailyChallengeResponse::class.java)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    fun cacheDailyChallengeResponse(response: DailyChallengeResponse) {
+        prefs.edit().putString("cached_response", gson.toJson(response)).apply()
+        _dailyChallengeState.value = response
     }
 
     private fun com.hackerrank.app.data.local.entity.UserProgressEntity.toDomain(): UserProgress {

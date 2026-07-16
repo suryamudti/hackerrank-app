@@ -123,6 +123,33 @@ class GamificationEngineTest {
     }
 
     @Test
+    fun `recordDailyChallengeCompleted awards problem XP plus bonus XP`() = runTest {
+        val today = LocalDate.now().format(dateFormatter)
+        val initialProfile = UserProfile(
+            totalXp = 100,
+            currentStreak = 1,
+            longestStreak = 1,
+            lastActiveDate = today,
+            earnedBadgeIds = emptyList()
+        )
+
+        coEvery { progressRepository.getProfileSync() } returns initialProfile
+        coEvery { progressRepository.upsertProfile(any()) } returns Unit
+
+        val result = engine.recordDailyChallengeCompleted(Difficulty.EASY, Constants.DAILY_CHALLENGE_BONUS_XP)
+
+        val expectedXp = Constants.PROBLEM_EASY_XP + Constants.DAILY_CHALLENGE_BONUS_XP
+        assertEquals(expectedXp, result.xpAwarded)
+        assertEquals(100 + expectedXp, result.newTotalXp)
+
+        coVerify {
+            progressRepository.upsertProfile(withArg {
+                assertEquals(100 + expectedXp, it.totalXp)
+            })
+        }
+    }
+
+    @Test
     fun `recordProblemSolved awards correct XP based on difficulty`() = runTest {
         val today = LocalDate.now().format(dateFormatter)
         val initialProfile = UserProfile(

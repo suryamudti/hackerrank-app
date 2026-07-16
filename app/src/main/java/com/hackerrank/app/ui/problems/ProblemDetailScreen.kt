@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -59,10 +60,11 @@ import com.hackerrank.app.domain.model.Difficulty
 @Composable
 fun ProblemDetailScreen(
     problemId: String,
+    isDailyChallenge: Boolean = false,
     onBackClick: () -> Unit,
     viewModel: ProblemDetailViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(problemId) {
+    LaunchedEffect(problemId, isDailyChallenge) {
         viewModel.loadProblem(problemId)
     }
 
@@ -72,9 +74,13 @@ fun ProblemDetailScreen(
 
     LaunchedEffect(uiState.solveResult) {
         uiState.solveResult?.let { result ->
-            snackbarHostState.showSnackbar(
+            val msg = if (isDailyChallenge) {
+                context.getString(R.string.daily_challenge_bonus_earned, uiState.bonusXp) + "\n" +
+                    context.getString(R.string.xp_earned, result.xpAwarded, result.newLevel)
+            } else {
                 context.getString(R.string.xp_earned, result.xpAwarded, result.newLevel)
-            )
+            }
+            snackbarHostState.showSnackbar(msg)
             viewModel.clearSolveResult()
         }
     }
@@ -111,6 +117,34 @@ fun ProblemDetailScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
+            if (isDailyChallenge && !uiState.isSolved) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Whatshot, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.daily_challenge_bonus, uiState.bonusXp),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+            }
+
             Row {
                 Text(
                     text = problem.difficulty.localizedName(),

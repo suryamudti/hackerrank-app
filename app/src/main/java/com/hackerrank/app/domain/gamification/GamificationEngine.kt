@@ -122,6 +122,52 @@ class GamificationEngine @Inject constructor(
         )
     }
 
+    suspend fun recordDailyChallengeCompleted(
+        difficulty: Difficulty,
+        bonusXp: Int
+    ): GamificationResult {
+        val problemXp = when (difficulty) {
+            Difficulty.EASY -> Constants.PROBLEM_EASY_XP
+            Difficulty.MEDIUM -> Constants.PROBLEM_MEDIUM_XP
+            Difficulty.HARD -> Constants.PROBLEM_HARD_XP
+        }
+        val totalXpGained = problemXp + bonusXp
+        val profile = progressRepository.getProfileSync() ?: UserProfile()
+        val streakResult = updateStreak(profile)
+        val oldLevel = Constants.getLevel(profile.totalXp)
+        val newTotalXp = profile.totalXp + totalXpGained
+        val newLevel = Constants.getLevel(newTotalXp)
+
+        val currentBadges = profile.earnedBadgeIds.toMutableSet()
+        val newBadges = evaluateBadges(
+            profile = profile.copy(totalXp = newTotalXp, currentStreak = streakResult.currentStreak),
+            isPerfect = false,
+            elapsedTimeMs = 0L,
+            structureId = "",
+            allProgress = emptyList(),
+            earnedBadgeIds = currentBadges
+        )
+        currentBadges.addAll(newBadges.map { it.id })
+
+        val updatedProfile = profile.copy(
+            totalXp = newTotalXp,
+            currentStreak = streakResult.currentStreak,
+            longestStreak = streakResult.longestStreak,
+            lastActiveDate = streakResult.lastActiveDate,
+            earnedBadgeIds = currentBadges.toList()
+        )
+        progressRepository.upsertProfile(updatedProfile)
+
+        return GamificationResult(
+            xpAwarded = totalXpGained,
+            newTotalXp = newTotalXp,
+            newLevel = newLevel,
+            previousLevel = oldLevel,
+            newBadges = newBadges,
+            streakInfo = streakResult
+        )
+    }
+
     suspend fun recordLogin(): GamificationResult {
         val profile = progressRepository.getProfileSync() ?: UserProfile()
         val streakResult = updateStreak(profile)

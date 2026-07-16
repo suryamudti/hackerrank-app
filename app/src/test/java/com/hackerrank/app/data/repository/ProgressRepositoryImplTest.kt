@@ -1,6 +1,7 @@
 package com.hackerrank.app.data.repository
 
 import app.cash.turbine.test
+import android.content.Context
 import com.hackerrank.app.data.local.dao.ProfileDao
 import com.hackerrank.app.data.local.dao.ProgressDao
 import com.hackerrank.app.data.local.entity.UserProfileEntity
@@ -22,7 +23,8 @@ class ProgressRepositoryImplTest {
 
     private val progressDao: ProgressDao = mockk()
     private val profileDao: ProfileDao = mockk()
-    private val repository = ProgressRepositoryImpl(progressDao, profileDao)
+    private val context: Context = mockk(relaxed = true)
+    private val repository = ProgressRepositoryImpl(progressDao, profileDao, context)
 
     private val sampleProgressEntity = UserProgressEntity(
         structureId = "struct1",

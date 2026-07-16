@@ -48,6 +48,7 @@ import com.hackerrank.app.ui.components.EmptyState
 @Composable
 fun ProblemsScreen(
     onProblemClick: (String) -> Unit,
+    onDailyChallengeClick: (String) -> Unit = onProblemClick,
     onError: (String) -> Unit = {},
     viewModel: ProblemsViewModel = hiltViewModel()
 ) {
@@ -70,6 +71,11 @@ fun ProblemsScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
+        DailyChallengeBanner(
+            state = uiState.dailyChallenge,
+            onProblemClick = { id -> onDailyChallengeClick(id) }
+        )
+        Spacer(Modifier.height(8.dp))
         DifficultyFilterRow(
             selectedDifficulty = uiState.selectedDifficulty,
             onDifficultyClick = { viewModel.selectDifficulty(it) }
