@@ -28,11 +28,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hackerrank.app.R
 import com.hackerrank.app.core.Constants
+import com.hackerrank.app.core.localizedName
 import com.hackerrank.app.domain.model.DataStructureCategory
 import com.hackerrank.app.ui.components.EmptyState
 import com.hackerrank.app.ui.components.MasteryRing
@@ -56,8 +59,8 @@ fun ProgressScreen(
     if (profile == null && uiState.allProgress.isEmpty()) {
         EmptyState(
             icon = Icons.Default.BarChart,
-            title = "No Progress Yet",
-            message = "Complete a quiz to start tracking your progress."
+            title = stringResource(R.string.progress_no_progress_title),
+            message = stringResource(R.string.progress_no_progress_message)
         )
         return
     }
@@ -94,19 +97,19 @@ fun ProgressScreen(
                     Spacer(Modifier.width(16.dp))
                     Column {
                         Text(
-                            text = "Level ${profile?.let { Constants.getLevel(it.totalXp) } ?: 0}",
+                            text = stringResource(R.string.progress_level, profile?.let { Constants.getLevel(it.totalXp) } ?: 0),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold
                         )
                         profile?.let {
                             val xpProgress = Constants.getXpProgress(it.totalXp)
                             Text(
-                                text = "${xpProgress.first} / ${xpProgress.second} XP",
+                                text = stringResource(R.string.progress_xp_progress, xpProgress.first, xpProgress.second),
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
                         Text(
-                            text = "Total XP: ${profile?.totalXp ?: 0}",
+                            text = stringResource(R.string.progress_total_xp, profile?.totalXp ?: 0),
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
@@ -121,17 +124,17 @@ fun ProgressScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 StatCard(
-                    label = "Structures",
+                    label = stringResource(R.string.progress_stat_structures),
                     value = "${uiState.totalStructures}",
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
-                    label = "Mastered",
+                    label = stringResource(R.string.progress_stat_mastered),
                     value = "${uiState.masteredStructures}",
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
-                    label = "Quizzes",
+                    label = stringResource(R.string.progress_stat_quizzes),
                     value = "${uiState.allProgress.sumOf { it.quizzesCompleted }}",
                     modifier = Modifier.weight(1f)
                 )
@@ -143,24 +146,24 @@ fun ProgressScreen(
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Streak",
+                        text = stringResource(R.string.progress_streak),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.height(8.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "🔥",
+                            text = "\uD83D\uDD25",
                             style = MaterialTheme.typography.displayMedium
                         )
                         Spacer(Modifier.width(12.dp))
                         Column {
                             Text(
-                                text = "Current: ${profile?.currentStreak ?: 0} days",
+                                text = stringResource(R.string.progress_current_streak, profile?.currentStreak ?: 0),
                                 style = MaterialTheme.typography.titleLarge
                             )
                             Text(
-                                text = "Longest: ${profile?.longestStreak ?: 0} days",
+                                text = stringResource(R.string.progress_longest_streak, profile?.longestStreak ?: 0),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -173,7 +176,7 @@ fun ProgressScreen(
         // Category Mastery
         item {
             Text(
-                text = "Category Progress",
+                text = stringResource(R.string.progress_category_progress),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -236,7 +239,7 @@ private fun CategoryProgressCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = category.displayName,
+                    text = category.localizedName(),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold
                 )

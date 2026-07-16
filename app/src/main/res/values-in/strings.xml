@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Code Practice</string>
+
+    <!-- Navigation -->
+    <string name="nav_structures">Struktur</string>
+    <string name="nav_problems">Soal</string>
+    <string name="nav_progress">Kemajuan</string>
+    <string name="nav_badges">Lencana</string>
+
+    <!-- Browse -->
+    <string name="browse_no_structures_title">Belum Ada Struktur</string>
+    <string name="browse_no_structures_message">Struktur data akan muncul di sini setelah dimuat.</string>
+    <string name="browse_toggle_theme">Ganti tema</string>
+
+    <!-- Problems -->
+    <string name="problems_no_problems_title">Belum Ada Soal</string>
+    <string name="problems_no_problems_message">Soal algoritma akan muncul di sini setelah dimuat.</string>
+    <string name="problems_filter_all">Semua</string>
+
+    <!-- Problem Detail -->
+    <string name="problem_loading">Memuat…</string>
+    <string name="problem_navigate_back">Kembali</string>
+    <string name="section_problem">Soal</string>
+    <string name="section_approach">Pendekatan</string>
+    <string name="section_solution">Solusi</string>
+    <string name="action_show">Tampilkan</string>
+    <string name="action_hide">Sembunyikan</string>
+    <string name="action_solved">Terpecahkan!</string>
+    <string name="action_mark_solved">Tandai Terpecahkan (+%d XP)</string>
+    <string name="xp_earned">+%d XP diperoleh! Level %d</string>
+    <string name="example_title">Contoh</string>
+    <string name="example_input">Masukan: </string>
+    <string name="example_output">Keluaran: </string>
+    <string name="code_copy">Salin kode</string>
+    <string name="code_copied">Kode disalin ke papan klip</string>
+
+    <!-- Progress -->
+    <string name="progress_no_progress_title">Belum Ada Kemajuan</string>
+    <string name="progress_no_progress_message">Selesaikan kuis untuk mulai melacak kemajuan.</string>
+    <string name="progress_level">Level %d</string>
+    <string name="progress_xp_progress">%d / %d XP</string>
+    <string name="progress_total_xp">Total XP: %d</string>
+    <string name="progress_stat_structures">Struktur</string>
+    <string name="progress_stat_mastered">Dikuasai</string>
+    <string name="progress_stat_quizzes">Kuis</string>
+    <string name="progress_streak">Rekor</string>
+    <string name="progress_current_streak">Saat ini: %d hari</string>
+    <string name="progress_longest_streak">Terpanjang: %d hari</string>
+    <string name="progress_category_progress">Kemajuan Kategori</string>
+
+    <!-- Achievements -->
+    <string name="achievements_no_badges_title">Belum Ada Lencana</string>
+    <string name="achievements_no_badges_message">Selesaikan kuis dan capai pencapaian untuk mendapatkan lencana.</string>
+    <string name="badge_earned">Diperoleh</string>
+    <string name="badge_locked">Terkunci</string>
+
+    <!-- Detail -->
+    <string name="detail_loading">Memuat…</string>
+    <string name="detail_back">Kembali ke struktur</string>
+    <string name="section_explanation">Penjelasan</string>
+    <string name="section_complexity_table">Tabel Kompleksitas</string>
+    <string name="section_code_example">Contoh Kode</string>
+    <string name="section_when_to_use">Kapan Digunakan</string>
+    <string name="section_progress">Kemajuan</string>
+    <string name="mastery_label">Penguasaan: %d%%</string>
+    <string name="quizzes_completed">Kuis selesai: %d</string>
+    <string name="quizzes_best">Terbaik: %d/%d</string>
+    <string name="action_take_quiz">Ikuti Kuis</string>
+    <string name="use_case_label">Kegunaan</string>
+
+    <!-- Quiz -->
+    <string name="quiz_title">Kuis</string>
+    <string name="quiz_back">Kembali</string>
+    <string name="quiz_question_x_of_y">Soal %d dari %d</string>
+    <string name="quiz_no_questions">Tidak ada soal tersedia.</string>
+    <string name="quiz_correct">Benar!</string>
+    <string name="quiz_incorrect">Salah</string>
+    <string name="quiz_next_question">Soal Berikutnya</string>
+    <string name="quiz_see_results">Lihat Hasil</string>
+    <string name="quiz_complete">Kuis Selesai!</string>
+    <string name="quiz_time">Waktu: %dm %ds</string>
+    <string name="quiz_xp_earned">+%d XP</string>
+    <string name="quiz_level_up">Naik Level! Sekarang level %d</string>
+    <string name="quiz_badge_earned">Lencana: %s</string>
+    <string name="action_back">Kembali</string>
+    <string name="action_retry">Ulangi</string>
+    <string name="quiz_retry_desc">Ulangi kuis</string>
+    <string name="quiz_go_back">Kembali</string>
+    <string name="quiz_solved">Terpecahkan</string>
+
+    <!-- Categories and Difficulties -->
+    <string name="category_linear">Linear</string>
+    <string name="category_trees">Pohon</string>
+    <string name="category_graphs">Graf</string>
+    <string name="category_hash_based">Berbasis Hash</string>
+    <string name="category_other">Lainnya</string>
+    <string name="difficulty_easy">Mudah</string>
+    <string name="difficulty_medium">Sedang</string>
+    <string name="difficulty_hard">Sulit</string>
+
+    <!-- Problem Categories -->
+    <string name="pc_arrays">Array</string>
+    <string name="pc_strings">String</string>
+    <string name="pc_linked_lists">Linked List</string>
+    <string name="pc_stacks_queues">Stack &amp; Queue</string>
+    <string name="pc_trees">Pohon</string>
+    <string name="pc_graphs">Graf</string>
+    <string name="pc_dynamic_programming">Pemrograman Dinamis</string>
+    <string name="pc_sorting_searching">Sortir &amp; Cari</string>
+    <string name="pc_hash_based">Berbasis Hash</string>
+    <string name="pc_recursion_math">Rekursi &amp; Matematika</string>
+    <string name="pc_bit_manipulation">Manipulasi Bit</string>
+    <string name="pc_miscellaneous">Lain-lain</string>
+
+    <!-- Badges -->
+    <string name="badge_first_steps_title">Langkah Awal</string>
+    <string name="badge_first_steps_desc">Selesaikan kuis pertamamu</string>
+    <string name="badge_quick_learner_title">Pembelajar Cepat</string>
+    <string name="badge_quick_learner_desc">Dapatkan nilai sempurna di kuis mana pun</string>
+    <string name="badge_speed_demon_title">Iblis Kecepatan</string>
+    <string name="badge_speed_demon_desc">Selesaikan kuis dalam waktu kurang dari 60 detik</string>
+    <string name="badge_streak_novice_title">Pemula Rekor</string>
+    <string name="badge_streak_novice_desc">Capai rekor 3 hari</string>
+    <string name="badge_streak_master_title">Master Rekor</string>
+    <string name="badge_streak_master_desc">Capai rekor 7 hari</string>
+    <string name="badge_streak_legend_title">Legenda Rekor</string>
+    <string name="badge_streak_legend_desc">Capai rekor 30 hari</string>
+    <string name="badge_array_ace_title">As Array</string>
+    <string name="badge_array_ace_desc">Kuasai semua kuis array</string>
+    <string name="badge_tree_whisperer_title">Pembisik Pohon</string>
+    <string name="badge_tree_whisperer_desc">Kuasai semua kuis pohon</string>
+    <string name="badge_graph_guru_title">Guru Graf</string>
+    <string name="badge_graph_guru_desc">Kuasai semua kuis graf</string>
+    <string name="badge_completionist_title">Penyelesaian</string>
+    <string name="badge_completionist_desc">Kuasai setiap struktur data</string>
+    <string name="badge_level_10_title">Level 10</string>
+    <string name="badge_level_10_desc">Capai level 10</string>
+    <string name="badge_level_25_title">Level 25</string>
+    <string name="badge_level_25_desc">Capai level 25</string>
+    <string name="badge_level_50_title">Level 50</string>
+    <string name="badge_level_50_desc">Capai level 50</string>
+
+    <!-- Language -->
+    <string name="lang_en">English</string>
+    <string name="lang_in">Bahasa Indonesia</string>
+</resources>

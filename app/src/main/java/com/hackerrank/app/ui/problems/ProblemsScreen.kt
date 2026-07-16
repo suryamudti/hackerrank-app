@@ -32,11 +32,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hackerrank.app.R
+import com.hackerrank.app.core.localizedName
 import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.domain.model.Problem
 import com.hackerrank.app.domain.model.ProblemCategory
@@ -60,8 +63,8 @@ fun ProblemsScreen(
     if (uiState.allProblems.isEmpty()) {
         EmptyState(
             icon = Icons.Default.Code,
-            title = "No Problems Yet",
-            message = "Algorithm problems will appear here once loaded."
+            title = stringResource(R.string.problems_no_problems_title),
+            message = stringResource(R.string.problems_no_problems_message)
         )
         return
     }
@@ -106,13 +109,13 @@ private fun DifficultyFilterRow(
         FilterChip(
             selected = selectedDifficulty == null,
             onClick = { onDifficultyClick(null) },
-            label = { Text("All") }
+            label = { Text(stringResource(R.string.problems_filter_all)) }
         )
         Difficulty.entries.forEach { diff ->
             FilterChip(
                 selected = selectedDifficulty == diff,
                 onClick = { onDifficultyClick(diff) },
-                label = { Text(diff.displayName) },
+                label = { Text(diff.localizedName()) },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = when (diff) {
                         Difficulty.EASY -> Color(0xFF4CAF50).copy(alpha = 0.2f)
@@ -142,7 +145,12 @@ private fun CategoryFilterRow(
             FilterChip(
                 selected = selectedCategory == cat,
                 onClick = { onCategoryClick(cat) },
-                label = { Text(if (cat == null) "All" else cat.displayName, maxLines = 1) }
+                label = {
+                    Text(
+                        if (cat == null) stringResource(R.string.problems_filter_all) else cat.localizedName(),
+                        maxLines = 1
+                    )
+                }
             )
         }
     }
@@ -182,7 +190,7 @@ private fun ProblemCard(
                 Spacer(Modifier.height(4.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = problem.difficulty.displayName,
+                        text = problem.difficulty.localizedName(),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = when (problem.difficulty) {
@@ -192,7 +200,7 @@ private fun ProblemCard(
                         }
                     )
                     Text(
-                        text = problem.category.displayName,
+                        text = problem.category.localizedName(),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -202,7 +210,7 @@ private fun ProblemCard(
                 Spacer(Modifier.width(8.dp))
                 Icon(
                     Icons.Default.CheckCircle,
-                    contentDescription = "Solved",
+                    contentDescription = stringResource(R.string.quiz_solved),
                     tint = Color(0xFF4CAF50),
                     modifier = Modifier.size(24.dp)
                 )

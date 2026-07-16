@@ -36,17 +36,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hackerrank.app.R
+import com.hackerrank.app.core.localizedTitle
 import com.hackerrank.app.domain.model.QuizSession
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,10 +67,10 @@ fun QuizScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Quiz") },
+                title = { Text(stringResource(R.string.quiz_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.quiz_back))
                     }
                 }
             )
@@ -129,7 +131,7 @@ private fun QuizContent(
 ) {
     if (session.questions.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No questions available.")
+            Text(stringResource(R.string.quiz_no_questions))
         }
         return
     }
@@ -149,7 +151,7 @@ private fun QuizContent(
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Question ${session.currentIndex + 1} of ${session.questions.size}",
+            text = stringResource(R.string.quiz_question_x_of_y, session.currentIndex + 1, session.questions.size),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -181,6 +183,12 @@ private fun QuizContent(
                     else -> MaterialTheme.colorScheme.primary
                 }
 
+                val optionLetter = ('A' + index)
+                val optionDesc = "Option $optionLetter: $option" +
+                        if (showExplanation && isCorrect) " - Correct answer"
+                        else if (showExplanation && isSelected && !isCorrect) " - Your answer (incorrect)"
+                        else ""
+
                 Button(
                     onClick = {
                         if (!showExplanation) {
@@ -191,7 +199,7 @@ private fun QuizContent(
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
                         .semantics {
-                            contentDescription = "Option ${('A' + index)}: $option" + if (showExplanation && isCorrect) " - Correct answer" else if (showExplanation && isSelected && !isCorrect) " - Your answer (incorrect)" else ""
+                            contentDescription = "$optionDesc"
                         },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = buttonColor,
@@ -229,7 +237,7 @@ private fun QuizContent(
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                text = if (isCorrect) "Correct!" else "Incorrect",
+                                text = if (isCorrect) stringResource(R.string.quiz_correct) else stringResource(R.string.quiz_incorrect),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = if (isCorrect) Color(0xFF4CAF50) else Color(0xFFE53935)
@@ -248,7 +256,7 @@ private fun QuizContent(
                 onClick = onNext,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (isLastQuestion) "See Results" else "Next Question")
+                Text(if (isLastQuestion) stringResource(R.string.quiz_see_results) else stringResource(R.string.quiz_next_question))
             }
         }
     }
@@ -272,7 +280,7 @@ private fun QuizResults(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Quiz Complete!",
+            text = stringResource(R.string.quiz_complete),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
@@ -307,7 +315,7 @@ private fun QuizResults(
 
         // Stats
         Text(
-            text = "Time: ${timeSeconds / 60}m ${timeSeconds % 60}s",
+            text = stringResource(R.string.quiz_time, timeSeconds / 60, timeSeconds % 60),
             style = MaterialTheme.typography.bodyLarge
         )
 
@@ -321,14 +329,14 @@ private fun QuizResults(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "+${result.xpAwarded} XP",
+                        text = stringResource(R.string.quiz_xp_earned, result.xpAwarded),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onTertiaryContainer
                     )
                     if (result.newLevel > result.previousLevel) {
                         Text(
-                            text = "Level Up! Now level ${result.newLevel}",
+                            text = stringResource(R.string.quiz_level_up, result.newLevel),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onTertiaryContainer
                         )
@@ -341,7 +349,7 @@ private fun QuizResults(
                             ) {
                                 Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFFFFC107))
                                 Spacer(Modifier.width(8.dp))
-                                Text(text = "Badge: ${badge.name}")
+                                Text(text = stringResource(R.string.quiz_badge_earned, badge.localizedTitle()))
                             }
                         }
                     }
@@ -351,26 +359,26 @@ private fun QuizResults(
 
         Spacer(Modifier.height(32.dp))
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = onBack,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go back")
-                            Spacer(Modifier.width(4.dp))
-                            Text("Back")
-                        }
-                        Button(
-                            onClick = onRetry,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Icon(Icons.Default.Replay, contentDescription = "Retry quiz")
-                            Spacer(Modifier.width(4.dp))
-                            Text("Retry")
-                        }
-                    }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            OutlinedButton(
+                onClick = onBack,
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.quiz_go_back))
+                Spacer(Modifier.width(4.dp))
+                Text(stringResource(R.string.action_back))
+            }
+            Button(
+                onClick = onRetry,
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.Replay, contentDescription = stringResource(R.string.quiz_retry_desc))
+                Spacer(Modifier.width(4.dp))
+                Text(stringResource(R.string.action_retry))
+            }
+        }
     }
 }
