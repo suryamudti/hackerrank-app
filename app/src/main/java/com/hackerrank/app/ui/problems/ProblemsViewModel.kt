@@ -69,7 +69,7 @@ class ProblemsViewModel @Inject constructor(
                     (difficulty == null || p.difficulty == difficulty) &&
                             (category == null || p.category == category)
                 }
-                _uiState.value = _uiState.value.copy(
+                _uiState.value.copy(
                     allProblems = problems,
                     filteredProblems = filtered,
                     solvedIds = solvedIds,
