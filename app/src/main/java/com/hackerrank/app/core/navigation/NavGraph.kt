@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -29,6 +30,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.hackerrank.app.R
+import com.hackerrank.app.core.LocaleManager
 import com.hackerrank.app.core.ThemeManager
 import com.hackerrank.app.ui.achievements.AchievementsScreen
 import com.hackerrank.app.ui.browse.BrowseScreen
@@ -39,11 +42,11 @@ import com.hackerrank.app.ui.progress.ProgressScreen
 import com.hackerrank.app.ui.quiz.QuizScreen
 import kotlinx.coroutines.launch
 
-sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
-    data object Browse : Screen("browse", "Structures", Icons.Default.Home)
-    data object Problems : Screen("problems", "Problems", Icons.Default.Code)
-    data object Progress : Screen("progress", "Progress", Icons.Default.Star)
-    data object Achievements : Screen("achievements", "Badges", Icons.Default.EmojiEvents)
+sealed class Screen(val route: String, val labelRes: Int, val icon: ImageVector) {
+    data object Browse : Screen("browse", R.string.nav_structures, Icons.Default.Home)
+    data object Problems : Screen("problems", R.string.nav_problems, Icons.Default.Code)
+    data object Progress : Screen("progress", R.string.nav_progress, Icons.Default.Star)
+    data object Achievements : Screen("achievements", R.string.nav_badges, Icons.Default.EmojiEvents)
 }
 
 sealed class DetailRoute(val route: String) {
@@ -61,7 +64,10 @@ sealed class DetailRoute(val route: String) {
 val bottomNavScreens = listOf(Screen.Browse, Screen.Problems, Screen.Progress, Screen.Achievements)
 
 @Composable
-fun NavGraph(themeManager: ThemeManager? = null) {
+fun NavGraph(
+    themeManager: ThemeManager? = null,
+    localeManager: LocaleManager
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -85,8 +91,8 @@ fun NavGraph(themeManager: ThemeManager? = null) {
                                 restoreState = true
                             }
                         },
-                        icon = { Icon(screen.icon, contentDescription = screen.label) },
-                        label = { Text(screen.label) }
+                        icon = { Icon(screen.icon, contentDescription = null) },
+                        label = { Text(stringResource(screen.labelRes)) }
                     )
                 }
             }
@@ -100,6 +106,7 @@ fun NavGraph(themeManager: ThemeManager? = null) {
                 composable(Screen.Browse.route) {
                     BrowseScreen(
                         themeManager = themeManager,
+                        localeManager = localeManager,
                         onStructureClick = { slug ->
                             navController.navigate(DetailRoute.StructureDetail.createRoute(slug))
                         },

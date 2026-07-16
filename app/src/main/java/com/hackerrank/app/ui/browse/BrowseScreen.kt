@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -39,13 +40,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hackerrank.app.R
+import com.hackerrank.app.core.LocaleManager
 import com.hackerrank.app.core.ThemeManager
 import com.hackerrank.app.core.ThemeMode
+import com.hackerrank.app.core.localizedName
 import com.hackerrank.app.domain.model.DataStructure
 import com.hackerrank.app.domain.model.DataStructureCategory
 import com.hackerrank.app.domain.model.Difficulty
@@ -56,6 +61,7 @@ import com.hackerrank.app.ui.components.StructureCardBackground
 @Composable
 fun BrowseScreen(
     themeManager: ThemeManager? = null,
+    localeManager: LocaleManager? = null,
     onStructureClick: (String) -> Unit,
     onError: (String) -> Unit = {},
     viewModel: BrowseViewModel = hiltViewModel()
@@ -76,8 +82,8 @@ fun BrowseScreen(
     if (uiState.groupedStructures.values.all { it.isEmpty() }) {
         EmptyState(
             icon = Icons.Default.Computer,
-            title = "No Structures Yet",
-            message = "Data structures will appear here once they are loaded."
+            title = stringResource(R.string.browse_no_structures_title),
+            message = stringResource(R.string.browse_no_structures_message)
         )
         return
     }
@@ -92,6 +98,18 @@ fun BrowseScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
+                localeManager?.let {
+                    val isEnglish = it.isEnglish()
+                    IconButton(onClick = {
+                        it.setLocale(if (isEnglish) "in" else "en")
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Language,
+                            contentDescription = if (isEnglish) stringResource(R.string.lang_in) else stringResource(R.string.lang_en),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
                 themeManager?.let {
                     IconButton(onClick = { it.toggle() }) {
                         Icon(
@@ -99,7 +117,7 @@ fun BrowseScreen(
                                 ThemeMode.DARK -> Icons.Default.LightMode
                                 else -> Icons.Default.DarkMode
                             },
-                            contentDescription = "Toggle theme",
+                            contentDescription = stringResource(R.string.browse_toggle_theme),
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -135,7 +153,7 @@ private fun CategorySection(
 ) {
     Column {
         Text(
-            text = category.displayName,
+            text = category.localizedName(),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
@@ -187,7 +205,7 @@ private fun StructureCard(
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = structure.difficulty.displayName,
+                    text = structure.difficulty.localizedName(),
                     style = MaterialTheme.typography.labelSmall,
                     color = when (structure.difficulty) {
                         Difficulty.EASY -> Color(0xFF4CAF50)

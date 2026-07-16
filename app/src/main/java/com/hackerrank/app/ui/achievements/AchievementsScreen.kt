@@ -24,13 +24,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import com.hackerrank.app.R
+import com.hackerrank.app.core.localizedTitle
 import com.hackerrank.app.ui.components.EmptyState
 
 @Composable
@@ -50,8 +53,8 @@ fun AchievementsScreen(
     if (uiState.badges.isEmpty()) {
         EmptyState(
             icon = Icons.Default.EmojiEvents,
-            title = "No Badges Yet",
-            message = "Complete quizzes and reach milestones to earn badges."
+            title = stringResource(R.string.achievements_no_badges_title),
+            message = stringResource(R.string.achievements_no_badges_message)
         )
         return
     }
@@ -77,8 +80,8 @@ private fun BadgeCard(badgeState: BadgeWithState) {
         MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
     }
 
-    val statusDesc = if (badgeState.isEarned) "Earned" else "Locked"
-    val badgeDesc = "${badgeState.badge.name} badge - $statusDesc" +
+    val statusText = if (badgeState.isEarned) stringResource(R.string.badge_earned) else stringResource(R.string.badge_locked)
+    val badgeDesc = "${badgeState.badge.localizedTitle()} - $statusText" +
             if (badgeState.progress.isNotEmpty()) " - Progress: ${badgeState.progress}" else ""
 
     Card(
@@ -97,12 +100,12 @@ private fun BadgeCard(badgeState: BadgeWithState) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = if (badgeState.isEarned) "🏆" else "🔒",
+                    text = if (badgeState.isEarned) "\uD83C\uDFC6" else "\uD83D\uDD12",
                     style = MaterialTheme.typography.displaySmall
                 )
             }
             Text(
-                text = badgeState.badge.name,
+                text = badgeState.badge.localizedTitle(),
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center,
                 maxLines = 2,

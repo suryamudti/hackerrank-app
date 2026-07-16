@@ -1,4 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Code Practice</string>
+
+    <!-- Navigation -->
+    <string name="nav_structures">Structures</string>
+    <string name="nav_problems">Problems</string>
+    <string name="nav_progress">Progress</string>
+    <string name="nav_badges">Badges</string>
+
+    <!-- Browse -->
+    <string name="browse_no_structures_title">No Structures Yet</string>
+    <string name="browse_no_structures_message">Data structures will appear here once they are loaded.</string>
+    <string name="browse_toggle_theme">Toggle theme</string>
+
+    <!-- Problems -->
+    <string name="problems_no_problems_title">No Problems Yet</string>
+    <string name="problems_no_problems_message">Algorithm problems will appear here once loaded.</string>
+    <string name="problems_filter_all">All</string>
+
+    <!-- Problem Detail -->
+    <string name="problem_loading">Loading…</string>
+    <string name="problem_navigate_back">Back</string>
+    <string name="section_problem">Problem</string>
+    <string name="section_approach">Approach</string>
+    <string name="section_solution">Solution</string>
+    <string name="action_show">Show</string>
+    <string name="action_hide">Hide</string>
+    <string name="action_solved">Solved!</string>
+    <string name="action_mark_solved">Mark as Solved (+%d XP)</string>
+    <string name="xp_earned">+%d XP earned! Level %d</string>
+    <string name="example_title">Example</string>
+    <string name="example_input">Input: </string>
+    <string name="example_output">Output: </string>
+    <string name="code_copy">Copy code</string>
+    <string name="code_copied">Code copied to clipboard</string>
+
+    <!-- Progress -->
+    <string name="progress_no_progress_title">No Progress Yet</string>
+    <string name="progress_no_progress_message">Complete a quiz to start tracking your progress.</string>
+    <string name="progress_level">Level %d</string>
+    <string name="progress_xp_progress">%d / %d XP</string>
+    <string name="progress_total_xp">Total XP: %d</string>
+    <string name="progress_stat_structures">Structures</string>
+    <string name="progress_stat_mastered">Mastered</string>
+    <string name="progress_stat_quizzes">Quizzes</string>
+    <string name="progress_streak">Streak</string>
+    <string name="progress_current_streak">Current: %d days</string>
+    <string name="progress_longest_streak">Longest: %d days</string>
+    <string name="progress_category_progress">Category Progress</string>
+
+    <!-- Achievements -->
+    <string name="achievements_no_badges_title">No Badges Yet</string>
+    <string name="achievements_no_badges_message">Complete quizzes and reach milestones to earn badges.</string>
+    <string name="badge_earned">Earned</string>
+    <string name="badge_locked">Locked</string>
+
+    <!-- Detail -->
+    <string name="detail_loading">Loading…</string>
+    <string name="detail_back">Back to structures</string>
+    <string name="section_explanation">Explanation</string>
+    <string name="section_complexity_table">Complexity Table</string>
+    <string name="section_code_example">Code Example</string>
+    <string name="section_when_to_use">When to Use</string>
+    <string name="section_progress">Progress</string>
+    <string name="mastery_label">Mastery: %d%%</string>
+    <string name="quizzes_completed">Quizzes completed: %d</string>
+    <string name="quizzes_best">Best: %d/%d</string>
+    <string name="action_take_quiz">Take Quiz</string>
+    <string name="use_case_label">Use case</string>
+
+    <!-- Quiz -->
+    <string name="quiz_title">Quiz</string>
+    <string name="quiz_back">Back</string>
+    <string name="quiz_question_x_of_y">Question %d of %d</string>
+    <string name="quiz_no_questions">No questions available.</string>
+    <string name="quiz_correct">Correct!</string>
+    <string name="quiz_incorrect">Incorrect</string>
+    <string name="quiz_next_question">Next Question</string>
+    <string name="quiz_see_results">See Results</string>
+    <string name="quiz_complete">Quiz Complete!</string>
+    <string name="quiz_time">Time: %dm %ds</string>
+    <string name="quiz_xp_earned">+%d XP</string>
+    <string name="quiz_level_up">Level Up! Now level %d</string>
+    <string name="quiz_badge_earned">Badge: %s</string>
+    <string name="action_back">Back</string>
+    <string name="action_retry">Retry</string>
+    <string name="quiz_retry_desc">Retry quiz</string>
+    <string name="quiz_go_back">Go back</string>
+    <string name="quiz_solved">Solved</string>
+
+    <!-- Categories and Difficulties -->
+    <string name="category_linear">Linear</string>
+    <string name="category_trees">Trees</string>
+    <string name="category_graphs">Graphs</string>
+    <string name="category_hash_based">Hash-Based</string>
+    <string name="category_other">Other</string>
+    <string name="difficulty_easy">Easy</string>
+    <string name="difficulty_medium">Medium</string>
+    <string name="difficulty_hard">Hard</string>
+
+    <!-- Problem Categories -->
+    <string name="pc_arrays">Arrays</string>
+    <string name="pc_strings">Strings</string>
+    <string name="pc_linked_lists">Linked Lists</string>
+    <string name="pc_stacks_queues">Stacks &amp; Queues</string>
+    <string name="pc_trees">Trees</string>
+    <string name="pc_graphs">Graphs</string>
+    <string name="pc_dynamic_programming">Dynamic Programming</string>
+    <string name="pc_sorting_searching">Sorting &amp; Searching</string>
+    <string name="pc_hash_based">Hash-Based</string>
+    <string name="pc_recursion_math">Recursion &amp; Math</string>
+    <string name="pc_bit_manipulation">Bit Manipulation</string>
+    <string name="pc_miscellaneous">Miscellaneous</string>
+
+    <!-- Badges -->
+    <string name="badge_first_steps_title">First Steps</string>
+    <string name="badge_first_steps_desc">Complete your first quiz</string>
+    <string name="badge_quick_learner_title">Quick Learner</string>
+    <string name="badge_quick_learner_desc">Get a perfect score on any quiz</string>
+    <string name="badge_speed_demon_title">Speed Demon</string>
+    <string name="badge_speed_demon_desc">Complete a quiz in under 60 seconds</string>
+    <string name="badge_streak_novice_title">Streak Novice</string>
+    <string name="badge_streak_novice_desc">Reach a 3-day streak</string>
+    <string name="badge_streak_master_title">Streak Master</string>
+    <string name="badge_streak_master_desc">Reach a 7-day streak</string>
+    <string name="badge_streak_legend_title">Streak Legend</string>
+    <string name="badge_streak_legend_desc">Reach a 30-day streak</string>
+    <string name="badge_array_ace_title">Array Ace</string>
+    <string name="badge_array_ace_desc">Master all array quizzes</string>
+    <string name="badge_tree_whisperer_title">Tree Whisperer</string>
+    <string name="badge_tree_whisperer_desc">Master all tree quizzes</string>
+    <string name="badge_graph_guru_title">Graph Guru</string>
+    <string name="badge_graph_guru_desc">Master all graph quizzes</string>
+    <string name="badge_completionist_title">Completionist</string>
+    <string name="badge_completionist_desc">Master every data structure</string>
+    <string name="badge_level_10_title">Level 10</string>
+    <string name="badge_level_10_desc">Reach level 10</string>
+    <string name="badge_level_25_title">Level 25</string>
+    <string name="badge_level_25_desc">Reach level 25</string>
+    <string name="badge_level_50_title">Level 50</string>
+    <string name="badge_level_50_desc">Reach level 50</string>
+
+    <!-- Language -->
+    <string name="lang_en">English</string>
+    <string name="lang_in">Bahasa Indonesia</string>
 </resources>

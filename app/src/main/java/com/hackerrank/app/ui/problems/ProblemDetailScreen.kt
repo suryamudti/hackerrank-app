@@ -43,12 +43,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hackerrank.app.R
+import com.hackerrank.app.core.localizedName
 import com.hackerrank.app.domain.model.Difficulty
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,11 +68,12 @@ fun ProblemDetailScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     LaunchedEffect(uiState.solveResult) {
         uiState.solveResult?.let { result ->
             snackbarHostState.showSnackbar(
-                "+${result.xpAwarded} XP earned! Level ${result.newLevel}"
+                context.getString(R.string.xp_earned, result.xpAwarded, result.newLevel)
             )
             viewModel.clearSolveResult()
         }
@@ -78,10 +83,10 @@ fun ProblemDetailScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text(uiState.problem?.title ?: "Loading...") },
+                title = { Text(uiState.problem?.title ?: stringResource(R.string.problem_loading)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.problem_navigate_back))
                     }
                 }
             )
@@ -108,7 +113,7 @@ fun ProblemDetailScreen(
         ) {
             Row {
                 Text(
-                    text = problem.difficulty.displayName,
+                    text = problem.difficulty.localizedName(),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = when (problem.difficulty) {
@@ -119,7 +124,7 @@ fun ProblemDetailScreen(
                 )
                 Spacer(Modifier.width(12.dp))
                 Text(
-                    text = problem.category.displayName,
+                    text = problem.category.localizedName(),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -129,7 +134,7 @@ fun ProblemDetailScreen(
             HorizontalDivider()
             Spacer(Modifier.height(16.dp))
 
-            SectionHeader("Problem", Icons.Default.Star)
+            SectionHeader(stringResource(R.string.section_problem), Icons.Default.Star)
             Spacer(Modifier.height(8.dp))
             Text(
                 text = problem.description,
@@ -143,7 +148,7 @@ fun ProblemDetailScreen(
             HorizontalDivider()
             Spacer(Modifier.height(20.dp))
 
-            SectionHeader("Approach", Icons.Default.Lightbulb)
+            SectionHeader(stringResource(R.string.section_approach), Icons.Default.Lightbulb)
             Spacer(Modifier.height(8.dp))
             Text(
                 text = problem.approachExplanation,
@@ -158,9 +163,9 @@ fun ProblemDetailScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                SectionHeader("Solution", Icons.Default.Code, modifier = Modifier.weight(1f))
+                SectionHeader(stringResource(R.string.section_solution), Icons.Default.Code, modifier = Modifier.weight(1f))
                 TextButton(onClick = { viewModel.toggleSolution() }) {
-                    Text(if (uiState.showSolution) "Hide" else "Show")
+                    Text(if (uiState.showSolution) stringResource(R.string.action_hide) else stringResource(R.string.action_show))
                 }
             }
             Spacer(Modifier.height(8.dp))
@@ -188,8 +193,8 @@ fun ProblemDetailScreen(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        if (uiState.isSolved) "Solved!"
-                        else "Mark as Solved (+${xpForDifficulty(problem.difficulty)} XP)"
+                        if (uiState.isSolved) stringResource(R.string.action_solved)
+                        else stringResource(R.string.action_mark_solved, xpForDifficulty(problem.difficulty))
                     )
                 }
             }
@@ -244,7 +249,7 @@ private fun CodeBlock(code: String) {
                 IconButton(onClick = {
                     clipboardManager.setText(AnnotatedString(code))
                 }) {
-                    Icon(Icons.Default.ContentCopy, contentDescription = "Copy code")
+                    Icon(Icons.Default.ContentCopy, contentDescription = stringResource(R.string.code_copy))
                 }
             }
             Text(
@@ -267,7 +272,7 @@ private fun ExampleCard(input: String, output: String) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Example",
+                text = stringResource(R.string.example_title),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -275,7 +280,7 @@ private fun ExampleCard(input: String, output: String) {
             Spacer(Modifier.height(8.dp))
             Row {
                 Text(
-                    text = "Input: ",
+                    text = stringResource(R.string.example_input),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -288,7 +293,7 @@ private fun ExampleCard(input: String, output: String) {
             Spacer(Modifier.height(6.dp))
             Row {
                 Text(
-                    text = "Output: ",
+                    text = stringResource(R.string.example_output),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyMedium
                 )
