@@ -270,6 +270,68 @@ class GamificationEngine @Inject constructor(
             ))
         }
 
+        // ARRAY_ACE: Master all array (Linear) quizzes
+        val linearIds = listOf("array", "linked_list", "stack", "queue")
+        val linearProgress = allProgress.filter { it.structureId in linearIds }
+        if (BadgeDefinition.ARRAY_ACE.id !in earnedBadgeIds &&
+            linearProgress.size == linearIds.size &&
+            linearProgress.all { it.masteryLevel >= 80 }
+        ) {
+            newBadges.add(Badge(
+                BadgeDefinition.ARRAY_ACE.id,
+                BadgeDefinition.ARRAY_ACE.title,
+                BadgeDefinition.ARRAY_ACE.description
+            ))
+        }
+
+        // TREE_WHISPERER: Master all tree quizzes
+        val treeIds = listOf("binary_tree", "bst", "avl_tree", "heap", "trie")
+        val treeProgress = allProgress.filter { it.structureId in treeIds }
+        if (BadgeDefinition.TREE_WHISPERER.id !in earnedBadgeIds &&
+            treeProgress.size == treeIds.size &&
+            treeProgress.all { it.masteryLevel >= 80 }
+        ) {
+            newBadges.add(Badge(
+                BadgeDefinition.TREE_WHISPERER.id,
+                BadgeDefinition.TREE_WHISPERER.title,
+                BadgeDefinition.TREE_WHISPERER.description
+            ))
+        }
+
+        // GRAPH_GURU: Master all graph quizzes
+        val graphIds = listOf("graph", "weighted_graph", "graph_algorithms")
+        val graphProgress = allProgress.filter { it.structureId in graphIds }
+        if (BadgeDefinition.GRAPH_GURU.id !in earnedBadgeIds &&
+            graphProgress.size == graphIds.size &&
+            graphProgress.all { it.masteryLevel >= 80 }
+        ) {
+            newBadges.add(Badge(
+                BadgeDefinition.GRAPH_GURU.id,
+                BadgeDefinition.GRAPH_GURU.title,
+                BadgeDefinition.GRAPH_GURU.description
+            ))
+        }
+
+        // COMPLETIONIST: Master every data structure
+        val allIds = listOf(
+            "array", "linked_list", "stack", "queue",
+            "binary_tree", "bst", "avl_tree", "heap", "trie",
+            "graph", "weighted_graph", "graph_algorithms",
+            "hash_table", "hash_set",
+            "disjoint_set", "segment_tree"
+        )
+        val completedProgress = allProgress.filter { it.structureId in allIds }
+        if (BadgeDefinition.COMPLETIONIST.id !in earnedBadgeIds &&
+            completedProgress.size == allIds.size &&
+            completedProgress.all { it.masteryLevel >= 80 }
+        ) {
+            newBadges.add(Badge(
+                BadgeDefinition.COMPLETIONIST.id,
+                BadgeDefinition.COMPLETIONIST.title,
+                BadgeDefinition.COMPLETIONIST.description
+            ))
+        }
+
         return newBadges
     }
 }
