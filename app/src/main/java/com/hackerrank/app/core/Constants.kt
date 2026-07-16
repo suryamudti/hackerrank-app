@@ -39,6 +39,9 @@ object Constants {
         "Linear", "Trees", "Graphs", "Hash-Based", "Other"
     )
 
+    // Daily Challenge
+    const val DAILY_CHALLENGE_BONUS_XP = 30
+
     // Quiz config
     const val QUESTIONS_PER_QUIZ = 8
 }

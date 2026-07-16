@@ -25,17 +25,22 @@ import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,6 +73,7 @@ fun BrowseScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val themeMode by themeManager?.themeMode?.collectAsState() ?: remember { mutableStateOf(ThemeMode.SYSTEM) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
 
     if (uiState.isLoading) {
         Box(
@@ -99,13 +105,10 @@ fun BrowseScreen(
                 horizontalArrangement = Arrangement.End
             ) {
                 localeManager?.let {
-                    val isEnglish = it.isEnglish()
-                    IconButton(onClick = {
-                        it.setLocale(if (isEnglish) "in" else "en")
-                    }) {
+                    IconButton(onClick = { showLanguageDialog = true }) {
                         Icon(
                             imageVector = Icons.Default.Language,
-                            contentDescription = if (isEnglish) stringResource(R.string.lang_in) else stringResource(R.string.lang_en),
+                            contentDescription = stringResource(R.string.browse_language),
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -141,6 +144,42 @@ fun BrowseScreen(
                 }
             }
         }
+    }
+
+    if (showLanguageDialog && localeManager != null) {
+        val currentLocale = localeManager.getCurrentCode()
+        val options = listOf("en" to stringResource(R.string.lang_en), "in" to stringResource(R.string.lang_in))
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            title = { Text(stringResource(R.string.browse_language_dialog_title)) },
+            text = {
+                Column {
+                    options.forEach { (code, label) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    localeManager.setLocale(code)
+                                    showLanguageDialog = false
+                                }
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = currentLocale == code,
+                                onClick = {
+                                    localeManager.setLocale(code)
+                                    showLanguageDialog = false
+                                }
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(text = label, style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
+                }
+            },
+            confirmButton = {}
+        )
     }
 }
 

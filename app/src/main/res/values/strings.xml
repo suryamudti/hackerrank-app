@@ -141,7 +141,16 @@
     <string name="badge_level_50_title">Level 50</string>
     <string name="badge_level_50_desc">Reach level 50</string>
 
+    <!-- Daily Challenge -->
+    <string name="daily_challenge_title">Daily Challenge</string>
+    <string name="daily_challenge_bonus">+%d XP Bonus</string>
+    <string name="daily_challenge_completed">Completed</string>
+    <string name="daily_challenge_solve">Solve</string>
+    <string name="daily_challenge_bonus_earned">+%d Bonus XP</string>
+
     <!-- Language -->
+    <string name="browse_language">Language</string>
+    <string name="browse_language_dialog_title">Select Language</string>
     <string name="lang_en">English</string>
     <string name="lang_in">Bahasa Indonesia</string>
 </resources>

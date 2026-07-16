@@ -56,8 +56,9 @@ sealed class DetailRoute(val route: String) {
     data object Quiz : DetailRoute("quiz/{structureSlug}") {
         fun createRoute(slug: String) = "quiz/$slug"
     }
-    data object ProblemDetail : DetailRoute("problem/{problemId}") {
-        fun createRoute(id: String) = "problem/$id"
+    data object ProblemDetail : DetailRoute("problem/{problemId}?isDailyChallenge={isDailyChallenge}") {
+        fun createRoute(id: String, isDailyChallenge: Boolean = false) =
+            if (isDailyChallenge) "problem/$id?isDailyChallenge=true" else "problem/$id"
     }
 }
 
@@ -121,6 +122,9 @@ fun NavGraph(
                         onProblemClick = { id ->
                             navController.navigate(DetailRoute.ProblemDetail.createRoute(id))
                         },
+                        onDailyChallengeClick = { id ->
+                            navController.navigate(DetailRoute.ProblemDetail.createRoute(id, isDailyChallenge = true))
+                        },
                         onError = { msg ->
                             scope.launch { snackbarHostState.showSnackbar(msg) }
                         }
@@ -168,11 +172,19 @@ fun NavGraph(
 
                 composable(
                     route = DetailRoute.ProblemDetail.route,
-                    arguments = listOf(navArgument("problemId") { type = NavType.StringType })
+                    arguments = listOf(
+                        navArgument("problemId") { type = NavType.StringType },
+                        navArgument("isDailyChallenge") {
+                            type = NavType.BoolType
+                            defaultValue = false
+                        }
+                    )
                 ) { backStackEntry ->
                     val problemId = backStackEntry.arguments?.getString("problemId") ?: return@composable
+                    val isDailyChallenge = backStackEntry.arguments?.getBoolean("isDailyChallenge") ?: false
                     ProblemDetailScreen(
                         problemId = problemId,
+                        isDailyChallenge = isDailyChallenge,
                         onBackClick = { navController.popBackStack() }
                     )
                 }

@@ -1,5 +1,6 @@
 package com.hackerrank.app.domain.repository
 
+import com.hackerrank.app.data.remote.DailyChallengeResponse
 import com.hackerrank.app.domain.model.UserProfile
 import com.hackerrank.app.domain.model.UserProgress
 import kotlinx.coroutines.flow.Flow
@@ -12,4 +13,7 @@ interface ProgressRepository {
     suspend fun getProfileSync(): UserProfile?
     suspend fun upsertProfile(profile: UserProfile)
     fun getMasteredCount(): Flow<Int>
+    fun getDailyChallengeState(): Flow<DailyChallengeResponse?>
+    suspend fun setDailyChallengeCompleted(date: String)
+    suspend fun isDailyChallengeCompleted(date: String): Boolean
 }
