@@ -37,12 +37,7 @@ class ProblemDetailViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(ProblemDetailUiState())
     val uiState: StateFlow<ProblemDetailUiState> = _uiState
-    private val problemId: String = savedStateHandle["problemId"] ?: ""
     private val isDailyChallengeArg: Boolean = savedStateHandle["isDailyChallenge"] ?: false
-
-    init {
-        if (problemId.isNotEmpty()) loadProblem(problemId)
-    }
 
     fun loadProblem(problemId: String) {
         viewModelScope.launch {
