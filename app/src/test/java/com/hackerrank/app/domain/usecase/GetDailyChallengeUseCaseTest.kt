@@ -35,7 +35,7 @@ class GetDailyChallengeUseCaseTest {
 
     @Test
     fun `returns cached challenge when available and fresh`() = runTest {
-        every { progressRepository.isDailyChallengeCompleted(today) } returns false
+        coEvery { progressRepository.isDailyChallengeCompleted(today) } returns false
         every { progressRepository.getDailyChallengeState() } returns flowOf(
             DailyChallengeResponse(date = today, problemId = "1", bonusXp = 10)
         )
@@ -52,13 +52,13 @@ class GetDailyChallengeUseCaseTest {
     @Test
     fun `fetches from API when cache is stale and caches response`() = runTest {
         val yesterday = LocalDate.now().minusDays(1).format(dateFormatter)
-        every { progressRepository.isDailyChallengeCompleted(today) } returns false
+        coEvery { progressRepository.isDailyChallengeCompleted(today) } returns false
         every { progressRepository.getDailyChallengeState() } returns flowOf(
             DailyChallengeResponse(date = yesterday, problemId = "1", bonusXp = 10)
         )
         coEvery { dailyChallengeApi.fetchToday() } returns
                 DailyChallengeResponse(date = today, problemId = "1", bonusXp = 20)
-        every { progressRepository.cacheDailyChallengeResponse(any()) } returns Unit
+        coEvery { progressRepository.cacheDailyChallengeResponse(any()) } returns Unit
         every { problemRepository.getProblemById("1") } returns flowOf(problem)
 
         val result = useCase()
@@ -72,7 +72,7 @@ class GetDailyChallengeUseCaseTest {
     @Test
     fun `falls back to stale cache when API fails`() = runTest {
         val yesterday = LocalDate.now().minusDays(1).format(dateFormatter)
-        every { progressRepository.isDailyChallengeCompleted(today) } returns false
+        coEvery { progressRepository.isDailyChallengeCompleted(today) } returns false
         every { progressRepository.getDailyChallengeState() } returns flowOf(
             DailyChallengeResponse(date = yesterday, problemId = "1", bonusXp = 10)
         )
@@ -88,7 +88,7 @@ class GetDailyChallengeUseCaseTest {
 
     @Test
     fun `returns unavailable when nothing is available`() = runTest {
-        every { progressRepository.isDailyChallengeCompleted(today) } returns false
+        coEvery { progressRepository.isDailyChallengeCompleted(today) } returns false
         every { progressRepository.getDailyChallengeState() } returns flowOf(null)
         coEvery { dailyChallengeApi.fetchToday() } returns null
 
