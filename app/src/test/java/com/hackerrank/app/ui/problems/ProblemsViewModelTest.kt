@@ -2,13 +2,13 @@ package com.hackerrank.app.ui.problems
 
 import app.cash.turbine.test
 import com.hackerrank.app.MainDispatcherRule
-import com.hackerrank.app.data.remote.DailyChallengeApi
-import com.hackerrank.app.data.remote.DailyChallengeResponse
 import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.domain.model.Problem
 import com.hackerrank.app.domain.model.ProblemCategory
-import com.hackerrank.app.domain.repository.ProblemRepository
-import com.hackerrank.app.domain.repository.ProgressRepository
+import com.hackerrank.app.domain.usecase.DailyChallengeResult
+import com.hackerrank.app.domain.usecase.GetDailyChallengeUseCase
+import com.hackerrank.app.domain.usecase.ObserveProblemsUseCase
+import com.hackerrank.app.domain.usecase.ProblemsData
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -20,18 +20,14 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class ProblemsViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val problemRepository: ProblemRepository = mockk()
-    private val progressRepository: ProgressRepository = mockk()
-    private val dailyChallengeApi: DailyChallengeApi = mockk()
-    private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+    private val observeProblemsUseCase: ObserveProblemsUseCase = mockk()
+    private val getDailyChallengeUseCase: GetDailyChallengeUseCase = mockk()
 
     private val problemsList = listOf(
         Problem(
@@ -60,23 +56,16 @@ class ProblemsViewModelTest {
         )
     )
 
-    private fun setupCommonMocks() {
-        every { problemRepository.getAllProblems() } returns flowOf(problemsList)
-        every { problemRepository.getSolvedIds() } returns flowOf(emptySet())
-        coEvery { progressRepository.isDailyChallengeCompleted(any()) } returns false
-    }
-
     @Test
     fun `initializing ViewModel loads all problems and solved IDs`() = runTest {
-        val today = LocalDate.now().format(dateFormatter)
-        setupCommonMocks()
-        every { problemRepository.getSolvedIds() } returns flowOf(setOf("1"))
-        every { progressRepository.getDailyChallengeState() } returns flowOf(
-            DailyChallengeResponse(date = today, problemId = "1", bonusXp = 10)
+        every { observeProblemsUseCase() } returns flowOf(
+            ProblemsData(allProblems = problemsList, solvedIds = setOf("1"))
         )
-        every { problemRepository.getProblemById("1") } returns flowOf(problemsList[0])
+        coEvery { getDailyChallengeUseCase() } returns DailyChallengeResult(
+            problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true
+        )
 
-        val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
+        val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase)
 
         viewModel.uiState.test {
             val state = awaitItem() as ProblemsUiState.Loaded
@@ -88,14 +77,14 @@ class ProblemsViewModelTest {
 
     @Test
     fun `selectDifficulty filters problems list`() = runTest {
-        val today = LocalDate.now().format(dateFormatter)
-        setupCommonMocks()
-        every { progressRepository.getDailyChallengeState() } returns flowOf(
-            DailyChallengeResponse(date = today, problemId = "1", bonusXp = 10)
+        every { observeProblemsUseCase() } returns flowOf(
+            ProblemsData(allProblems = problemsList, solvedIds = emptySet())
         )
-        every { problemRepository.getProblemById("1") } returns flowOf(problemsList[0])
+        coEvery { getDailyChallengeUseCase() } returns DailyChallengeResult(
+            problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true
+        )
 
-        val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
+        val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase)
 
         viewModel.uiState.test {
             var state = awaitItem() as ProblemsUiState.Loaded
@@ -116,14 +105,14 @@ class ProblemsViewModelTest {
 
     @Test
     fun `selectCategory filters problems list`() = runTest {
-        val today = LocalDate.now().format(dateFormatter)
-        setupCommonMocks()
-        every { progressRepository.getDailyChallengeState() } returns flowOf(
-            DailyChallengeResponse(date = today, problemId = "1", bonusXp = 10)
+        every { observeProblemsUseCase() } returns flowOf(
+            ProblemsData(allProblems = problemsList, solvedIds = emptySet())
         )
-        every { problemRepository.getProblemById("1") } returns flowOf(problemsList[0])
+        coEvery { getDailyChallengeUseCase() } returns DailyChallengeResult(
+            problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true
+        )
 
-        val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
+        val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase)
 
         viewModel.uiState.test {
             var state = awaitItem() as ProblemsUiState.Loaded
@@ -139,12 +128,14 @@ class ProblemsViewModelTest {
 
     @Test
     fun `dailyChallenge state shows unavailable when no response and no cache`() = runTest {
-        val today = LocalDate.now().format(dateFormatter)
-        setupCommonMocks()
-        every { progressRepository.getDailyChallengeState() } returns flowOf(null)
-        coEvery { dailyChallengeApi.fetchToday() } returns null
+        every { observeProblemsUseCase() } returns flowOf(
+            ProblemsData(allProblems = problemsList, solvedIds = emptySet())
+        )
+        coEvery { getDailyChallengeUseCase() } returns DailyChallengeResult(
+            problem = null, bonusXp = 0, isCompleted = false, isAvailable = false
+        )
 
-        val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
+        val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase)
 
         viewModel.uiState.test {
             val state = awaitItem() as ProblemsUiState.Loaded

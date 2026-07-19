@@ -5,15 +5,13 @@ import com.hackerrank.app.MainDispatcherRule
 import com.hackerrank.app.domain.model.DataStructure
 import com.hackerrank.app.domain.model.DataStructureCategory
 import com.hackerrank.app.domain.model.Difficulty
-import com.hackerrank.app.domain.model.UserProgress
-import com.hackerrank.app.domain.repository.ContentRepository
-import com.hackerrank.app.domain.repository.ProgressRepository
+import com.hackerrank.app.domain.usecase.BrowseData
+import com.hackerrank.app.domain.usecase.ObserveBrowseDataUseCase
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 
@@ -22,8 +20,7 @@ class BrowseViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val contentRepository: ContentRepository = mockk()
-    private val progressRepository: ProgressRepository = mockk()
+    private val observeBrowseDataUseCase: ObserveBrowseDataUseCase = mockk()
 
     @Test
     fun `initializing ViewModel loads structures and maps progress successfully`() = runTest {
@@ -54,31 +51,25 @@ class BrowseViewModelTest {
             )
         )
 
-        val progressList = listOf(
-            UserProgress(
-                structureId = "1",
-                quizzesCompleted = 2,
-                totalCorrect = 8,
-                totalQuestions = 10,
-                bestScore = 4,
-                masteryLevel = 80 // masteryPercentage calculates to masteryLevel
-            )
+        val browseData = BrowseData(
+            groupedStructures = mapOf(
+                DataStructureCategory.LINEAR to listOf(structures[0]),
+                DataStructureCategory.TREES to listOf(structures[1])
+            ),
+            progressMap = mapOf("1" to 0.8f)
         )
 
-        every { contentRepository.getAllStructures() } returns flowOf(structures)
-        every { progressRepository.getAllProgress() } returns flowOf(progressList)
+        every { observeBrowseDataUseCase() } returns flowOf(browseData)
 
-        val viewModel = BrowseViewModel(contentRepository, progressRepository)
+        val viewModel = BrowseViewModel(observeBrowseDataUseCase)
 
         viewModel.uiState.test {
             val state = awaitItem() as BrowseUiState.Loaded
 
-            // Verify grouped structures
             assertEquals(2, state.groupedStructures.size)
             assertEquals(1, state.groupedStructures[DataStructureCategory.LINEAR]?.size)
             assertEquals("Linked List", state.groupedStructures[DataStructureCategory.LINEAR]?.get(0)?.name)
 
-            // Verify progress map: progress percentage = masteryLevel / 100f = 0.8f
             assertEquals(0.8f, state.progressMap["1"])
             assertEquals(null, state.progressMap["2"])
         }

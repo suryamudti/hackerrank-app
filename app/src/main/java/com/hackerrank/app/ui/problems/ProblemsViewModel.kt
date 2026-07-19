@@ -2,21 +2,16 @@ package com.hackerrank.app.ui.problems
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hackerrank.app.data.remote.DailyChallengeApi
-import com.hackerrank.app.data.remote.DailyChallengeResponse
 import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.domain.model.Problem
 import com.hackerrank.app.domain.model.ProblemCategory
-import com.hackerrank.app.domain.repository.ProblemRepository
-import com.hackerrank.app.domain.repository.ProgressRepository
+import com.hackerrank.app.domain.usecase.GetDailyChallengeUseCase
+import com.hackerrank.app.domain.usecase.ObserveProblemsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 data class DailyChallengeState(
@@ -41,9 +36,8 @@ sealed interface ProblemsUiState {
 
 @HiltViewModel
 class ProblemsViewModel @Inject constructor(
-    private val problemRepository: ProblemRepository,
-    private val progressRepository: ProgressRepository,
-    private val dailyChallengeApi: DailyChallengeApi
+    private val observeProblemsUseCase: ObserveProblemsUseCase,
+    private val getDailyChallengeUseCase: GetDailyChallengeUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ProblemsUiState>(ProblemsUiState.Loading)
@@ -51,7 +45,6 @@ class ProblemsViewModel @Inject constructor(
 
     private val _selectedDifficulty = MutableStateFlow<Difficulty?>(null)
     private val _selectedCategory = MutableStateFlow<ProblemCategory?>(null)
-    private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
     init {
         loadProblems()
@@ -61,21 +54,20 @@ class ProblemsViewModel @Inject constructor(
     private fun loadProblems() {
         viewModelScope.launch {
             combine(
-                problemRepository.getAllProblems(),
-                problemRepository.getSolvedIds(),
+                observeProblemsUseCase(),
                 _selectedDifficulty,
                 _selectedCategory
-            ) { problems, solvedIds, difficulty, category ->
-                val filtered = problems.filter { p ->
+            ) { problemsData, difficulty, category ->
+                val filtered = problemsData.allProblems.filter { p ->
                     (difficulty == null || p.difficulty == difficulty) &&
                             (category == null || p.category == category)
                 }
                 val current = _uiState.value
                 val dailyChallenge = if (current is ProblemsUiState.Loaded) current.dailyChallenge else DailyChallengeState()
                 ProblemsUiState.Loaded(
-                    allProblems = problems,
+                    allProblems = problemsData.allProblems,
                     filteredProblems = filtered,
-                    solvedIds = solvedIds,
+                    solvedIds = problemsData.solvedIds,
                     selectedDifficulty = difficulty,
                     selectedCategory = category,
                     dailyChallenge = dailyChallenge
@@ -88,21 +80,17 @@ class ProblemsViewModel @Inject constructor(
 
     private fun loadDailyChallenge() {
         viewModelScope.launch {
-            val today = LocalDate.now().format(dateFormatter)
-            val isCompleted = progressRepository.isDailyChallengeCompleted(today)
-            val cached = progressRepository.getDailyChallengeState().first()
-
-            if (cached != null && cached.date == today) {
-                resolveDailyChallengeProblem(cached, isCompleted)
-                return@launch
-            }
-
-            val response = dailyChallengeApi.fetchToday()
-            if (response != null && response.date == today) {
-                progressRepository.cacheDailyChallengeResponse(response)
-                resolveDailyChallengeProblem(response, isCompleted)
-            } else if (cached != null) {
-                resolveDailyChallengeProblem(cached, isCompleted)
+            val result = getDailyChallengeUseCase()
+            val current = _uiState.value
+            val dcState = DailyChallengeState(
+                isLoading = false,
+                problem = result.problem,
+                bonusXp = result.bonusXp,
+                isCompleted = result.isCompleted,
+                isUnavailable = !result.isAvailable
+            )
+            if (current is ProblemsUiState.Loaded) {
+                _uiState.value = current.copy(dailyChallenge = dcState)
             } else {
                 _uiState.value = ProblemsUiState.Loaded(
                     allProblems = emptyList(),
@@ -110,30 +98,10 @@ class ProblemsViewModel @Inject constructor(
                     solvedIds = emptySet(),
                     selectedDifficulty = null,
                     selectedCategory = null,
-                    dailyChallenge = DailyChallengeState(
-                        isLoading = false,
-                        isUnavailable = true
-                    )
+                    dailyChallenge = dcState
                 )
             }
         }
-    }
-
-    private suspend fun resolveDailyChallengeProblem(
-        response: DailyChallengeResponse,
-        isCompleted: Boolean
-    ) {
-        val problem = problemRepository.getProblemById(response.problemId).first()
-        val current = _uiState.value
-        val loadedState = if (current is ProblemsUiState.Loaded) current else return
-        _uiState.value = loadedState.copy(
-            dailyChallenge = DailyChallengeState(
-                isLoading = false,
-                problem = problem,
-                bonusXp = response.bonusXp,
-                isCompleted = isCompleted
-            )
-        )
     }
 
     fun selectDifficulty(difficulty: Difficulty?) {

@@ -7,12 +7,13 @@ import com.hackerrank.app.domain.model.DataStructureCategory
 import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.domain.model.GamificationResult
 import com.hackerrank.app.domain.model.QuizQuestion
+import com.hackerrank.app.domain.model.QuizSession
 import com.hackerrank.app.domain.model.StreakInfo
 import com.hackerrank.app.domain.model.UserProgress
 import com.hackerrank.app.domain.repository.ContentRepository
-import com.hackerrank.app.domain.repository.ProgressRepository
 import com.hackerrank.app.domain.repository.QuizRepository
-import com.hackerrank.app.domain.usecase.RecordQuizCompleteUseCase
+import com.hackerrank.app.domain.usecase.FinishQuizResult
+import com.hackerrank.app.domain.usecase.FinishQuizUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -21,7 +22,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -33,14 +33,12 @@ class QuizViewModelTest {
 
     private val contentRepository: ContentRepository = mockk()
     private val quizRepository: QuizRepository = mockk()
-    private val progressRepository: ProgressRepository = mockk()
-    private val recordQuizCompleteUseCase: RecordQuizCompleteUseCase = mockk()
+    private val finishQuizUseCase: FinishQuizUseCase = mockk()
 
     private val viewModel = QuizViewModel(
         contentRepository,
         quizRepository,
-        progressRepository,
-        recordQuizCompleteUseCase
+        finishQuizUseCase
     )
 
     private val sampleStructure = DataStructure(
@@ -65,8 +63,6 @@ class QuizViewModelTest {
     fun `quiz flow loads questions, allows selections, advances, and completes successfully`() = runTest {
         coEvery { contentRepository.getStructureBySlug("linked-list") } returns sampleStructure
         every { quizRepository.getQuestionsByStructureId("struct1") } returns flowOf(sampleQuestions)
-        every { progressRepository.getProgressByStructureId("struct1") } returns flowOf(null)
-        coEvery { progressRepository.upsertProgress(any()) } returns Unit
 
         val gamificationResult = GamificationResult(
             xpAwarded = 140,
@@ -77,13 +73,11 @@ class QuizViewModelTest {
             streakInfo = StreakInfo(1, 1, true, null, "2026-07-04")
         )
         coEvery {
-            recordQuizCompleteUseCase(
-                score = any(),
-                totalQuestions = any(),
-                elapsedTimeMs = any(),
-                structureId = "struct1"
-            )
-        } returns gamificationResult
+            finishQuizUseCase(session = any(), structureId = "struct1")
+        } returns FinishQuizResult(
+            updatedProgress = UserProgress(structureId = "struct1", quizzesCompleted = 1, totalCorrect = 1, totalQuestions = 2, bestScore = 1, masteryLevel = 50),
+            gamificationResult = gamificationResult
+        )
 
         // 1. Load Quiz
         viewModel.loadQuiz("linked-list")
@@ -125,22 +119,9 @@ class QuizViewModelTest {
             assertTrue(completedState.session.isCompleted)
             assertEquals(gamificationResult, completedState.gamificationResult)
 
-            // Verify progress repository and gamification engine interactions
+            // Verify finishQuizUseCase was called
             coVerify(exactly = 1) {
-                progressRepository.upsertProgress(withArg {
-                    assertEquals("struct1", it.structureId)
-                    assertEquals(1, it.quizzesCompleted)
-                    assertEquals(1, it.totalCorrect)
-                    assertEquals(2, it.totalQuestions)
-                    assertEquals(1, it.bestScore)
-                    assertEquals(50, it.masteryLevel) // 1/2 correct -> 50%
-                })
-                recordQuizCompleteUseCase(
-                    score = 1,
-                    totalQuestions = 2,
-                    elapsedTimeMs = any(),
-                    structureId = "struct1"
-                )
+                finishQuizUseCase(session = any(), structureId = "struct1")
             }
         }
     }
@@ -149,9 +130,13 @@ class QuizViewModelTest {
     fun `retry shuffles questions and resets session`() = runTest {
         coEvery { contentRepository.getStructureBySlug("linked-list") } returns sampleStructure
         every { quizRepository.getQuestionsByStructureId("struct1") } returns flowOf(sampleQuestions)
-        every { progressRepository.getProgressByStructureId("struct1") } returns flowOf(null)
-        coEvery { progressRepository.upsertProgress(any()) } returns Unit
-        coEvery { recordQuizCompleteUseCase(any(), any(), any(), any()) } returns mockk()
+
+        coEvery {
+            finishQuizUseCase(session = any(), structureId = "struct1")
+        } returns FinishQuizResult(
+            updatedProgress = UserProgress(structureId = "struct1"),
+            gamificationResult = mockk()
+        )
 
         viewModel.loadQuiz("linked-list")
         viewModel.selectAnswer("q1", 0)

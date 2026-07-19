@@ -4,14 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hackerrank.app.domain.model.DataStructure
 import com.hackerrank.app.domain.model.DataStructureCategory
-import com.hackerrank.app.domain.model.UserProgress
-import com.hackerrank.app.domain.repository.ContentRepository
-import com.hackerrank.app.domain.repository.ProgressRepository
+import com.hackerrank.app.domain.usecase.ObserveBrowseDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,34 +21,19 @@ sealed interface BrowseUiState {
 
 @HiltViewModel
 class BrowseViewModel @Inject constructor(
-    private val contentRepository: ContentRepository,
-    private val progressRepository: ProgressRepository
+    private val observeBrowseDataUseCase: ObserveBrowseDataUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<BrowseUiState>(BrowseUiState.Loading)
     val uiState: StateFlow<BrowseUiState> = _uiState
 
     init {
-        loadStructures()
-    }
-
-    private fun loadStructures() {
         viewModelScope.launch {
-            combine(
-                contentRepository.getAllStructures(),
-                progressRepository.getAllProgress().map { list ->
-                    list.associate { it.structureId to (it.masteryPercentage / 100f) }
-                }
-            ) { structures, progressMap ->
-                val grouped = structures.groupBy { it.category }
-                BrowseUiState.Loaded(
-                    groupedStructures = DataStructureCategory.entries
-                        .mapNotNull { cat -> grouped[cat]?.let { cat to it } }
-                        .toMap(),
-                    progressMap = progressMap
+            observeBrowseDataUseCase().collect { data ->
+                _uiState.value = BrowseUiState.Loaded(
+                    groupedStructures = data.groupedStructures,
+                    progressMap = data.progressMap
                 )
-            }.collect { state ->
-                _uiState.value = state
             }
         }
     }

@@ -8,7 +8,8 @@ import com.hackerrank.app.domain.model.GamificationResult
 import com.hackerrank.app.domain.model.Problem
 import com.hackerrank.app.domain.model.ProblemCategory
 import com.hackerrank.app.domain.model.StreakInfo
-import com.hackerrank.app.domain.repository.ProblemRepository
+import com.hackerrank.app.domain.usecase.ObserveProblemDetailUseCase
+import com.hackerrank.app.domain.usecase.ProblemDetailData
 import com.hackerrank.app.domain.usecase.RecordDailyChallengeUseCase
 import com.hackerrank.app.domain.usecase.RecordProblemSolveUseCase
 import androidx.lifecycle.SavedStateHandle
@@ -30,7 +31,7 @@ class ProblemDetailViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val problemRepository: ProblemRepository = mockk()
+    private val observeProblemDetailUseCase: ObserveProblemDetailUseCase = mockk()
     private val recordProblemSolveUseCase: RecordProblemSolveUseCase = mockk()
     private val recordDailyChallengeUseCase: RecordDailyChallengeUseCase = mockk()
 
@@ -50,10 +51,11 @@ class ProblemDetailViewModelTest {
     @Test
     fun `loadProblem fetches details and unsolved status correctly`() = runTest {
         val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
-        val viewModel = ProblemDetailViewModel(problemRepository, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+        val viewModel = ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
 
-        every { problemRepository.getProblemById("1") } returns flowOf(sampleProblem)
-        every { problemRepository.isSolved("1") } returns flowOf(false)
+        every { observeProblemDetailUseCase("1") } returns flowOf(
+            ProblemDetailData(problem = sampleProblem, isSolved = false)
+        )
 
         viewModel.loadProblem("1")
 
@@ -68,10 +70,11 @@ class ProblemDetailViewModelTest {
     @Test
     fun `loadProblem preserves input and output examples in uiState`() = runTest {
         val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
-        val viewModel = ProblemDetailViewModel(problemRepository, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+        val viewModel = ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
 
-        every { problemRepository.getProblemById("1") } returns flowOf(sampleProblem)
-        every { problemRepository.isSolved("1") } returns flowOf(false)
+        every { observeProblemDetailUseCase("1") } returns flowOf(
+            ProblemDetailData(problem = sampleProblem, isSolved = false)
+        )
 
         viewModel.loadProblem("1")
 
@@ -86,10 +89,11 @@ class ProblemDetailViewModelTest {
     @Test
     fun `solve triggers RecordProblemSolveUseCase and updates state successfully`() = runTest {
         val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
-        val viewModel = ProblemDetailViewModel(problemRepository, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+        val viewModel = ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
 
-        every { problemRepository.getProblemById("1") } returns flowOf(sampleProblem)
-        every { problemRepository.isSolved("1") } returns flowOf(false)
+        every { observeProblemDetailUseCase("1") } returns flowOf(
+            ProblemDetailData(problem = sampleProblem, isSolved = false)
+        )
 
         val gamificationResult = GamificationResult(
             xpAwarded = 10,
@@ -116,10 +120,11 @@ class ProblemDetailViewModelTest {
     @Test
     fun `daily challenge solve triggers RecordDailyChallengeUseCase`() = runTest {
         val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to true))
-        val viewModel = ProblemDetailViewModel(problemRepository, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+        val viewModel = ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
 
-        every { problemRepository.getProblemById("1") } returns flowOf(sampleProblem)
-        every { problemRepository.isSolved("1") } returns flowOf(false)
+        every { observeProblemDetailUseCase("1") } returns flowOf(
+            ProblemDetailData(problem = sampleProblem, isSolved = false)
+        )
 
         val gamificationResult = GamificationResult(
             xpAwarded = 10 + Constants.DAILY_CHALLENGE_BONUS_XP,
@@ -147,10 +152,11 @@ class ProblemDetailViewModelTest {
     @Test
     fun `toggleSolution toggles visibility boolean`() = runTest {
         val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
-        val viewModel = ProblemDetailViewModel(problemRepository, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+        val viewModel = ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
 
-        every { problemRepository.getProblemById("1") } returns flowOf(sampleProblem)
-        every { problemRepository.isSolved("1") } returns flowOf(false)
+        every { observeProblemDetailUseCase("1") } returns flowOf(
+            ProblemDetailData(problem = sampleProblem, isSolved = false)
+        )
 
         viewModel.loadProblem("1")
 
@@ -171,10 +177,11 @@ class ProblemDetailViewModelTest {
     @Test
     fun `clearSolveResult clears gamification solveResult`() = runTest {
         val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
-        val viewModel = ProblemDetailViewModel(problemRepository, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+        val viewModel = ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
 
-        every { problemRepository.getProblemById("1") } returns flowOf(sampleProblem)
-        every { problemRepository.isSolved("1") } returns flowOf(false)
+        every { observeProblemDetailUseCase("1") } returns flowOf(
+            ProblemDetailData(problem = sampleProblem, isSolved = false)
+        )
 
         val gamificationResult = GamificationResult(
             xpAwarded = 10,
