@@ -14,7 +14,7 @@ import org.junit.Test
 class QuizRepositoryImplTest {
 
     private val dao: QuizQuestionDao = mockk()
-    private val gson: Gson = mockk()
+    private val gson: Gson = Gson()
     private val repository = QuizRepositoryImpl(dao, gson)
 
     private val sampleQuestionEntity = QuizQuestionEntity(

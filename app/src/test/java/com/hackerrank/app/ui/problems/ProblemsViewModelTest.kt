@@ -3,6 +3,7 @@ package com.hackerrank.app.ui.problems
 import app.cash.turbine.test
 import com.hackerrank.app.MainDispatcherRule
 import com.hackerrank.app.data.remote.DailyChallengeApi
+import com.hackerrank.app.data.remote.DailyChallengeResponse
 import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.domain.model.Problem
 import com.hackerrank.app.domain.model.ProblemCategory
@@ -59,13 +60,20 @@ class ProblemsViewModelTest {
         )
     )
 
+    private fun setupCommonMocks() {
+        every { problemRepository.getAllProblems() } returns flowOf(problemsList)
+        every { problemRepository.getSolvedIds() } returns flowOf(emptySet())
+        coEvery { progressRepository.isDailyChallengeCompleted(any()) } returns false
+    }
+
     @Test
     fun `initializing ViewModel loads all problems and solved IDs`() = runTest {
-        every { problemRepository.getAllProblems() } returns flowOf(problemsList)
-        every { problemRepository.getSolvedIds() } returns flowOf(setOf("1"))
-        coEvery { progressRepository.isDailyChallengeCompleted(any()) } returns false
-        every { progressRepository.getDailyChallengeState() } returns flowOf(null)
-        coEvery { dailyChallengeApi.fetchToday() } returns null
+        val today = LocalDate.now().format(dateFormatter)
+        setupCommonMocks()
+        every { progressRepository.getDailyChallengeState() } returns flowOf(
+            DailyChallengeResponse(date = today, problemId = "1", bonusXp = 10)
+        )
+        every { problemRepository.getProblemById("1") } returns flowOf(problemsList[0])
 
         val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
 
@@ -79,11 +87,12 @@ class ProblemsViewModelTest {
 
     @Test
     fun `selectDifficulty filters problems list`() = runTest {
-        every { problemRepository.getAllProblems() } returns flowOf(problemsList)
-        every { problemRepository.getSolvedIds() } returns flowOf(emptySet())
-        coEvery { progressRepository.isDailyChallengeCompleted(any()) } returns false
-        every { progressRepository.getDailyChallengeState() } returns flowOf(null)
-        coEvery { dailyChallengeApi.fetchToday() } returns null
+        val today = LocalDate.now().format(dateFormatter)
+        setupCommonMocks()
+        every { progressRepository.getDailyChallengeState() } returns flowOf(
+            DailyChallengeResponse(date = today, problemId = "1", bonusXp = 10)
+        )
+        every { problemRepository.getProblemById("1") } returns flowOf(problemsList[0])
 
         val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
 
@@ -106,11 +115,12 @@ class ProblemsViewModelTest {
 
     @Test
     fun `selectCategory filters problems list`() = runTest {
-        every { problemRepository.getAllProblems() } returns flowOf(problemsList)
-        every { problemRepository.getSolvedIds() } returns flowOf(emptySet())
-        coEvery { progressRepository.isDailyChallengeCompleted(any()) } returns false
-        every { progressRepository.getDailyChallengeState() } returns flowOf(null)
-        coEvery { dailyChallengeApi.fetchToday() } returns null
+        val today = LocalDate.now().format(dateFormatter)
+        setupCommonMocks()
+        every { progressRepository.getDailyChallengeState() } returns flowOf(
+            DailyChallengeResponse(date = today, problemId = "1", bonusXp = 10)
+        )
+        every { problemRepository.getProblemById("1") } returns flowOf(problemsList[0])
 
         val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
 
@@ -129,9 +139,7 @@ class ProblemsViewModelTest {
     @Test
     fun `dailyChallenge state shows unavailable when no response and no cache`() = runTest {
         val today = LocalDate.now().format(dateFormatter)
-        every { problemRepository.getAllProblems() } returns flowOf(problemsList)
-        every { problemRepository.getSolvedIds() } returns flowOf(emptySet())
-        coEvery { progressRepository.isDailyChallengeCompleted(today) } returns false
+        setupCommonMocks()
         every { progressRepository.getDailyChallengeState() } returns flowOf(null)
         coEvery { dailyChallengeApi.fetchToday() } returns null
 

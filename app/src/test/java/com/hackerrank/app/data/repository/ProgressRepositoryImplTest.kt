@@ -24,7 +24,7 @@ class ProgressRepositoryImplTest {
 
     private val progressDao: ProgressDao = mockk()
     private val profileDao: ProfileDao = mockk()
-    private val gson: Gson = mockk()
+    private val gson: Gson = Gson()
     private val context: Context = mockk(relaxed = true)
     private val repository = ProgressRepositoryImpl(progressDao, profileDao, gson, context)
 

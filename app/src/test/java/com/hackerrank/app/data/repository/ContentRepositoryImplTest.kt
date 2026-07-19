@@ -19,7 +19,7 @@ import org.junit.Test
 class ContentRepositoryImplTest {
 
     private val dao: DataStructureDao = mockk()
-    private val gson: Gson = mockk()
+    private val gson: Gson = Gson()
     private val repository = ContentRepositoryImpl(dao, gson)
 
     private val sampleEntity = DataStructureEntity(
