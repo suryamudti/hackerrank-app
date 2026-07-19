@@ -7,9 +7,8 @@ import com.hackerrank.app.domain.model.GamificationResult
 import com.hackerrank.app.domain.model.QuizQuestion
 import com.hackerrank.app.domain.model.QuizSession
 import com.hackerrank.app.domain.repository.ContentRepository
-import com.hackerrank.app.domain.repository.ProgressRepository
 import com.hackerrank.app.domain.repository.QuizRepository
-import com.hackerrank.app.domain.usecase.RecordQuizCompleteUseCase
+import com.hackerrank.app.domain.usecase.FinishQuizUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,8 +34,7 @@ sealed class QuizState {
 class QuizViewModel @Inject constructor(
     private val contentRepository: ContentRepository,
     private val quizRepository: QuizRepository,
-    private val progressRepository: ProgressRepository,
-    private val recordQuizCompleteUseCase: RecordQuizCompleteUseCase
+    private val finishQuizUseCase: FinishQuizUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<QuizState>(QuizState.Loading)
@@ -97,34 +95,14 @@ class QuizViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            // Persist progress
-            val existingProgress = progressRepository
-                .getProgressByStructureId(structureId)
-                .first()
-
-            val newProgress = (existingProgress ?: com.hackerrank.app.domain.model.UserProgress(
-                structureId = structureId
-            )).copy(
-                quizzesCompleted = (existingProgress?.quizzesCompleted ?: 0) + 1,
-                totalCorrect = (existingProgress?.totalCorrect ?: 0) + completedSession.score,
-                totalQuestions = (existingProgress?.totalQuestions ?: 0) + completedSession.totalQuestions,
-                bestScore = maxOf(existingProgress?.bestScore ?: 0, completedSession.score),
-                masteryLevel = ((existingProgress?.totalCorrect ?: 0) + completedSession.score) * 100 /
-                        ((existingProgress?.totalQuestions ?: 0) + completedSession.totalQuestions)
-            )
-            progressRepository.upsertProgress(newProgress)
-
-            // Record gamification event
-            val result = recordQuizCompleteUseCase(
-                score = completedSession.score,
-                totalQuestions = completedSession.totalQuestions,
-                elapsedTimeMs = completedSession.elapsedTimeMs,
+            val result = finishQuizUseCase(
+                session = completedSession,
                 structureId = structureId
             )
 
             _uiState.value = QuizState.Completed(
                 session = completedSession,
-                gamificationResult = result
+                gamificationResult = result.gamificationResult
             )
         }
     }
