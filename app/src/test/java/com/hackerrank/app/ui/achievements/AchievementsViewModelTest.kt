@@ -38,9 +38,7 @@ class AchievementsViewModelTest {
         val viewModel = AchievementsViewModel(progressRepository)
 
         viewModel.uiState.test {
-            // First item might be loading, or directly Ready since UnconfinedTestDispatcher executes flow eagerly
-            val state = awaitItem()
-            assertFalse(state.isLoading)
+            val state = awaitItem() as AchievementsUiState.Loaded
             assertEquals(BadgeDefinition.entries.size, state.badges.size)
 
             val firstStepsBadge = state.badges.first { it.badge.id == BadgeDefinition.FIRST_STEPS.id }

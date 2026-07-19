@@ -71,8 +71,7 @@ class BrowseViewModelTest {
         val viewModel = BrowseViewModel(contentRepository, progressRepository)
 
         viewModel.uiState.test {
-            val state = awaitItem()
-            assertFalse(state.isLoading)
+            val state = awaitItem() as BrowseUiState.Loaded
 
             // Verify grouped structures
             assertEquals(2, state.groupedStructures.size)

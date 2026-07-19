@@ -70,8 +70,7 @@ class ProblemsViewModelTest {
         val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
 
         viewModel.uiState.test {
-            val state = awaitItem()
-            assertFalse(state.isLoading)
+            val state = awaitItem() as ProblemsUiState.Loaded
             assertEquals(2, state.allProblems.size)
             assertEquals(2, state.filteredProblems.size)
             assertEquals(setOf("1"), state.solvedIds)
@@ -89,17 +88,17 @@ class ProblemsViewModelTest {
         val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
 
         viewModel.uiState.test {
-            var state = awaitItem()
+            var state = awaitItem() as ProblemsUiState.Loaded
             assertNull(state.selectedDifficulty)
 
             viewModel.selectDifficulty(Difficulty.EASY)
-            state = awaitItem()
+            state = awaitItem() as ProblemsUiState.Loaded
             assertEquals(Difficulty.EASY, state.selectedDifficulty)
             assertEquals(1, state.filteredProblems.size)
             assertEquals("Two Sum", state.filteredProblems[0].title)
 
             viewModel.selectDifficulty(Difficulty.EASY)
-            state = awaitItem()
+            state = awaitItem() as ProblemsUiState.Loaded
             assertNull(state.selectedDifficulty)
             assertEquals(2, state.filteredProblems.size)
         }
@@ -116,11 +115,11 @@ class ProblemsViewModelTest {
         val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
 
         viewModel.uiState.test {
-            var state = awaitItem()
+            var state = awaitItem() as ProblemsUiState.Loaded
             assertNull(state.selectedCategory)
 
             viewModel.selectCategory(ProblemCategory.LINKED_LISTS)
-            state = awaitItem()
+            state = awaitItem() as ProblemsUiState.Loaded
             assertEquals(ProblemCategory.LINKED_LISTS, state.selectedCategory)
             assertEquals(1, state.filteredProblems.size)
             assertEquals("Reverse Linked List", state.filteredProblems[0].title)
@@ -139,7 +138,7 @@ class ProblemsViewModelTest {
         val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
 
         viewModel.uiState.test {
-            val state = awaitItem()
+            val state = awaitItem() as ProblemsUiState.Loaded
             assertTrue(state.dailyChallenge.isUnavailable)
             assertFalse(state.dailyChallenge.isLoading)
         }

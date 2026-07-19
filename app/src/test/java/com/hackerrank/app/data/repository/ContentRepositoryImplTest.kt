@@ -6,6 +6,7 @@ import com.hackerrank.app.data.local.entity.DataStructureEntity
 import com.hackerrank.app.domain.model.DataStructureCategory
 import com.hackerrank.app.domain.model.Difficulty
 import io.mockk.coEvery
+import com.google.gson.Gson
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
@@ -18,7 +19,8 @@ import org.junit.Test
 class ContentRepositoryImplTest {
 
     private val dao: DataStructureDao = mockk()
-    private val repository = ContentRepositoryImpl(dao)
+    private val gson: Gson = mockk()
+    private val repository = ContentRepositoryImpl(dao, gson)
 
     private val sampleEntity = DataStructureEntity(
         id = "1",
