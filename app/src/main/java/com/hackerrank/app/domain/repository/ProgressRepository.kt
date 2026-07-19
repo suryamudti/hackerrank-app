@@ -14,6 +14,7 @@ interface ProgressRepository {
     suspend fun upsertProfile(profile: UserProfile)
     fun getMasteredCount(): Flow<Int>
     fun getDailyChallengeState(): Flow<DailyChallengeResponse?>
+    suspend fun cacheDailyChallengeResponse(response: DailyChallengeResponse)
     suspend fun setDailyChallengeCompleted(date: String)
     suspend fun isDailyChallengeCompleted(date: String): Boolean
 }

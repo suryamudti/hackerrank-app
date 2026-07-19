@@ -15,11 +15,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class BrowseUiState(
-    val groupedStructures: Map<DataStructureCategory, List<DataStructure>> = emptyMap(),
-    val progressMap: Map<String, Float> = emptyMap(),
-    val isLoading: Boolean = true
-)
+sealed interface BrowseUiState {
+    data object Loading : BrowseUiState
+    data class Loaded(
+        val groupedStructures: Map<DataStructureCategory, List<DataStructure>>,
+        val progressMap: Map<String, Float>
+    ) : BrowseUiState
+}
 
 @HiltViewModel
 class BrowseViewModel @Inject constructor(
@@ -27,7 +29,7 @@ class BrowseViewModel @Inject constructor(
     private val progressRepository: ProgressRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(BrowseUiState())
+    private val _uiState = MutableStateFlow<BrowseUiState>(BrowseUiState.Loading)
     val uiState: StateFlow<BrowseUiState> = _uiState
 
     init {
@@ -43,12 +45,11 @@ class BrowseViewModel @Inject constructor(
                 }
             ) { structures, progressMap ->
                 val grouped = structures.groupBy { it.category }
-                BrowseUiState(
+                BrowseUiState.Loaded(
                     groupedStructures = DataStructureCategory.entries
                         .mapNotNull { cat -> grouped[cat]?.let { cat to it } }
                         .toMap(),
-                    progressMap = progressMap,
-                    isLoading = false
+                    progressMap = progressMap
                 )
             }.collect { state ->
                 _uiState.value = state

@@ -12,10 +12,9 @@ import javax.inject.Singleton
 
 @Singleton
 class QuizRepositoryImpl @Inject constructor(
-    private val dao: QuizQuestionDao
+    private val dao: QuizQuestionDao,
+    private val gson: Gson
 ) : QuizRepository {
-
-    private val gson = Gson()
 
     override fun getQuestionsByStructureId(structureId: String): Flow<List<QuizQuestion>> {
         return dao.getQuestionsByStructureId(structureId).map { entities ->

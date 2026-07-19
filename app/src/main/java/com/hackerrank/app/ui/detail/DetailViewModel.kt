@@ -13,11 +13,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class DetailUiState(
-    val structure: DataStructure? = null,
-    val progress: UserProgress? = null,
-    val isLoading: Boolean = true
-)
+sealed interface DetailUiState {
+    data object Loading : DetailUiState
+    data class Loaded(
+        val structure: DataStructure,
+        val progress: UserProgress?
+    ) : DetailUiState
+}
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
@@ -25,7 +27,7 @@ class DetailViewModel @Inject constructor(
     private val progressRepository: ProgressRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(DetailUiState())
+    private val _uiState = MutableStateFlow<DetailUiState>(DetailUiState.Loading)
     val uiState: StateFlow<DetailUiState> = _uiState
 
     fun loadStructure(slug: String) {
@@ -36,10 +38,9 @@ class DetailViewModel @Inject constructor(
                     progressRepository.getProgressByStructureId(structure.id),
                     progressRepository.getProfile()
                 ) { progress, _ ->
-                    _uiState.value = DetailUiState(
+                    _uiState.value = DetailUiState.Loaded(
                         structure = structure,
-                        progress = progress,
-                        isLoading = false
+                        progress = progress
                     )
                 }.collect {}
             }

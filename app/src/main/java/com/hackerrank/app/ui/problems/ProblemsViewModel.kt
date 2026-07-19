@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hackerrank.app.data.remote.DailyChallengeApi
 import com.hackerrank.app.data.remote.DailyChallengeResponse
-import com.hackerrank.app.data.repository.ProgressRepositoryImpl
 import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.domain.model.Problem
 import com.hackerrank.app.domain.model.ProblemCategory
@@ -28,15 +27,17 @@ data class DailyChallengeState(
     val isUnavailable: Boolean = false
 )
 
-data class ProblemsUiState(
-    val allProblems: List<Problem> = emptyList(),
-    val filteredProblems: List<Problem> = emptyList(),
-    val solvedIds: Set<String> = emptySet(),
-    val selectedDifficulty: Difficulty? = null,
-    val selectedCategory: ProblemCategory? = null,
-    val isLoading: Boolean = true,
-    val dailyChallenge: DailyChallengeState = DailyChallengeState()
-)
+sealed interface ProblemsUiState {
+    data object Loading : ProblemsUiState
+    data class Loaded(
+        val allProblems: List<Problem>,
+        val filteredProblems: List<Problem>,
+        val solvedIds: Set<String>,
+        val selectedDifficulty: Difficulty?,
+        val selectedCategory: ProblemCategory?,
+        val dailyChallenge: DailyChallengeState
+    ) : ProblemsUiState
+}
 
 @HiltViewModel
 class ProblemsViewModel @Inject constructor(
@@ -45,7 +46,7 @@ class ProblemsViewModel @Inject constructor(
     private val dailyChallengeApi: DailyChallengeApi
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ProblemsUiState())
+    private val _uiState = MutableStateFlow<ProblemsUiState>(ProblemsUiState.Loading)
     val uiState: StateFlow<ProblemsUiState> = _uiState
 
     private val _selectedDifficulty = MutableStateFlow<Difficulty?>(null)
@@ -69,13 +70,15 @@ class ProblemsViewModel @Inject constructor(
                     (difficulty == null || p.difficulty == difficulty) &&
                             (category == null || p.category == category)
                 }
-                _uiState.value.copy(
+                val current = _uiState.value
+                val dailyChallenge = if (current is ProblemsUiState.Loaded) current.dailyChallenge else DailyChallengeState()
+                ProblemsUiState.Loaded(
                     allProblems = problems,
                     filteredProblems = filtered,
                     solvedIds = solvedIds,
                     selectedDifficulty = difficulty,
                     selectedCategory = category,
-                    isLoading = false
+                    dailyChallenge = dailyChallenge
                 )
             }.collect { state ->
                 _uiState.value = state
@@ -96,12 +99,17 @@ class ProblemsViewModel @Inject constructor(
 
             val response = dailyChallengeApi.fetchToday()
             if (response != null && response.date == today) {
-                (progressRepository as? ProgressRepositoryImpl)?.cacheDailyChallengeResponse(response)
+                progressRepository.cacheDailyChallengeResponse(response)
                 resolveDailyChallengeProblem(response, isCompleted)
             } else if (cached != null) {
                 resolveDailyChallengeProblem(cached, isCompleted)
             } else {
-                _uiState.value = _uiState.value.copy(
+                _uiState.value = ProblemsUiState.Loaded(
+                    allProblems = emptyList(),
+                    filteredProblems = emptyList(),
+                    solvedIds = emptySet(),
+                    selectedDifficulty = null,
+                    selectedCategory = null,
                     dailyChallenge = DailyChallengeState(
                         isLoading = false,
                         isUnavailable = true
@@ -116,7 +124,9 @@ class ProblemsViewModel @Inject constructor(
         isCompleted: Boolean
     ) {
         val problem = problemRepository.getProblemById(response.problemId).first()
-        _uiState.value = _uiState.value.copy(
+        val current = _uiState.value
+        val loadedState = if (current is ProblemsUiState.Loaded) current else return
+        _uiState.value = loadedState.copy(
             dailyChallenge = DailyChallengeState(
                 isLoading = false,
                 problem = problem,

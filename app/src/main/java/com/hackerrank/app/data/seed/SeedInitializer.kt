@@ -1,12 +1,21 @@
 package com.hackerrank.app.data.seed
 
+import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.hackerrank.app.data.local.HackerRankDatabase
+import com.hackerrank.app.data.local.entity.DataStructureEntity
+import com.hackerrank.app.data.local.entity.ProblemEntity
+import com.hackerrank.app.data.local.entity.QuizQuestionEntity
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class SeedInitializer @Inject constructor(
-    private val database: HackerRankDatabase
+    private val database: HackerRankDatabase,
+    private val gson: Gson,
+    @ApplicationContext private val context: Context
 ) {
     suspend fun initializeIfNeeded() {
         val structureDao = database.dataStructureDao()
@@ -14,16 +23,47 @@ class SeedInitializer @Inject constructor(
         val profileDao = database.profileDao()
         val problemDao = database.problemDao()
 
-        // Seed structures, quizzes, and profile (only if structures haven't been seeded yet)
         if (structureDao.count() == 0) {
-            structureDao.insertAll(SeedData.getStructures())
-            quizDao.insertAll(SeedData.getQuizQuestionsList())
+            val structures = loadStructures()
+            structureDao.insertAll(structures)
+            val quizzes = loadQuizzes()
+            quizDao.insertAll(quizzes)
             profileDao.upsert(SeedData.getDefaultProfile())
         }
 
-        // Seed problems independently (on every fresh install or after DB wipe)
         if (problemDao.count() == 0) {
-            problemDao.insertAll(ProblemSeedData.getProblems())
+            val problems = loadProblems()
+            problemDao.insertAll(problems)
+        }
+    }
+
+    private fun loadStructures(): List<DataStructureEntity> {
+        return try {
+            val json = context.assets.open("seed/structures.json").bufferedReader().use { it.readText() }
+            val type = object : TypeToken<List<DataStructureEntity>>() {}.type
+            gson.fromJson(json, type)
+        } catch (_: Exception) {
+            SeedData.getStructures()
+        }
+    }
+
+    private fun loadQuizzes(): List<QuizQuestionEntity> {
+        return try {
+            val json = context.assets.open("seed/quizzes.json").bufferedReader().use { it.readText() }
+            val type = object : TypeToken<List<QuizQuestionEntity>>() {}.type
+            gson.fromJson(json, type)
+        } catch (_: Exception) {
+            SeedData.getQuizQuestionsList()
+        }
+    }
+
+    private fun loadProblems(): List<ProblemEntity> {
+        return try {
+            val json = context.assets.open("seed/problems.json").bufferedReader().use { it.readText() }
+            val type = object : TypeToken<List<ProblemEntity>>() {}.type
+            gson.fromJson(json, type)
+        } catch (_: Exception) {
+            ProblemSeedData.getProblems()
         }
     }
 }

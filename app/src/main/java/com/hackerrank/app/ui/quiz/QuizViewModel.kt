@@ -2,6 +2,7 @@ package com.hackerrank.app.ui.quiz
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hackerrank.app.core.Constants
 import com.hackerrank.app.domain.model.GamificationResult
 import com.hackerrank.app.domain.model.QuizQuestion
 import com.hackerrank.app.domain.model.QuizSession
@@ -51,7 +52,7 @@ class QuizViewModel @Inject constructor(
                 val questions = quizRepository
                     .getQuestionsByStructureId(structure.id)
                     .first()
-                    .take(8)
+                    .take(Constants.QUESTIONS_PER_QUIZ)
                 val session = QuizSession(questions = questions)
                 _uiState.value = QuizState.Ready(session)
             }

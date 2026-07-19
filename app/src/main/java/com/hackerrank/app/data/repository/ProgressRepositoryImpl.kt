@@ -20,10 +20,10 @@ import javax.inject.Singleton
 class ProgressRepositoryImpl @Inject constructor(
     private val progressDao: ProgressDao,
     private val profileDao: ProfileDao,
+    private val gson: Gson,
     @ApplicationContext private val context: Context
 ) : ProgressRepository {
 
-    private val gson = Gson()
     private val prefs = context.getSharedPreferences("daily_challenge_prefs", Context.MODE_PRIVATE)
     private val _dailyChallengeState = MutableStateFlow(loadDailyChallenge())
 
@@ -102,7 +102,7 @@ class ProgressRepositoryImpl @Inject constructor(
         }
     }
 
-    fun cacheDailyChallengeResponse(response: DailyChallengeResponse) {
+    override suspend fun cacheDailyChallengeResponse(response: DailyChallengeResponse) {
         prefs.edit().putString("cached_response", gson.toJson(response)).apply()
         _dailyChallengeState.value = response
     }
