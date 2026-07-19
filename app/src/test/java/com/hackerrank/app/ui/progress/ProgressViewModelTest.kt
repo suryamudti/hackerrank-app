@@ -89,8 +89,7 @@ class ProgressViewModelTest {
         val viewModel = ProgressViewModel(progressRepository, contentRepository)
 
         viewModel.uiState.test {
-            val state = awaitItem()
-            assertFalse(state.isLoading)
+            val state = awaitItem() as ProgressUiState.Loaded
             assertEquals(userProfile, state.profile)
             assertEquals(progressList, state.allProgress)
             assertEquals(2, state.totalStructures)

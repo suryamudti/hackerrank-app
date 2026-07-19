@@ -3,6 +3,7 @@ package com.hackerrank.app.data.repository
 import app.cash.turbine.test
 import com.hackerrank.app.data.local.dao.QuizQuestionDao
 import com.hackerrank.app.data.local.entity.QuizQuestionEntity
+import com.google.gson.Gson
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
@@ -13,7 +14,8 @@ import org.junit.Test
 class QuizRepositoryImplTest {
 
     private val dao: QuizQuestionDao = mockk()
-    private val repository = QuizRepositoryImpl(dao)
+    private val gson: Gson = Gson()
+    private val repository = QuizRepositoryImpl(dao, gson)
 
     private val sampleQuestionEntity = QuizQuestionEntity(
         id = "q1",

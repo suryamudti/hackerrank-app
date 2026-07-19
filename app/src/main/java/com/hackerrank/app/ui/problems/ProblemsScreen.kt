@@ -54,47 +54,50 @@ fun ProblemsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    if (uiState.isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+    when (val state = uiState) {
+        is ProblemsUiState.Loading -> {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
         }
-        return
-    }
 
-    if (uiState.allProblems.isEmpty()) {
-        EmptyState(
-            icon = Icons.Default.Code,
-            title = stringResource(R.string.problems_no_problems_title),
-            message = stringResource(R.string.problems_no_problems_message)
-        )
-        return
-    }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        DailyChallengeBanner(
-            state = uiState.dailyChallenge,
-            onProblemClick = { id -> onDailyChallengeClick(id) }
-        )
-        Spacer(Modifier.height(8.dp))
-        DifficultyFilterRow(
-            selectedDifficulty = uiState.selectedDifficulty,
-            onDifficultyClick = { viewModel.selectDifficulty(it) }
-        )
-        CategoryFilterRow(
-            selectedCategory = uiState.selectedCategory,
-            onCategoryClick = { viewModel.selectCategory(it) }
-        )
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(uiState.filteredProblems, key = { it.id }) { problem ->
-                ProblemCard(
-                    problem = problem,
-                    isSolved = problem.id in uiState.solvedIds,
-                    onClick = { onProblemClick(problem.id) }
+        is ProblemsUiState.Loaded -> {
+            if (state.allProblems.isEmpty()) {
+                EmptyState(
+                    icon = Icons.Default.Code,
+                    title = stringResource(R.string.problems_no_problems_title),
+                    message = stringResource(R.string.problems_no_problems_message)
                 )
+                return
+            }
+
+            Column(modifier = Modifier.fillMaxSize()) {
+                DailyChallengeBanner(
+                    state = state.dailyChallenge,
+                    onProblemClick = { id -> onDailyChallengeClick(id) }
+                )
+                Spacer(Modifier.height(8.dp))
+                DifficultyFilterRow(
+                    selectedDifficulty = state.selectedDifficulty,
+                    onDifficultyClick = { viewModel.selectDifficulty(it) }
+                )
+                CategoryFilterRow(
+                    selectedCategory = state.selectedCategory,
+                    onCategoryClick = { viewModel.selectCategory(it) }
+                )
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(state.filteredProblems, key = { it.id }) { problem ->
+                        ProblemCard(
+                            problem = problem,
+                            isSolved = problem.id in state.solvedIds,
+                            onClick = { onProblemClick(problem.id) }
+                        )
+                    }
+                }
             }
         }
     }

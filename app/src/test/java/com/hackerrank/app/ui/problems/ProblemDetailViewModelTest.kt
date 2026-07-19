@@ -58,8 +58,7 @@ class ProblemDetailViewModelTest {
         viewModel.loadProblem("1")
 
         viewModel.uiState.test {
-            val state = awaitItem()
-            assertFalse(state.isLoading)
+            val state = awaitItem() as ProblemDetailUiState.Loaded
             assertEquals(sampleProblem, state.problem)
             assertFalse(state.isSolved)
             assertFalse(state.isDailyChallenge)
@@ -77,7 +76,7 @@ class ProblemDetailViewModelTest {
         viewModel.loadProblem("1")
 
         viewModel.uiState.test {
-            val state = awaitItem()
+            val state = awaitItem() as ProblemDetailUiState.Loaded
             assertNotNull(state.problem)
             assertEquals("nums = [2,7], target = 9", state.problem?.inputExample)
             assertEquals("[0,1]", state.problem?.outputExample)
@@ -107,7 +106,7 @@ class ProblemDetailViewModelTest {
         viewModel.solve()
 
         viewModel.uiState.test {
-            val state = awaitItem()
+            val state = awaitItem() as ProblemDetailUiState.Loaded
             assertTrue(state.isSolved)
             assertFalse(state.isSolving)
             assertEquals(gamificationResult, state.solveResult)
@@ -137,7 +136,7 @@ class ProblemDetailViewModelTest {
         viewModel.solve()
 
         viewModel.uiState.test {
-            val state = awaitItem()
+            val state = awaitItem() as ProblemDetailUiState.Loaded
             assertTrue(state.isSolved)
             assertTrue(state.isDailyChallenge)
             assertEquals(Constants.DAILY_CHALLENGE_BONUS_XP, state.bonusXp)
@@ -156,15 +155,15 @@ class ProblemDetailViewModelTest {
         viewModel.loadProblem("1")
 
         viewModel.uiState.test {
-            var state = awaitItem()
+            var state = awaitItem() as ProblemDetailUiState.Loaded
             assertFalse(state.showSolution)
 
             viewModel.toggleSolution()
-            state = awaitItem()
+            state = awaitItem() as ProblemDetailUiState.Loaded
             assertTrue(state.showSolution)
 
             viewModel.toggleSolution()
-            state = awaitItem()
+            state = awaitItem() as ProblemDetailUiState.Loaded
             assertFalse(state.showSolution)
         }
     }
@@ -191,11 +190,11 @@ class ProblemDetailViewModelTest {
         viewModel.solve()
 
         viewModel.uiState.test {
-            var state = awaitItem()
+            var state = awaitItem() as ProblemDetailUiState.Loaded
             assertNotNull(state.solveResult)
 
             viewModel.clearSolveResult()
-            state = awaitItem()
+            state = awaitItem() as ProblemDetailUiState.Loaded
             assertNull(state.solveResult)
         }
     }

@@ -59,9 +59,7 @@ class DetailViewModelTest {
         viewModel.loadStructure("linked-list")
 
         viewModel.uiState.test {
-            // First item emitted could be initial loading state, or populated depending on collection
-            val state = awaitItem()
-            assertFalse(state.isLoading)
+            val state = awaitItem() as DetailUiState.Loaded
             assertEquals(structure, state.structure)
             assertEquals(progress, state.progress)
         }

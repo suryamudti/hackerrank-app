@@ -75,72 +75,75 @@ fun BrowseScreen(
     val themeMode by themeManager?.themeMode?.collectAsState() ?: remember { mutableStateOf(ThemeMode.SYSTEM) }
     var showLanguageDialog by remember { mutableStateOf(false) }
 
-    if (uiState.isLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-        return
-    }
-
-    if (uiState.groupedStructures.values.all { it.isEmpty() }) {
-        EmptyState(
-            icon = Icons.Default.Computer,
-            title = stringResource(R.string.browse_no_structures_title),
-            message = stringResource(R.string.browse_no_structures_message)
-        )
-        return
-    }
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+    when (val state = uiState) {
+        is BrowseUiState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                localeManager?.let {
-                    IconButton(onClick = { showLanguageDialog = true }) {
-                        Icon(
-                            imageVector = Icons.Default.Language,
-                            contentDescription = stringResource(R.string.browse_language),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
-                themeManager?.let {
-                    IconButton(onClick = { it.toggle() }) {
-                        Icon(
-                            imageVector = when (themeMode) {
-                                ThemeMode.DARK -> Icons.Default.LightMode
-                                else -> Icons.Default.DarkMode
-                            },
-                            contentDescription = stringResource(R.string.browse_toggle_theme),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
+                CircularProgressIndicator()
             }
         }
 
-        uiState.groupedStructures.forEach { (category, structures) ->
-            item(key = "header_${category.name}") {
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn(animationSpec = tween(400)) +
-                            slideInHorizontally(animationSpec = tween(400))
-                ) {
-                    CategorySection(
-                        category = category,
-                        structures = structures,
-                        onStructureClick = onStructureClick,
-                        progressMap = uiState.progressMap
-                    )
+        is BrowseUiState.Loaded -> {
+            if (state.groupedStructures.values.all { it.isEmpty() }) {
+                EmptyState(
+                    icon = Icons.Default.Computer,
+                    title = stringResource(R.string.browse_no_structures_title),
+                    message = stringResource(R.string.browse_no_structures_message)
+                )
+                return
+            }
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        localeManager?.let {
+                            IconButton(onClick = { showLanguageDialog = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.Language,
+                                    contentDescription = stringResource(R.string.browse_language),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                        themeManager?.let {
+                            IconButton(onClick = { it.toggle() }) {
+                                Icon(
+                                    imageVector = when (themeMode) {
+                                        ThemeMode.DARK -> Icons.Default.LightMode
+                                        else -> Icons.Default.DarkMode
+                                    },
+                                    contentDescription = stringResource(R.string.browse_toggle_theme),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                state.groupedStructures.forEach { (category, structures) ->
+                    item(key = "header_${category.name}") {
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(animationSpec = tween(400)) +
+                                    slideInHorizontally(animationSpec = tween(400))
+                        ) {
+                            CategorySection(
+                                category = category,
+                                structures = structures,
+                                onStructureClick = onStructureClick,
+                                progressMap = state.progressMap
+                            )
+                        }
+                    }
                 }
             }
         }

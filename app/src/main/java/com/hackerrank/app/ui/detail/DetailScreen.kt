@@ -77,7 +77,14 @@ fun DetailScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text(uiState.structure?.name ?: stringResource(R.string.detail_loading)) },
+                title = {
+                    Text(
+                        when (val s = uiState) {
+                            is DetailUiState.Loaded -> s.structure.name
+                            is DetailUiState.Loading -> stringResource(R.string.detail_loading)
+                        }
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.detail_back))
@@ -86,144 +93,148 @@ fun DetailScreen(
             )
         }
     ) { padding ->
-        if (uiState.isLoading || uiState.structure == null) {
-            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-            return@Scaffold
-        }
-
-        val structure = uiState.structure!!
-        val progress = uiState.progress
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-        ) {
-            // Header
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                MasteryRing(
-                    progress = (progress?.masteryPercentage ?: 0f) / 100f,
-                    size = 64.dp,
-                    strokeWidth = 6.dp
-                )
-                Spacer(Modifier.width(16.dp))
-                Column {
-                    Text(
-                        text = structure.name,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "${structure.category.localizedName()} • ${structure.difficulty.localizedName()}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+        when (val state = uiState) {
+            is DetailUiState.Loading -> {
+                Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
+                return@Scaffold
             }
 
-            Spacer(Modifier.height(16.dp))
-            HorizontalDivider()
-            Spacer(Modifier.height(16.dp))
+            is DetailUiState.Loaded -> {
+                val structure = state.structure
+                val progress = state.progress
 
-            // Explanation
-            SectionHeader(stringResource(R.string.section_explanation))
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = structure.explanation,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Spacer(Modifier.height(20.dp))
-            HorizontalDivider()
-            Spacer(Modifier.height(20.dp))
-
-            // Complexity Table
-            SectionHeader(stringResource(R.string.section_complexity_table))
-            Spacer(Modifier.height(8.dp))
-            ComplexityTable(structure.complexityTable)
-
-            Spacer(Modifier.height(20.dp))
-            HorizontalDivider()
-            Spacer(Modifier.height(20.dp))
-
-            // Code Example
-            SectionHeader(stringResource(R.string.section_code_example))
-            Spacer(Modifier.height(8.dp))
-            val codeCopiedText = stringResource(R.string.code_copied)
-            CodeBlock(
-                code = structure.codeExample,
-                onCopy = { scope.launch { snackbarHostState.showSnackbar(codeCopiedText) } }
-            )
-
-            Spacer(Modifier.height(20.dp))
-            HorizontalDivider()
-            Spacer(Modifier.height(20.dp))
-
-            // When to Use
-            SectionHeader(stringResource(R.string.section_when_to_use))
-            Spacer(Modifier.height(8.dp))
-            structure.whenToUse.forEach { useCase ->
-                Row(
-                    modifier = Modifier.padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.Top
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp)
                 ) {
-                    Icon(
-                        Icons.Default.CheckCircle,
-                        contentDescription = stringResource(R.string.use_case_label),
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 2.dp)
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(text = useCase, style = MaterialTheme.typography.bodyLarge)
-                }
-            }
+                    // Header
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        MasteryRing(
+                            progress = (progress?.masteryPercentage ?: 0f) / 100f,
+                            size = 64.dp,
+                            strokeWidth = 6.dp
+                        )
+                        Spacer(Modifier.width(16.dp))
+                        Column {
+                            Text(
+                                text = structure.name,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "${structure.category.localizedName()} • ${structure.difficulty.localizedName()}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
 
-            Spacer(Modifier.height(20.dp))
-            HorizontalDivider()
-            Spacer(Modifier.height(20.dp))
+                    Spacer(Modifier.height(16.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(16.dp))
 
-            // Mastery Section
-            SectionHeader(stringResource(R.string.section_progress))
-            Spacer(Modifier.height(8.dp))
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = stringResource(R.string.mastery_label, (progress?.masteryPercentage ?: 0f).toInt()),
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    // Explanation
+                    SectionHeader(stringResource(R.string.section_explanation))
                     Spacer(Modifier.height(8.dp))
-                    LinearProgressIndicator(
-                        progress = { (progress?.masteryPercentage ?: 0f) / 100f },
+                    Text(
+                        text = structure.explanation,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
+                    Spacer(Modifier.height(20.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(20.dp))
+
+                    // Complexity Table
+                    SectionHeader(stringResource(R.string.section_complexity_table))
+                    Spacer(Modifier.height(8.dp))
+                    ComplexityTable(structure.complexityTable)
+
+                    Spacer(Modifier.height(20.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(20.dp))
+
+                    // Code Example
+                    SectionHeader(stringResource(R.string.section_code_example))
+                    Spacer(Modifier.height(8.dp))
+                    val codeCopiedText = stringResource(R.string.code_copied)
+                    CodeBlock(
+                        code = structure.codeExample,
+                        onCopy = { scope.launch { snackbarHostState.showSnackbar(codeCopiedText) } }
+                    )
+
+                    Spacer(Modifier.height(20.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(20.dp))
+
+                    // When to Use
+                    SectionHeader(stringResource(R.string.section_when_to_use))
+                    Spacer(Modifier.height(8.dp))
+                    structure.whenToUse.forEach { useCase ->
+                        Row(
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = stringResource(R.string.use_case_label),
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(text = useCase, style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
+
+                    Spacer(Modifier.height(20.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(20.dp))
+
+                    // Mastery Section
+                    SectionHeader(stringResource(R.string.section_progress))
+                    Spacer(Modifier.height(8.dp))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = stringResource(R.string.mastery_label, (progress?.masteryPercentage ?: 0f).toInt()),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            LinearProgressIndicator(
+                                progress = { (progress?.masteryPercentage ?: 0f) / 100f },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = "${stringResource(R.string.quizzes_completed, progress?.quizzesCompleted ?: 0)} | ${stringResource(R.string.quizzes_best, progress?.bestScore ?: 0, progress?.totalQuestions ?: 0)}",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(24.dp))
+
+                    // Take Quiz Button
+                    Button(
+                        onClick = onQuizClick,
                         modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = "${stringResource(R.string.quizzes_completed, progress?.quizzesCompleted ?: 0)} | ${stringResource(R.string.quizzes_best, progress?.bestScore ?: 0, progress?.totalQuestions ?: 0)}",
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    ) {
+                        Icon(Icons.Default.Quiz, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.action_take_quiz))
+                    }
+
+                    Spacer(Modifier.height(16.dp))
                 }
             }
-
-            Spacer(Modifier.height(24.dp))
-
-            // Take Quiz Button
-            Button(
-                onClick = onQuizClick,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.Quiz, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.action_take_quiz))
-            }
-
-            Spacer(Modifier.height(16.dp))
         }
     }
 }

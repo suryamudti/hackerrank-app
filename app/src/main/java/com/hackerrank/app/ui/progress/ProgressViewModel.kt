@@ -16,14 +16,16 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class ProgressUiState(
-    val profile: UserProfile? = null,
-    val allProgress: List<UserProgress> = emptyList(),
-    val categoryMastery: Map<DataStructureCategory, Float> = emptyMap(),
-    val totalStructures: Int = 0,
-    val masteredStructures: Int = 0,
-    val isLoading: Boolean = true
-)
+sealed interface ProgressUiState {
+    data object Loading : ProgressUiState
+    data class Loaded(
+        val profile: UserProfile?,
+        val allProgress: List<UserProgress>,
+        val categoryMastery: Map<DataStructureCategory, Float>,
+        val totalStructures: Int,
+        val masteredStructures: Int
+    ) : ProgressUiState
+}
 
 @HiltViewModel
 class ProgressViewModel @Inject constructor(
@@ -31,7 +33,7 @@ class ProgressViewModel @Inject constructor(
     private val contentRepository: ContentRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ProgressUiState())
+    private val _uiState = MutableStateFlow<ProgressUiState>(ProgressUiState.Loading)
     val uiState: StateFlow<ProgressUiState> = _uiState
 
     init {
@@ -61,13 +63,12 @@ class ProgressViewModel @Inject constructor(
                     }
                 val masteredCount = allProgress.count { it.masteryLevel >= 80 }
 
-                _uiState.value = ProgressUiState(
+                _uiState.value = ProgressUiState.Loaded(
                     profile = profile,
                     allProgress = allProgress,
                     categoryMastery = categoryProgress,
                     totalStructures = totalStructures,
-                    masteredStructures = masteredCount,
-                    isLoading = false
+                    masteredStructures = masteredCount
                 )
             }.collect {}
         }

@@ -47,16 +47,24 @@ fun ProgressScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    if (uiState.isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+    when (val state = uiState) {
+        is ProgressUiState.Loading -> {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
         }
-        return
+
+        is ProgressUiState.Loaded -> {
+            ContentProgressScreen(state)
+        }
     }
+}
 
-    val profile = uiState.profile
+@Composable
+private fun ContentProgressScreen(state: ProgressUiState.Loaded) {
+    val profile = state.profile
 
-    if (profile == null && uiState.allProgress.isEmpty()) {
+    if (profile == null && state.allProgress.isEmpty()) {
         EmptyState(
             icon = Icons.Default.BarChart,
             title = stringResource(R.string.progress_no_progress_title),
@@ -125,17 +133,17 @@ fun ProgressScreen(
             ) {
                 StatCard(
                     label = stringResource(R.string.progress_stat_structures),
-                    value = "${uiState.totalStructures}",
+                    value = "${state.totalStructures}",
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
                     label = stringResource(R.string.progress_stat_mastered),
-                    value = "${uiState.masteredStructures}",
+                    value = "${state.masteredStructures}",
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
                     label = stringResource(R.string.progress_stat_quizzes),
-                    value = "${uiState.allProgress.sumOf { it.quizzesCompleted }}",
+                    value = "${state.allProgress.sumOf { it.quizzesCompleted }}",
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -182,7 +190,7 @@ fun ProgressScreen(
             )
         }
 
-        uiState.categoryMastery.forEach { (category, progress) ->
+        state.categoryMastery.forEach { (category, progress) ->
             item(key = "cat_${category.name}") {
                 CategoryProgressCard(
                     category = category,

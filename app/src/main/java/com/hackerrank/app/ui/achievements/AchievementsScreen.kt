@@ -43,31 +43,34 @@ fun AchievementsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    if (uiState.isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+    when (val state = uiState) {
+        is AchievementsUiState.Loading -> {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
         }
-        return
-    }
 
-    if (uiState.badges.isEmpty()) {
-        EmptyState(
-            icon = Icons.Default.EmojiEvents,
-            title = stringResource(R.string.achievements_no_badges_title),
-            message = stringResource(R.string.achievements_no_badges_message)
-        )
-        return
-    }
+        is AchievementsUiState.Loaded -> {
+            if (state.badges.isEmpty()) {
+                EmptyState(
+                    icon = Icons.Default.EmojiEvents,
+                    title = stringResource(R.string.achievements_no_badges_title),
+                    message = stringResource(R.string.achievements_no_badges_message)
+                )
+                return
+            }
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(uiState.badges, key = { it.badge.id }) { badgeState ->
-            BadgeCard(badgeState)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(state.badges, key = { it.badge.id }) { badgeState ->
+                    BadgeCard(badgeState)
+                }
+            }
         }
     }
 }

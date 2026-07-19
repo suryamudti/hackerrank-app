@@ -73,10 +73,19 @@ fun ProblemDetailScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
-    LaunchedEffect(uiState.solveResult) {
-        uiState.solveResult?.let { result ->
+    val solveResult = when (val s = uiState) {
+        is ProblemDetailUiState.Loaded -> s.solveResult
+        is ProblemDetailUiState.Loading -> null
+    }
+
+    LaunchedEffect(solveResult) {
+        solveResult?.let { result ->
+            val bonusXp = when (val s = uiState) {
+                is ProblemDetailUiState.Loaded -> s.bonusXp
+                is ProblemDetailUiState.Loading -> 0
+            }
             val msg = if (isDailyChallenge) {
-                context.getString(R.string.daily_challenge_bonus_earned, uiState.bonusXp) + "\n" +
+                context.getString(R.string.daily_challenge_bonus_earned, bonusXp) + "\n" +
                     context.getString(R.string.xp_earned, result.xpAwarded, result.newLevel)
             } else {
                 context.getString(R.string.xp_earned, result.xpAwarded, result.newLevel)
@@ -90,7 +99,14 @@ fun ProblemDetailScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text(uiState.problem?.title ?: stringResource(R.string.problem_loading)) },
+                title = {
+                    Text(
+                        when (val s = uiState) {
+                            is ProblemDetailUiState.Loaded -> s.problem.title
+                            is ProblemDetailUiState.Loading -> stringResource(R.string.problem_loading)
+                        }
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.problem_navigate_back))
@@ -99,142 +115,146 @@ fun ProblemDetailScreen(
             )
         }
     ) { padding ->
-        if (uiState.isLoading || uiState.problem == null) {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-            return@Scaffold
-        }
-
-        val problem = uiState.problem!!
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-        ) {
-            if (isDailyChallenge && !uiState.isSolved) {
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+        when (val state = uiState) {
+            is ProblemDetailUiState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(padding),
+                    contentAlignment = Alignment.Center
                 ) {
+                    CircularProgressIndicator()
+                }
+                return@Scaffold
+            }
+
+            is ProblemDetailUiState.Loaded -> {
+                val problem = state.problem
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp)
+                ) {
+                    if (isDailyChallenge && !state.isSolved) {
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Whatshot, contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    text = stringResource(R.string.daily_challenge_bonus, state.bonusXp),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(12.dp))
+                    }
+
+                    Row {
+                        Text(
+                            text = problem.difficulty.localizedName(),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = when (problem.difficulty) {
+                                Difficulty.EASY -> Color(0xFF4CAF50)
+                                Difficulty.MEDIUM -> Color(0xFFFF9800)
+                                Difficulty.HARD -> Color(0xFFF44336)
+                            }
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            text = problem.category.localizedName(),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(16.dp))
+
+                    SectionHeader(stringResource(R.string.section_problem), Icons.Default.Star)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = problem.description,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+                    ExampleCard(input = problem.inputExample, output = problem.outputExample)
+
+                    Spacer(Modifier.height(20.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(20.dp))
+
+                    SectionHeader(stringResource(R.string.section_approach), Icons.Default.Lightbulb)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = problem.approachExplanation,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
+                    Spacer(Modifier.height(20.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(20.dp))
+
                     Row(
-                        modifier = Modifier.padding(12.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            Icons.Default.Whatshot, contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = stringResource(R.string.daily_challenge_bonus, uiState.bonusXp),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer
-                        )
+                        SectionHeader(stringResource(R.string.section_solution), Icons.Default.Code, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { viewModel.toggleSolution() }) {
+                            Text(if (state.showSolution) stringResource(R.string.action_hide) else stringResource(R.string.action_show))
+                        }
                     }
-                }
-                Spacer(Modifier.height(12.dp))
-            }
-
-            Row {
-                Text(
-                    text = problem.difficulty.localizedName(),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = when (problem.difficulty) {
-                        Difficulty.EASY -> Color(0xFF4CAF50)
-                        Difficulty.MEDIUM -> Color(0xFFFF9800)
-                        Difficulty.HARD -> Color(0xFFF44336)
+                    Spacer(Modifier.height(8.dp))
+                    if (state.showSolution) {
+                        CodeBlock(problem.solutionCode)
                     }
-                )
-                Spacer(Modifier.width(12.dp))
-                Text(
-                    text = problem.category.localizedName(),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
 
-            Spacer(Modifier.height(16.dp))
-            HorizontalDivider()
-            Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(24.dp))
 
-            SectionHeader(stringResource(R.string.section_problem), Icons.Default.Star)
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = problem.description,
-                style = MaterialTheme.typography.bodyLarge
-            )
+                    Button(
+                        onClick = { viewModel.solve() },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isSolved && !state.isSolving
+                    ) {
+                        if (state.isSolving) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.height(20.dp).width(20.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        } else {
+                            Icon(
+                                if (state.isSolved) Icons.Default.CheckCircle else Icons.Default.Star,
+                                contentDescription = null
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                if (state.isSolved) stringResource(R.string.action_solved)
+                                else stringResource(R.string.action_mark_solved, xpForDifficulty(problem.difficulty))
+                            )
+                        }
+                    }
 
-            Spacer(Modifier.height(12.dp))
-            ExampleCard(input = problem.inputExample, output = problem.outputExample)
-
-            Spacer(Modifier.height(20.dp))
-            HorizontalDivider()
-            Spacer(Modifier.height(20.dp))
-
-            SectionHeader(stringResource(R.string.section_approach), Icons.Default.Lightbulb)
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = problem.approachExplanation,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Spacer(Modifier.height(20.dp))
-            HorizontalDivider()
-            Spacer(Modifier.height(20.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                SectionHeader(stringResource(R.string.section_solution), Icons.Default.Code, modifier = Modifier.weight(1f))
-                TextButton(onClick = { viewModel.toggleSolution() }) {
-                    Text(if (uiState.showSolution) stringResource(R.string.action_hide) else stringResource(R.string.action_show))
+                    Spacer(Modifier.height(16.dp))
                 }
             }
-            Spacer(Modifier.height(8.dp))
-            if (uiState.showSolution) {
-                CodeBlock(problem.solutionCode)
-            }
-
-            Spacer(Modifier.height(24.dp))
-
-            Button(
-                onClick = { viewModel.solve() },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isSolved && !uiState.isSolving
-            ) {
-                if (uiState.isSolving) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.height(20.dp).width(20.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                } else {
-                    Icon(
-                        if (uiState.isSolved) Icons.Default.CheckCircle else Icons.Default.Star,
-                        contentDescription = null
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        if (uiState.isSolved) stringResource(R.string.action_solved)
-                        else stringResource(R.string.action_mark_solved, xpForDifficulty(problem.difficulty))
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(16.dp))
         }
     }
 }

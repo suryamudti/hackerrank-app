@@ -16,16 +16,18 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class ProblemDetailUiState(
-    val problem: Problem? = null,
-    val isSolved: Boolean = false,
-    val isSolving: Boolean = false,
-    val solveResult: GamificationResult? = null,
-    val isLoading: Boolean = true,
-    val showSolution: Boolean = false,
-    val isDailyChallenge: Boolean = false,
-    val bonusXp: Int = 0
-)
+sealed interface ProblemDetailUiState {
+    data object Loading : ProblemDetailUiState
+    data class Loaded(
+        val problem: Problem,
+        val isSolved: Boolean,
+        val isSolving: Boolean,
+        val solveResult: GamificationResult?,
+        val showSolution: Boolean,
+        val isDailyChallenge: Boolean,
+        val bonusXp: Int
+    ) : ProblemDetailUiState
+}
 
 @HiltViewModel
 class ProblemDetailViewModel @Inject constructor(
@@ -35,7 +37,7 @@ class ProblemDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ProblemDetailUiState())
+    private val _uiState = MutableStateFlow<ProblemDetailUiState>(ProblemDetailUiState.Loading)
     val uiState: StateFlow<ProblemDetailUiState> = _uiState
     private val isDailyChallengeArg: Boolean = savedStateHandle["isDailyChallenge"] ?: false
 
@@ -45,27 +47,33 @@ class ProblemDetailViewModel @Inject constructor(
                 problemRepository.getProblemById(problemId),
                 problemRepository.isSolved(problemId)
             ) { problem, isSolved ->
-                _uiState.value = ProblemDetailUiState(
-                    problem = problem,
-                    isSolved = isSolved,
-                    isLoading = false,
-                    isDailyChallenge = isDailyChallengeArg,
-                    bonusXp = if (isDailyChallengeArg) DAILY_CHALLENGE_BONUS_XP else 0
-                )
+                if (problem != null) {
+                    _uiState.value = ProblemDetailUiState.Loaded(
+                        problem = problem,
+                        isSolved = isSolved,
+                        isSolving = false,
+                        solveResult = null,
+                        showSolution = false,
+                        isDailyChallenge = isDailyChallengeArg,
+                        bonusXp = if (isDailyChallengeArg) DAILY_CHALLENGE_BONUS_XP else 0
+                    )
+                }
             }.collect {}
         }
     }
 
     fun solve() {
-        val problem = _uiState.value.problem ?: return
+        val state = _uiState.value
+        if (state !is ProblemDetailUiState.Loaded) return
+        val problem = state.problem
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isSolving = true)
+            _uiState.value = state.copy(isSolving = true)
             val result = if (isDailyChallengeArg) {
                 recordDailyChallengeUseCase(problem.id, problem.difficulty, DAILY_CHALLENGE_BONUS_XP)
             } else {
                 recordProblemSolveUseCase(problem.id, problem.difficulty)
             }
-            _uiState.value = _uiState.value.copy(
+            _uiState.value = state.copy(
                 isSolved = true,
                 isSolving = false,
                 solveResult = result
@@ -74,12 +82,16 @@ class ProblemDetailViewModel @Inject constructor(
     }
 
     fun toggleSolution() {
-        _uiState.value = _uiState.value.copy(
-            showSolution = !_uiState.value.showSolution
-        )
+        val state = _uiState.value
+        if (state is ProblemDetailUiState.Loaded) {
+            _uiState.value = state.copy(showSolution = !state.showSolution)
+        }
     }
 
     fun clearSolveResult() {
-        _uiState.value = _uiState.value.copy(solveResult = null)
+        val state = _uiState.value
+        if (state is ProblemDetailUiState.Loaded) {
+            _uiState.value = state.copy(solveResult = null)
+        }
     }
 }

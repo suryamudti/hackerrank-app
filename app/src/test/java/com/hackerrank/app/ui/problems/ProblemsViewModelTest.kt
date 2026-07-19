@@ -3,6 +3,7 @@ package com.hackerrank.app.ui.problems
 import app.cash.turbine.test
 import com.hackerrank.app.MainDispatcherRule
 import com.hackerrank.app.data.remote.DailyChallengeApi
+import com.hackerrank.app.data.remote.DailyChallengeResponse
 import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.domain.model.Problem
 import com.hackerrank.app.domain.model.ProblemCategory
@@ -59,19 +60,26 @@ class ProblemsViewModelTest {
         )
     )
 
+    private fun setupCommonMocks() {
+        every { problemRepository.getAllProblems() } returns flowOf(problemsList)
+        every { problemRepository.getSolvedIds() } returns flowOf(emptySet())
+        coEvery { progressRepository.isDailyChallengeCompleted(any()) } returns false
+    }
+
     @Test
     fun `initializing ViewModel loads all problems and solved IDs`() = runTest {
-        every { problemRepository.getAllProblems() } returns flowOf(problemsList)
+        val today = LocalDate.now().format(dateFormatter)
+        setupCommonMocks()
         every { problemRepository.getSolvedIds() } returns flowOf(setOf("1"))
-        coEvery { progressRepository.isDailyChallengeCompleted(any()) } returns false
-        every { progressRepository.getDailyChallengeState() } returns flowOf(null)
-        coEvery { dailyChallengeApi.fetchToday() } returns null
+        every { progressRepository.getDailyChallengeState() } returns flowOf(
+            DailyChallengeResponse(date = today, problemId = "1", bonusXp = 10)
+        )
+        every { problemRepository.getProblemById("1") } returns flowOf(problemsList[0])
 
         val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
 
         viewModel.uiState.test {
-            val state = awaitItem()
-            assertFalse(state.isLoading)
+            val state = awaitItem() as ProblemsUiState.Loaded
             assertEquals(2, state.allProblems.size)
             assertEquals(2, state.filteredProblems.size)
             assertEquals(setOf("1"), state.solvedIds)
@@ -80,26 +88,27 @@ class ProblemsViewModelTest {
 
     @Test
     fun `selectDifficulty filters problems list`() = runTest {
-        every { problemRepository.getAllProblems() } returns flowOf(problemsList)
-        every { problemRepository.getSolvedIds() } returns flowOf(emptySet())
-        coEvery { progressRepository.isDailyChallengeCompleted(any()) } returns false
-        every { progressRepository.getDailyChallengeState() } returns flowOf(null)
-        coEvery { dailyChallengeApi.fetchToday() } returns null
+        val today = LocalDate.now().format(dateFormatter)
+        setupCommonMocks()
+        every { progressRepository.getDailyChallengeState() } returns flowOf(
+            DailyChallengeResponse(date = today, problemId = "1", bonusXp = 10)
+        )
+        every { problemRepository.getProblemById("1") } returns flowOf(problemsList[0])
 
         val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
 
         viewModel.uiState.test {
-            var state = awaitItem()
+            var state = awaitItem() as ProblemsUiState.Loaded
             assertNull(state.selectedDifficulty)
 
             viewModel.selectDifficulty(Difficulty.EASY)
-            state = awaitItem()
+            state = awaitItem() as ProblemsUiState.Loaded
             assertEquals(Difficulty.EASY, state.selectedDifficulty)
             assertEquals(1, state.filteredProblems.size)
             assertEquals("Two Sum", state.filteredProblems[0].title)
 
             viewModel.selectDifficulty(Difficulty.EASY)
-            state = awaitItem()
+            state = awaitItem() as ProblemsUiState.Loaded
             assertNull(state.selectedDifficulty)
             assertEquals(2, state.filteredProblems.size)
         }
@@ -107,20 +116,21 @@ class ProblemsViewModelTest {
 
     @Test
     fun `selectCategory filters problems list`() = runTest {
-        every { problemRepository.getAllProblems() } returns flowOf(problemsList)
-        every { problemRepository.getSolvedIds() } returns flowOf(emptySet())
-        coEvery { progressRepository.isDailyChallengeCompleted(any()) } returns false
-        every { progressRepository.getDailyChallengeState() } returns flowOf(null)
-        coEvery { dailyChallengeApi.fetchToday() } returns null
+        val today = LocalDate.now().format(dateFormatter)
+        setupCommonMocks()
+        every { progressRepository.getDailyChallengeState() } returns flowOf(
+            DailyChallengeResponse(date = today, problemId = "1", bonusXp = 10)
+        )
+        every { problemRepository.getProblemById("1") } returns flowOf(problemsList[0])
 
         val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
 
         viewModel.uiState.test {
-            var state = awaitItem()
+            var state = awaitItem() as ProblemsUiState.Loaded
             assertNull(state.selectedCategory)
 
             viewModel.selectCategory(ProblemCategory.LINKED_LISTS)
-            state = awaitItem()
+            state = awaitItem() as ProblemsUiState.Loaded
             assertEquals(ProblemCategory.LINKED_LISTS, state.selectedCategory)
             assertEquals(1, state.filteredProblems.size)
             assertEquals("Reverse Linked List", state.filteredProblems[0].title)
@@ -130,16 +140,14 @@ class ProblemsViewModelTest {
     @Test
     fun `dailyChallenge state shows unavailable when no response and no cache`() = runTest {
         val today = LocalDate.now().format(dateFormatter)
-        every { problemRepository.getAllProblems() } returns flowOf(problemsList)
-        every { problemRepository.getSolvedIds() } returns flowOf(emptySet())
-        coEvery { progressRepository.isDailyChallengeCompleted(today) } returns false
+        setupCommonMocks()
         every { progressRepository.getDailyChallengeState() } returns flowOf(null)
         coEvery { dailyChallengeApi.fetchToday() } returns null
 
         val viewModel = ProblemsViewModel(problemRepository, progressRepository, dailyChallengeApi)
 
         viewModel.uiState.test {
-            val state = awaitItem()
+            val state = awaitItem() as ProblemsUiState.Loaded
             assertTrue(state.dailyChallenge.isUnavailable)
             assertFalse(state.dailyChallenge.isLoading)
         }

@@ -14,10 +14,9 @@ import javax.inject.Singleton
 
 @Singleton
 class ContentRepositoryImpl @Inject constructor(
-    private val dao: DataStructureDao
+    private val dao: DataStructureDao,
+    private val gson: Gson
 ) : ContentRepository {
-
-    private val gson = Gson()
 
     override fun getAllStructures(): Flow<List<DataStructure>> {
         return dao.getAllStructures().map { entities ->

@@ -19,17 +19,17 @@ data class BadgeWithState(
     val progress: String = ""
 )
 
-data class AchievementsUiState(
-    val badges: List<BadgeWithState> = emptyList(),
-    val isLoading: Boolean = true
-)
+sealed interface AchievementsUiState {
+    data object Loading : AchievementsUiState
+    data class Loaded(val badges: List<BadgeWithState>) : AchievementsUiState
+}
 
 @HiltViewModel
 class AchievementsViewModel @Inject constructor(
     private val progressRepository: ProgressRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(AchievementsUiState())
+    private val _uiState = MutableStateFlow<AchievementsUiState>(AchievementsUiState.Loading)
     val uiState: StateFlow<AchievementsUiState> = _uiState
 
     init {
@@ -57,7 +57,7 @@ class AchievementsViewModel @Inject constructor(
                     progress = if (progress.isNotEmpty() && !isEarned) progress else ""
                 )
             }
-            _uiState.value = AchievementsUiState(badges = badges, isLoading = false)
+            _uiState.value = AchievementsUiState.Loaded(badges = badges)
         }
     }
 }
