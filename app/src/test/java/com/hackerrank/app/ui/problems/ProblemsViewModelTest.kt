@@ -70,6 +70,7 @@ class ProblemsViewModelTest {
     fun `initializing ViewModel loads all problems and solved IDs`() = runTest {
         val today = LocalDate.now().format(dateFormatter)
         setupCommonMocks()
+        every { problemRepository.getSolvedIds() } returns flowOf(setOf("1"))
         every { progressRepository.getDailyChallengeState() } returns flowOf(
             DailyChallengeResponse(date = today, problemId = "1", bonusXp = 10)
         )
