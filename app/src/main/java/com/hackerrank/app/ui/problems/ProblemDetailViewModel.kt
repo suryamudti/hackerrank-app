@@ -6,13 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.hackerrank.app.core.Constants.DAILY_CHALLENGE_BONUS_XP
 import com.hackerrank.app.domain.model.GamificationResult
 import com.hackerrank.app.domain.model.Problem
-import com.hackerrank.app.domain.repository.ProblemRepository
+import com.hackerrank.app.domain.usecase.ObserveProblemDetailUseCase
 import com.hackerrank.app.domain.usecase.RecordDailyChallengeUseCase
 import com.hackerrank.app.domain.usecase.RecordProblemSolveUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,7 +30,7 @@ sealed interface ProblemDetailUiState {
 
 @HiltViewModel
 class ProblemDetailViewModel @Inject constructor(
-    private val problemRepository: ProblemRepository,
+    private val observeProblemDetailUseCase: ObserveProblemDetailUseCase,
     private val recordProblemSolveUseCase: RecordProblemSolveUseCase,
     private val recordDailyChallengeUseCase: RecordDailyChallengeUseCase,
     savedStateHandle: SavedStateHandle
@@ -43,14 +42,11 @@ class ProblemDetailViewModel @Inject constructor(
 
     fun loadProblem(problemId: String) {
         viewModelScope.launch {
-            combine(
-                problemRepository.getProblemById(problemId),
-                problemRepository.isSolved(problemId)
-            ) { problem, isSolved ->
-                if (problem != null) {
+            observeProblemDetailUseCase(problemId).collect { data ->
+                if (data.problem != null) {
                     _uiState.value = ProblemDetailUiState.Loaded(
-                        problem = problem,
-                        isSolved = isSolved,
+                        problem = data.problem,
+                        isSolved = data.isSolved,
                         isSolving = false,
                         solveResult = null,
                         showSolution = false,
@@ -58,7 +54,7 @@ class ProblemDetailViewModel @Inject constructor(
                         bonusXp = if (isDailyChallengeArg) DAILY_CHALLENGE_BONUS_XP else 0
                     )
                 }
-            }.collect {}
+            }
         }
     }
 
