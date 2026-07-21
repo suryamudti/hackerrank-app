@@ -3,7 +3,7 @@ package com.hackerrank.app.domain.model
 enum class BadgeDefinition(
     val id: String,
     val title: String,
-    val description: String
+    val description: String,
 ) {
     FIRST_STEPS("first_steps", "First Steps", "Complete your first quiz"),
     QUICK_LEARNER("quick_learner", "Quick Learner", "Get a perfect score on any quiz"),
@@ -17,7 +17,8 @@ enum class BadgeDefinition(
     COMPLETIONIST("completionist", "Completionist", "Master every data structure"),
     LEVEL_10("level_10", "Level 10", "Reach level 10"),
     LEVEL_25("level_25", "Level 25", "Reach level 25"),
-    LEVEL_50("level_50", "Level 50", "Reach level 50");
+    LEVEL_50("level_50", "Level 50", "Reach level 50"),
+    ;
 
     companion object {
         fun fromId(id: String): BadgeDefinition? = entries.find { it.id == id }

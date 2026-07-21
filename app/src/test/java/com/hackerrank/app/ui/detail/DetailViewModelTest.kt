@@ -5,63 +5,79 @@ import com.hackerrank.app.MainDispatcherRule
 import com.hackerrank.app.domain.model.DataStructure
 import com.hackerrank.app.domain.model.DataStructureCategory
 import com.hackerrank.app.domain.model.Difficulty
-import com.hackerrank.app.domain.model.UserProfile
 import com.hackerrank.app.domain.model.UserProgress
-import com.hackerrank.app.domain.repository.ContentRepository
-import com.hackerrank.app.domain.repository.ProgressRepository
-import io.mockk.coEvery
+import com.hackerrank.app.domain.usecase.ObserveStructureDetailUseCase
+import com.hackerrank.app.domain.usecase.StructureDetailData
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
 class DetailViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val contentRepository: ContentRepository = mockk()
-    private val progressRepository: ProgressRepository = mockk()
-    private val viewModel = DetailViewModel(contentRepository, progressRepository)
+    private val observeStructureDetailUseCase: ObserveStructureDetailUseCase = mockk()
+    private val viewModel = DetailViewModel(observeStructureDetailUseCase)
 
     @Test
-    fun `loadStructure fetches structure details and progress correctly`() = runTest {
-        val structure = DataStructure(
-            id = "1",
-            name = "Linked List",
-            slug = "linked-list",
-            category = DataStructureCategory.LINEAR,
-            explanation = "Linear...",
-            complexityTable = emptyMap(),
-            whenToUse = emptyList(),
-            diagramRes = null,
-            codeExample = "",
-            difficulty = Difficulty.EASY
-        )
+    fun `unknown slug returns null structure and stays in Loading`() =
+        runTest {
+            every { observeStructureDetailUseCase("unknown") } returns
+                flowOf(
+                    StructureDetailData(structure = null, progress = null),
+                )
 
-        val progress = UserProgress(
-            structureId = "1",
-            quizzesCompleted = 1,
-            totalCorrect = 4,
-            totalQuestions = 5,
-            bestScore = 4,
-            masteryLevel = 80
-        )
+            viewModel.loadStructure("unknown")
 
-        coEvery { contentRepository.getStructureBySlug("linked-list") } returns structure
-        every { progressRepository.getProgressByStructureId("1") } returns flowOf(progress)
-        every { progressRepository.getProfile() } returns flowOf(UserProfile())
-
-        viewModel.loadStructure("linked-list")
-
-        viewModel.uiState.test {
-            val state = awaitItem() as DetailUiState.Loaded
-            assertEquals(structure, state.structure)
-            assertEquals(progress, state.progress)
+            viewModel.uiState.test {
+                val state = awaitItem()
+                assertTrue(state is DetailUiState.Loading)
+            }
         }
-    }
+
+    @Test
+    fun `loadStructure fetches structure details and progress correctly`() =
+        runTest {
+            val structure =
+                DataStructure(
+                    id = "1",
+                    name = "Linked List",
+                    slug = "linked-list",
+                    category = DataStructureCategory.LINEAR,
+                    explanation = "Linear...",
+                    complexityTable = emptyMap(),
+                    whenToUse = emptyList(),
+                    diagramRes = null,
+                    codeExample = "",
+                    difficulty = Difficulty.EASY,
+                )
+
+            val progress =
+                UserProgress(
+                    structureId = "1",
+                    quizzesCompleted = 1,
+                    totalCorrect = 4,
+                    totalQuestions = 5,
+                    bestScore = 4,
+                    masteryLevel = 80,
+                )
+
+            every { observeStructureDetailUseCase("linked-list") } returns
+                flowOf(
+                    StructureDetailData(structure = structure, progress = progress),
+                )
+
+            viewModel.loadStructure("linked-list")
+
+            viewModel.uiState.test {
+                val state = awaitItem() as DetailUiState.Loaded
+                assertEquals(structure, state.structure)
+                assertEquals(progress, state.progress)
+            }
+        }
 }

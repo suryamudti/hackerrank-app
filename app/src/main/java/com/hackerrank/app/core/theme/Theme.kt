@@ -16,7 +16,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
@@ -27,83 +26,92 @@ import androidx.core.view.WindowCompat
 import com.hackerrank.app.core.ThemeManager
 import com.hackerrank.app.core.ThemeMode
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFFBB86FC),
-    onPrimary = Color(0xFF1A1B2E),
-    primaryContainer = Color(0xFF3A2D5E),
-    secondary = Color(0xFF03DAC6),
-    tertiary = Color(0xFFE0AFFF),
-    surface = Color(0xFF1A1B2E),
-    onSurface = Color(0xFFE6E1E5),
-    surfaceVariant = Color(0xFF2D2E42),
-    background = Color(0xFF12132A)
-)
+private val DarkColorScheme =
+    darkColorScheme(
+        primary = Color(0xFFBB86FC),
+        onPrimary = Color(0xFF1A1B2E),
+        primaryContainer = Color(0xFF3A2D5E),
+        secondary = Color(0xFF03DAC6),
+        tertiary = Color(0xFFE0AFFF),
+        surface = Color(0xFF1A1B2E),
+        onSurface = Color(0xFFE6E1E5),
+        surfaceVariant = Color(0xFF2D2E42),
+        background = Color(0xFF12132A),
+    )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF6750A4),
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFEADDFF),
-    secondary = Color(0xFF625B71),
-    tertiary = Color(0xFF7A526C),
-    surface = Color(0xFFFFFBFE),
-    onSurface = Color(0xFF1C1B1F),
-    surfaceVariant = Color(0xFFE7E0EC),
-    background = Color(0xFFFFFBFE)
-)
+private val LightColorScheme =
+    lightColorScheme(
+        primary = Color(0xFF6750A4),
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFEADDFF),
+        secondary = Color(0xFF625B71),
+        tertiary = Color(0xFF7A526C),
+        surface = Color(0xFFFFFBFE),
+        onSurface = Color(0xFF1C1B1F),
+        surfaceVariant = Color(0xFFE7E0EC),
+        background = Color(0xFFFFFBFE),
+    )
 
-private val AppTypography = Typography(
-    displayLarge = TextStyle(fontWeight = FontWeight.Bold, fontSize = 36.sp, lineHeight = 44.sp),
-    displayMedium = TextStyle(fontWeight = FontWeight.Bold, fontSize = 32.sp, lineHeight = 40.sp),
-    displaySmall = TextStyle(fontWeight = FontWeight.Bold, fontSize = 28.sp, lineHeight = 36.sp),
-    headlineLarge = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp, lineHeight = 32.sp),
-    headlineMedium = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 22.sp, lineHeight = 28.sp),
-    headlineSmall = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 20.sp, lineHeight = 26.sp),
-    titleLarge = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 18.sp, lineHeight = 24.sp),
-    titleMedium = TextStyle(fontWeight = FontWeight.Medium, fontSize = 16.sp, lineHeight = 22.sp),
-    titleSmall = TextStyle(fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp),
-    bodyLarge = TextStyle(fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-    bodyMedium = TextStyle(fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.25.sp),
-    bodySmall = TextStyle(fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.4.sp),
-    labelLarge = TextStyle(fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.1.sp),
-    labelMedium = TextStyle(fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.5.sp),
-    labelSmall = TextStyle(fontWeight = FontWeight.Medium, fontSize = 11.sp, lineHeight = 16.sp, letterSpacing = 0.5.sp)
-)
+private val AppTypography =
+    Typography(
+        displayLarge = TextStyle(fontWeight = FontWeight.Bold, fontSize = 36.sp, lineHeight = 44.sp),
+        displayMedium = TextStyle(fontWeight = FontWeight.Bold, fontSize = 32.sp, lineHeight = 40.sp),
+        displaySmall = TextStyle(fontWeight = FontWeight.Bold, fontSize = 28.sp, lineHeight = 36.sp),
+        headlineLarge = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp, lineHeight = 32.sp),
+        headlineMedium = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 22.sp, lineHeight = 28.sp),
+        headlineSmall = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 20.sp, lineHeight = 26.sp),
+        titleLarge = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 18.sp, lineHeight = 24.sp),
+        titleMedium = TextStyle(fontWeight = FontWeight.Medium, fontSize = 16.sp, lineHeight = 22.sp),
+        titleSmall = TextStyle(fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp),
+        bodyLarge = TextStyle(fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
+        bodyMedium = TextStyle(fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.25.sp),
+        bodySmall = TextStyle(fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.4.sp),
+        labelLarge = TextStyle(fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.1.sp),
+        labelMedium = TextStyle(fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.5.sp),
+        labelSmall = TextStyle(fontWeight = FontWeight.Medium, fontSize = 11.sp, lineHeight = 16.sp, letterSpacing = 0.5.sp),
+    )
 
-private val AppShapes = Shapes(
-    small = RoundedCornerShape(8.dp),
-    medium = RoundedCornerShape(12.dp),
-    large = RoundedCornerShape(16.dp),
-    extraLarge = RoundedCornerShape(24.dp)
-)
+private val AppShapes =
+    Shapes(
+        small = RoundedCornerShape(8.dp),
+        medium = RoundedCornerShape(12.dp),
+        large = RoundedCornerShape(16.dp),
+        extraLarge = RoundedCornerShape(24.dp),
+    )
 
 @Composable
 fun HackerRankTheme(
     themeManager: ThemeManager,
     dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val themeMode by themeManager.themeMode.collectAsState()
-    val darkTheme = when (themeMode) {
-        ThemeMode.LIGHT -> false
-        ThemeMode.DARK -> true
-        ThemeMode.SYSTEM -> isSystemInDarkTheme()
-    }
-
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    val darkTheme =
+        when (themeMode) {
+            ThemeMode.LIGHT -> false
+            ThemeMode.DARK -> true
+            ThemeMode.SYSTEM -> isSystemInDarkTheme()
         }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+
+    val colorScheme =
+        when {
+            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                val context = LocalContext.current
+                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            }
+            darkTheme -> DarkColorScheme
+            else -> LightColorScheme
+        }
 
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            window.statusBarColor = android.graphics.Color.TRANSPARENT
+            window.navigationBarColor = android.graphics.Color.TRANSPARENT
+            val controller = WindowCompat.getInsetsController(window, view)
+            controller.isAppearanceLightStatusBars = !darkTheme
+            controller.isAppearanceLightNavigationBars = !darkTheme
         }
     }
 
@@ -111,6 +119,6 @@ fun HackerRankTheme(
         colorScheme = colorScheme,
         typography = AppTypography,
         shapes = AppShapes,
-        content = content
+        content = content,
     )
 }

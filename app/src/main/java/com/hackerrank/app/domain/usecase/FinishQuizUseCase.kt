@@ -9,41 +9,54 @@ import javax.inject.Inject
 
 data class FinishQuizResult(
     val updatedProgress: UserProgress,
-    val gamificationResult: GamificationResult
+    val gamificationResult: GamificationResult,
 )
 
-class FinishQuizUseCase @Inject constructor(
-    private val progressRepository: ProgressRepository,
-    private val recordQuizCompleteUseCase: RecordQuizCompleteUseCase
-) {
-    suspend operator fun invoke(
-        session: QuizSession,
-        structureId: String
-    ): FinishQuizResult {
-        val existingProgress = progressRepository
-            .getProgressByStructureId(structureId)
-            .first()
+class FinishQuizUseCase
+    @Inject
+    constructor(
+        private val progressRepository: ProgressRepository,
+        private val recordQuizCompleteUseCase: RecordQuizCompleteUseCase,
+    ) {
+        suspend operator fun invoke(
+            session: QuizSession,
+            structureId: String,
+        ): FinishQuizResult {
+            val existingProgress =
+                progressRepository
+                    .getProgressByStructureId(structureId)
+                    .first()
 
-        val newProgress = (existingProgress ?: UserProgress(structureId = structureId)).copy(
-            quizzesCompleted = (existingProgress?.quizzesCompleted ?: 0) + 1,
-            totalCorrect = (existingProgress?.totalCorrect ?: 0) + session.score,
-            totalQuestions = (existingProgress?.totalQuestions ?: 0) + session.totalQuestions,
-            bestScore = maxOf(existingProgress?.bestScore ?: 0, session.score),
-            masteryLevel = ((existingProgress?.totalCorrect ?: 0) + session.score) * 100 /
-                    ((existingProgress?.totalQuestions ?: 0) + session.totalQuestions)
-        )
-        progressRepository.upsertProgress(newProgress)
+            val newProgress =
+                (existingProgress ?: UserProgress(structureId = structureId)).copy(
+                    quizzesCompleted = (existingProgress?.quizzesCompleted ?: 0) + 1,
+                    totalCorrect = (existingProgress?.totalCorrect ?: 0) + session.score,
+                    totalQuestions = (existingProgress?.totalQuestions ?: 0) + session.totalQuestions,
+                    bestScore = maxOf(existingProgress?.bestScore ?: 0, session.score),
+                    masteryLevel =
+                        ((existingProgress?.totalCorrect ?: 0) + session.score) * 100 /
+                            ((existingProgress?.totalQuestions ?: 0) + session.totalQuestions),
+                )
+            progressRepository.upsertProgress(newProgress)
 
-        val gamificationResult = recordQuizCompleteUseCase(
-            score = session.score,
-            totalQuestions = session.totalQuestions,
-            elapsedTimeMs = session.elapsedTimeMs,
-            structureId = structureId
-        )
+            val gamificationResult =
+                recordQuizCompleteUseCase(
+                    score = session.score,
+                    totalQuestions = session.totalQuestions,
+                    elapsedTimeMs = session.elapsedTimeMs,
+                    structureId = structureId,
+                )
 
-        return FinishQuizResult(
-            updatedProgress = newProgress,
-            gamificationResult = gamificationResult
-        )
+            progressRepository.insertQuizResult(
+                structureId = structureId,
+                score = session.score,
+                totalQuestions = session.totalQuestions,
+                xpEarned = gamificationResult.xpAwarded,
+            )
+
+            return FinishQuizResult(
+                updatedProgress = newProgress,
+                gamificationResult = gamificationResult,
+            )
+        }
     }
-}

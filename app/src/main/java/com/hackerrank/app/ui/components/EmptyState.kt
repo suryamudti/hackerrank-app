@@ -24,31 +24,31 @@ fun EmptyState(
     title: String,
     message: String,
     modifier: Modifier = Modifier,
-    iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+    iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
 ) {
     Column(
         modifier = modifier.fillMaxSize().padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
             tint = iconTint,
-            modifier = Modifier.size(72.dp)
+            modifier = Modifier.size(72.dp),
         )
         Spacer(Modifier.height(16.dp))
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.height(8.dp))
         Text(
             text = message,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }

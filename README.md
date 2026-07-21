@@ -58,6 +58,25 @@ app/
     └── quiz/               # MCQ quiz engine
 ```
 
+## CI/CD & Code Quality
+
+This project is configured with GitHub Actions workflows under `.github/workflows/` for automated verification:
+- **Pull Request Check (`pr-check.yml`)**: Runs unit tests on every pull request.
+- **Release Build (`release.yml`)**: Automatically packages and drafts a signed release on merge to main.
+
+To run quality checks locally, use:
+- **Lint Check**: `./gradlew lintDebug`
+- **Unit & Integration Tests**: `./gradlew testDebugUnitTest`
+- **Code Style Check**: `./gradlew ktlintCheck`
+- **JaCoCo Test Coverage Report**: `./gradlew jacocoTestReport`
+
+### Git Pre-Commit Hook Setup
+
+To enable automated pre-commit quality checks before every commit, run:
+```bash
+git config core.hooksPath .githooks
+```
+
 ## License
 
 MIT

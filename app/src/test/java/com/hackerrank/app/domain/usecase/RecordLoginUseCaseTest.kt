@@ -11,26 +11,27 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class RecordLoginUseCaseTest {
-
     private val gamificationEngine: GamificationEngine = mockk()
     private val useCase = RecordLoginUseCase(gamificationEngine)
 
     @Test
-    fun `invoke calls recordLogin on gamificationEngine`() = runTest {
-        val expectedResult = GamificationResult(
-            xpAwarded = 10,
-            newTotalXp = 110,
-            newLevel = 1,
-            previousLevel = 1,
-            newBadges = emptyList(),
-            streakInfo = StreakInfo(1, 1, true, null, "2026-07-04")
-        )
+    fun `invoke calls recordLogin on gamificationEngine`() =
+        runTest {
+            val expectedResult =
+                GamificationResult(
+                    xpAwarded = 10,
+                    newTotalXp = 110,
+                    newLevel = 1,
+                    previousLevel = 1,
+                    newBadges = emptyList(),
+                    streakInfo = StreakInfo(1, 1, true, null, "2026-07-04"),
+                )
 
-        coEvery { gamificationEngine.recordLogin() } returns expectedResult
+            coEvery { gamificationEngine.recordLogin() } returns expectedResult
 
-        val actualResult = useCase()
+            val actualResult = useCase()
 
-        assertEquals(expectedResult, actualResult)
-        coVerify(exactly = 1) { gamificationEngine.recordLogin() }
-    }
+            assertEquals(expectedResult, actualResult)
+            coVerify(exactly = 1) { gamificationEngine.recordLogin() }
+        }
 }

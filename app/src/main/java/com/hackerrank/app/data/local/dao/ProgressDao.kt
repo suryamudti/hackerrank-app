@@ -9,12 +9,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProgressDao {
-
     @Query("SELECT * FROM user_progress WHERE structure_id = :structureId")
     fun getProgressByStructureId(structureId: String): Flow<UserProgressEntity?>
 
     @Query("SELECT * FROM user_progress")
     fun getAllProgress(): Flow<List<UserProgressEntity>>
+
+    @Query("SELECT * FROM user_progress")
+    suspend fun getAllProgressSync(): List<UserProgressEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(progress: UserProgressEntity)

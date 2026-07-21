@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SolvedProblemDao {
-
     @Query("SELECT problemId FROM solved_problems")
     fun getSolvedIds(): Flow<List<String>>
 

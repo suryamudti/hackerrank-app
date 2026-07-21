@@ -5,5 +5,5 @@ data class UserProfile(
     val currentStreak: Int = 0,
     val longestStreak: Int = 0,
     val lastActiveDate: String? = null,
-    val earnedBadgeIds: List<String> = emptyList()
+    val earnedBadgeIds: List<String> = emptyList(),
 )

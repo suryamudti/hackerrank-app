@@ -11,5 +11,5 @@ data class UserProfileEntity(
     @ColumnInfo(name = "current_streak") val currentStreak: Int = 0,
     @ColumnInfo(name = "longest_streak") val longestStreak: Int = 0,
     @ColumnInfo(name = "last_active_date") val lastActiveDate: String? = null,
-    @ColumnInfo(name = "earned_badge_ids_json") val earnedBadgeIdsJson: String = "[]"
+    @ColumnInfo(name = "earned_badge_ids_json") val earnedBadgeIdsJson: String = "[]",
 )

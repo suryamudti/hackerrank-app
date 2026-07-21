@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -46,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -56,6 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hackerrank.app.R
 import com.hackerrank.app.core.localizedName
 import com.hackerrank.app.domain.model.Difficulty
+import com.hackerrank.app.ui.components.EmptyState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,7 +66,7 @@ fun ProblemDetailScreen(
     problemId: String,
     isDailyChallenge: Boolean = false,
     onBackClick: () -> Unit,
-    viewModel: ProblemDetailViewModel = hiltViewModel()
+    viewModel: ProblemDetailViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(problemId, isDailyChallenge) {
         viewModel.loadProblem(problemId)
@@ -73,23 +76,28 @@ fun ProblemDetailScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
-    val solveResult = when (val s = uiState) {
-        is ProblemDetailUiState.Loaded -> s.solveResult
-        is ProblemDetailUiState.Loading -> null
-    }
+    val solveResult =
+        when (val s = uiState) {
+            is ProblemDetailUiState.Loaded -> s.solveResult
+            is ProblemDetailUiState.Loading -> null
+            is ProblemDetailUiState.Error -> null
+        }
 
     LaunchedEffect(solveResult) {
         solveResult?.let { result ->
-            val bonusXp = when (val s = uiState) {
-                is ProblemDetailUiState.Loaded -> s.bonusXp
-                is ProblemDetailUiState.Loading -> 0
-            }
-            val msg = if (isDailyChallenge) {
-                context.getString(R.string.daily_challenge_bonus_earned, bonusXp) + "\n" +
+            val bonusXp =
+                when (val s = uiState) {
+                    is ProblemDetailUiState.Loaded -> s.bonusXp
+                    is ProblemDetailUiState.Loading -> 0
+                    is ProblemDetailUiState.Error -> 0
+                }
+            val msg =
+                if (isDailyChallenge) {
+                    context.getString(R.string.daily_challenge_bonus_earned, bonusXp) + "\n" +
+                        context.getString(R.string.xp_earned, result.xpAwarded, result.newLevel)
+                } else {
                     context.getString(R.string.xp_earned, result.xpAwarded, result.newLevel)
-            } else {
-                context.getString(R.string.xp_earned, result.xpAwarded, result.newLevel)
-            }
+                }
             snackbarHostState.showSnackbar(msg)
             viewModel.clearSolveResult()
         }
@@ -104,25 +112,36 @@ fun ProblemDetailScreen(
                         when (val s = uiState) {
                             is ProblemDetailUiState.Loaded -> s.problem.title
                             is ProblemDetailUiState.Loading -> stringResource(R.string.problem_loading)
-                        }
+                            is ProblemDetailUiState.Error -> stringResource(R.string.problem_loading)
+                        },
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.problem_navigate_back))
                     }
-                }
+                },
             )
-        }
+        },
     ) { padding ->
         when (val state = uiState) {
             is ProblemDetailUiState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(padding),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(modifier = Modifier.testTag("loadingIndicator"))
                 }
+                return@Scaffold
+            }
+
+            is ProblemDetailUiState.Error -> {
+                EmptyState(
+                    icon = Icons.Default.Warning,
+                    title = "Error",
+                    message = state.message,
+                    modifier = Modifier.padding(padding),
+                )
                 return@Scaffold
             }
 
@@ -130,34 +149,37 @@ fun ProblemDetailScreen(
                 val problem = state.problem
 
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                            .verticalScroll(rememberScrollState())
+                            .padding(16.dp),
                 ) {
                     if (isDailyChallenge && !state.isSolved) {
                         Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                            ),
-                            modifier = Modifier.fillMaxWidth()
+                            colors =
+                                CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                ),
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
                             Row(
                                 modifier = Modifier.padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Icon(
-                                    Icons.Default.Whatshot, contentDescription = null,
+                                    Icons.Default.Whatshot,
+                                    contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onTertiaryContainer,
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(24.dp),
                                 )
                                 Spacer(Modifier.width(8.dp))
                                 Text(
                                     text = stringResource(R.string.daily_challenge_bonus, state.bonusXp),
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
                                 )
                             }
                         }
@@ -169,17 +191,18 @@ fun ProblemDetailScreen(
                             text = problem.difficulty.localizedName(),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
-                            color = when (problem.difficulty) {
-                                Difficulty.EASY -> Color(0xFF4CAF50)
-                                Difficulty.MEDIUM -> Color(0xFFFF9800)
-                                Difficulty.HARD -> Color(0xFFF44336)
-                            }
+                            color =
+                                when (problem.difficulty) {
+                                    Difficulty.EASY -> Color(0xFF4CAF50)
+                                    Difficulty.MEDIUM -> Color(0xFFFF9800)
+                                    Difficulty.HARD -> Color(0xFFF44336)
+                                },
                         )
                         Spacer(Modifier.width(12.dp))
                         Text(
                             text = problem.category.localizedName(),
                             style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
 
@@ -191,7 +214,7 @@ fun ProblemDetailScreen(
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = problem.description,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
                     )
 
                     Spacer(Modifier.height(12.dp))
@@ -205,7 +228,7 @@ fun ProblemDetailScreen(
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = problem.approachExplanation,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
                     )
 
                     Spacer(Modifier.height(20.dp))
@@ -214,7 +237,7 @@ fun ProblemDetailScreen(
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         SectionHeader(stringResource(R.string.section_solution), Icons.Default.Code, modifier = Modifier.weight(1f))
                         TextButton(onClick = { viewModel.toggleSolution() }) {
@@ -231,23 +254,26 @@ fun ProblemDetailScreen(
                     Button(
                         onClick = { viewModel.solve() },
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = !state.isSolved && !state.isSolving
+                        enabled = !state.isSolved && !state.isSolving,
                     ) {
                         if (state.isSolving) {
                             CircularProgressIndicator(
                                 modifier = Modifier.height(20.dp).width(20.dp),
                                 strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = MaterialTheme.colorScheme.onPrimary,
                             )
                         } else {
                             Icon(
                                 if (state.isSolved) Icons.Default.CheckCircle else Icons.Default.Star,
-                                contentDescription = null
+                                contentDescription = null,
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                if (state.isSolved) stringResource(R.string.action_solved)
-                                else stringResource(R.string.action_mark_solved, xpForDifficulty(problem.difficulty))
+                                if (state.isSolved) {
+                                    stringResource(R.string.action_solved)
+                                } else {
+                                    stringResource(R.string.action_mark_solved, xpForDifficulty(problem.difficulty))
+                                },
                             )
                         }
                     }
@@ -259,21 +285,22 @@ fun ProblemDetailScreen(
     }
 }
 
-private fun xpForDifficulty(difficulty: Difficulty): Int = when (difficulty) {
-    Difficulty.EASY -> 10
-    Difficulty.MEDIUM -> 25
-    Difficulty.HARD -> 50
-}
+private fun xpForDifficulty(difficulty: Difficulty): Int =
+    when (difficulty) {
+        Difficulty.EASY -> 10
+        Difficulty.MEDIUM -> 25
+        Difficulty.HARD -> 50
+    }
 
 @Composable
 private fun SectionHeader(
     title: String,
     icon: ImageVector,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.width(8.dp))
@@ -281,7 +308,7 @@ private fun SectionHeader(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
     }
 }
@@ -292,14 +319,15 @@ private fun CodeBlock(code: String) {
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
     ) {
         Column(modifier = Modifier.padding(4.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.End,
             ) {
                 IconButton(onClick = {
                     clipboardManager.setText(AnnotatedString(code))
@@ -311,38 +339,42 @@ private fun CodeBlock(code: String) {
                 text = code,
                 style = MaterialTheme.typography.bodySmall,
                 fontFamily = FontFamily.Monospace,
-                modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
+                modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
             )
         }
     }
 }
 
 @Composable
-private fun ExampleCard(input: String, output: String) {
+private fun ExampleCard(
+    input: String,
+    output: String,
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            ),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = stringResource(R.string.example_title),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
             Spacer(Modifier.height(8.dp))
             Row {
                 Text(
                     text = stringResource(R.string.example_input),
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
                     text = input,
                     fontFamily = FontFamily.Monospace,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
             Spacer(Modifier.height(6.dp))
@@ -350,12 +382,12 @@ private fun ExampleCard(input: String, output: String) {
                 Text(
                     text = stringResource(R.string.example_output),
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
                     text = output,
                     fontFamily = FontFamily.Monospace,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
         }

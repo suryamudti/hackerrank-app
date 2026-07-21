@@ -6,20 +6,21 @@ data class GamificationResult(
     val newLevel: Int,
     val previousLevel: Int,
     val newBadges: List<Badge>,
-    val streakInfo: StreakInfo
+    val streakInfo: StreakInfo,
 )
 
 data class StreakInfo(
     val currentStreak: Int,
     val longestStreak: Int,
     val isNewStreakDay: Boolean,
-    val streakMilestoneReached: Int?, // 3, 7, 14, or 30 if milestone reached
-    val lastActiveDate: String? = null
+    // 3, 7, 14, or 30 if milestone reached
+    val streakMilestoneReached: Int?,
+    val lastActiveDate: String? = null,
 )
 
 data class Badge(
     val id: String,
-    val name: String,
+    val title: String,
     val description: String,
-    val iconRes: String? = null
+    val iconRes: String? = null,
 )

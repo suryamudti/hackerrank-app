@@ -12,5 +12,5 @@ data class UserProgressEntity(
     @ColumnInfo(name = "total_correct") val totalCorrect: Int = 0,
     @ColumnInfo(name = "total_questions") val totalQuestions: Int = 0,
     @ColumnInfo(name = "best_score") val bestScore: Int = 0,
-    @ColumnInfo(name = "mastery_level") val masteryLevel: Int = 0
+    @ColumnInfo(name = "mastery_level") val masteryLevel: Int = 0,
 )

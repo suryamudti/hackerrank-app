@@ -8,10 +8,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.hackerrank.app.core.LocalLocaleManager
+import com.hackerrank.app.core.LocalThemeManager
 import com.hackerrank.app.core.LocaleManager
 import com.hackerrank.app.core.ThemeManager
 import com.hackerrank.app.core.navigation.NavGraph
@@ -28,7 +31,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     @Inject
     lateinit var seedInitializer: SeedInitializer
 
@@ -69,12 +71,14 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            HackerRankTheme(themeManager = themeManager) {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    NavGraph(
-                        themeManager = themeManager,
-                        localeManager = localeManager
-                    )
+            CompositionLocalProvider(
+                LocalThemeManager provides themeManager,
+                LocalLocaleManager provides localeManager,
+            ) {
+                HackerRankTheme(themeManager = themeManager) {
+                    Surface(modifier = Modifier.fillMaxSize()) {
+                        NavGraph()
+                    }
                 }
             }
         }
