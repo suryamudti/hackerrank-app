@@ -15,5 +15,5 @@ data class DataStructureEntity(
     @ColumnInfo(name = "when_to_use_json") val whenToUseJson: String,
     @ColumnInfo(name = "diagram_res") val diagramRes: String?,
     @ColumnInfo(name = "code_example") val codeExample: String,
-    @ColumnInfo(name = "difficulty") val difficulty: String
+    @ColumnInfo(name = "difficulty") val difficulty: String,
 )

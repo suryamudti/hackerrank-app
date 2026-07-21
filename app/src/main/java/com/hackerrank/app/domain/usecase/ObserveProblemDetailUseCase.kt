@@ -8,18 +8,20 @@ import javax.inject.Inject
 
 data class ProblemDetailData(
     val problem: Problem?,
-    val isSolved: Boolean
+    val isSolved: Boolean,
 )
 
-class ObserveProblemDetailUseCase @Inject constructor(
-    private val problemRepository: ProblemRepository
-) {
-    operator fun invoke(problemId: String): Flow<ProblemDetailData> {
-        return combine(
-            problemRepository.getProblemById(problemId),
-            problemRepository.isSolved(problemId)
-        ) { problem, isSolved ->
-            ProblemDetailData(problem = problem, isSolved = isSolved)
+class ObserveProblemDetailUseCase
+    @Inject
+    constructor(
+        private val problemRepository: ProblemRepository,
+    ) {
+        operator fun invoke(problemId: String): Flow<ProblemDetailData> {
+            return combine(
+                problemRepository.getProblemById(problemId),
+                problemRepository.isSolved(problemId),
+            ) { problem, isSolved ->
+                ProblemDetailData(problem = problem, isSolved = isSolved)
+            }
         }
     }
-}

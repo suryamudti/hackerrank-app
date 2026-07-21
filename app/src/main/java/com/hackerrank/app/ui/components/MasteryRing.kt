@@ -25,17 +25,17 @@ fun MasteryRing(
     size: Dp = 48.dp,
     strokeWidth: Dp = 4.dp,
     trackColor: Color = MaterialTheme.colorScheme.surfaceVariant,
-    progressColor: Color = MaterialTheme.colorScheme.primary
+    progressColor: Color = MaterialTheme.colorScheme.primary,
 ) {
     val animatedProgress by animateFloatAsState(
         targetValue = progress.coerceIn(0f, 1f),
         animationSpec = tween(durationMillis = 800),
-        label = "masteryProgress"
+        label = "masteryProgress",
     )
 
     Box(
         modifier = modifier.size(size),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Canvas(modifier = Modifier.size(size)) {
             val canvasSize = this.size.minDimension
@@ -49,7 +49,7 @@ fun MasteryRing(
                 useCenter = false,
                 topLeft = Offset(stroke / 2, stroke / 2),
                 size = Size(canvasSize - stroke, canvasSize - stroke),
-                style = Stroke(width = stroke, cap = StrokeCap.Round)
+                style = Stroke(width = stroke, cap = StrokeCap.Round),
             )
 
             // Progress
@@ -60,7 +60,7 @@ fun MasteryRing(
                 useCenter = false,
                 topLeft = Offset(stroke / 2, stroke / 2),
                 size = Size(canvasSize - stroke, canvasSize - stroke),
-                style = Stroke(width = stroke, cap = StrokeCap.Round)
+                style = Stroke(width = stroke, cap = StrokeCap.Round),
             )
         }
     }

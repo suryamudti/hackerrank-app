@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DataStructureDao {
-
     @Query("SELECT * FROM data_structures ORDER BY name ASC")
     fun getAllStructures(): Flow<List<DataStructureEntity>>
 
@@ -22,12 +21,14 @@ interface DataStructureDao {
     @Query("SELECT * FROM data_structures WHERE id = :id")
     suspend fun getStructureById(id: String): DataStructureEntity?
 
-    @Query("SELECT DISTINCT category FROM data_structures ORDER BY CASE " +
+    @Query(
+        "SELECT DISTINCT category FROM data_structures ORDER BY CASE " +
             "WHEN category = 'Linear' THEN 1 " +
             "WHEN category = 'Trees' THEN 2 " +
             "WHEN category = 'Graphs' THEN 3 " +
             "WHEN category = 'Hash-Based' THEN 4 " +
-            "WHEN category = 'Other' THEN 5 END")
+            "WHEN category = 'Other' THEN 5 END",
+    )
     fun getAllCategories(): Flow<List<String>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

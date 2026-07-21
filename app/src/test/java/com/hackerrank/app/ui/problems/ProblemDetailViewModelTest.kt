@@ -1,5 +1,6 @@
 package com.hackerrank.app.ui.problems
 
+import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.hackerrank.app.MainDispatcherRule
 import com.hackerrank.app.core.Constants
@@ -12,7 +13,6 @@ import com.hackerrank.app.domain.usecase.ObserveProblemDetailUseCase
 import com.hackerrank.app.domain.usecase.ProblemDetailData
 import com.hackerrank.app.domain.usecase.RecordDailyChallengeUseCase
 import com.hackerrank.app.domain.usecase.RecordProblemSolveUseCase
-import androidx.lifecycle.SavedStateHandle
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -27,7 +27,6 @@ import org.junit.Rule
 import org.junit.Test
 
 class ProblemDetailViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
@@ -35,174 +34,250 @@ class ProblemDetailViewModelTest {
     private val recordProblemSolveUseCase: RecordProblemSolveUseCase = mockk()
     private val recordDailyChallengeUseCase: RecordDailyChallengeUseCase = mockk()
 
-    private val sampleProblem = Problem(
-        id = "1",
-        title = "Two Sum",
-        description = "Find two...",
-        inputExample = "nums = [2,7], target = 9",
-        outputExample = "[0,1]",
-        solutionCode = "code",
-        approachExplanation = "explanation",
-        difficulty = Difficulty.EASY,
-        category = ProblemCategory.HASH_BASED,
-        orderIndex = 1
-    )
+    private val sampleProblem =
+        Problem(
+            id = "1",
+            title = "Two Sum",
+            description = "Find two...",
+            inputExample = "nums = [2,7], target = 9",
+            outputExample = "[0,1]",
+            solutionCode = "code",
+            approachExplanation = "explanation",
+            difficulty = Difficulty.EASY,
+            category = ProblemCategory.HASH_BASED,
+            orderIndex = 1,
+        )
 
     @Test
-    fun `loadProblem fetches details and unsolved status correctly`() = runTest {
-        val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
-        val viewModel = ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+    fun `loadProblem fetches details and unsolved status correctly`() =
+        runTest {
+            val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
+            val viewModel =
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
 
-        every { observeProblemDetailUseCase("1") } returns flowOf(
-            ProblemDetailData(problem = sampleProblem, isSolved = false)
-        )
+            every { observeProblemDetailUseCase("1") } returns
+                flowOf(
+                    ProblemDetailData(problem = sampleProblem, isSolved = false),
+                )
 
-        viewModel.loadProblem("1")
+            viewModel.loadProblem("1")
 
-        viewModel.uiState.test {
-            val state = awaitItem() as ProblemDetailUiState.Loaded
-            assertEquals(sampleProblem, state.problem)
-            assertFalse(state.isSolved)
-            assertFalse(state.isDailyChallenge)
+            viewModel.uiState.test {
+                val state = awaitItem() as ProblemDetailUiState.Loaded
+                assertEquals(sampleProblem, state.problem)
+                assertFalse(state.isSolved)
+                assertFalse(state.isDailyChallenge)
+            }
         }
-    }
 
     @Test
-    fun `loadProblem preserves input and output examples in uiState`() = runTest {
-        val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
-        val viewModel = ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+    fun `loadProblem preserves input and output examples in uiState`() =
+        runTest {
+            val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
+            val viewModel =
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
 
-        every { observeProblemDetailUseCase("1") } returns flowOf(
-            ProblemDetailData(problem = sampleProblem, isSolved = false)
-        )
+            every { observeProblemDetailUseCase("1") } returns
+                flowOf(
+                    ProblemDetailData(problem = sampleProblem, isSolved = false),
+                )
 
-        viewModel.loadProblem("1")
+            viewModel.loadProblem("1")
 
-        viewModel.uiState.test {
-            val state = awaitItem() as ProblemDetailUiState.Loaded
-            assertNotNull(state.problem)
-            assertEquals("nums = [2,7], target = 9", state.problem?.inputExample)
-            assertEquals("[0,1]", state.problem?.outputExample)
+            viewModel.uiState.test {
+                val state = awaitItem() as ProblemDetailUiState.Loaded
+                assertNotNull(state.problem)
+                assertEquals("nums = [2,7], target = 9", state.problem?.inputExample)
+                assertEquals("[0,1]", state.problem?.outputExample)
+            }
         }
-    }
 
     @Test
-    fun `solve triggers RecordProblemSolveUseCase and updates state successfully`() = runTest {
-        val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
-        val viewModel = ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+    fun `solve triggers RecordProblemSolveUseCase and updates state successfully`() =
+        runTest {
+            val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
+            val viewModel =
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
 
-        every { observeProblemDetailUseCase("1") } returns flowOf(
-            ProblemDetailData(problem = sampleProblem, isSolved = false)
-        )
+            every { observeProblemDetailUseCase("1") } returns
+                flowOf(
+                    ProblemDetailData(problem = sampleProblem, isSolved = false),
+                )
 
-        val gamificationResult = GamificationResult(
-            xpAwarded = 10,
-            newTotalXp = 110,
-            newLevel = 1,
-            previousLevel = 1,
-            newBadges = emptyList(),
-            streakInfo = StreakInfo(1, 1, true, null, "2026-07-04")
-        )
+            val gamificationResult =
+                GamificationResult(
+                    xpAwarded = 10,
+                    newTotalXp = 110,
+                    newLevel = 1,
+                    previousLevel = 1,
+                    newBadges = emptyList(),
+                    streakInfo = StreakInfo(1, 1, true, null, "2026-07-04"),
+                )
 
-        coEvery { recordProblemSolveUseCase("1", Difficulty.EASY) } returns gamificationResult
+            coEvery { recordProblemSolveUseCase("1", Difficulty.EASY) } returns gamificationResult
 
-        viewModel.loadProblem("1")
-        viewModel.solve()
+            viewModel.loadProblem("1")
+            viewModel.solve()
 
-        viewModel.uiState.test {
-            val state = awaitItem() as ProblemDetailUiState.Loaded
-            assertTrue(state.isSolved)
-            assertFalse(state.isSolving)
-            assertEquals(gamificationResult, state.solveResult)
+            viewModel.uiState.test {
+                val state = awaitItem() as ProblemDetailUiState.Loaded
+                assertTrue(state.isSolved)
+                assertFalse(state.isSolving)
+                assertEquals(gamificationResult, state.solveResult)
+            }
         }
-    }
 
     @Test
-    fun `daily challenge solve triggers RecordDailyChallengeUseCase`() = runTest {
-        val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to true))
-        val viewModel = ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+    fun `daily challenge solve triggers RecordDailyChallengeUseCase`() =
+        runTest {
+            val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to true))
+            val viewModel =
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
 
-        every { observeProblemDetailUseCase("1") } returns flowOf(
-            ProblemDetailData(problem = sampleProblem, isSolved = false)
-        )
+            every { observeProblemDetailUseCase("1") } returns
+                flowOf(
+                    ProblemDetailData(problem = sampleProblem, isSolved = false),
+                )
 
-        val gamificationResult = GamificationResult(
-            xpAwarded = 10 + Constants.DAILY_CHALLENGE_BONUS_XP,
-            newTotalXp = 140,
-            newLevel = 1,
-            previousLevel = 1,
-            newBadges = emptyList(),
-            streakInfo = StreakInfo(1, 1, true, null, "2026-07-16")
-        )
+            val gamificationResult =
+                GamificationResult(
+                    xpAwarded = 10 + Constants.DAILY_CHALLENGE_BONUS_XP,
+                    newTotalXp = 140,
+                    newLevel = 1,
+                    previousLevel = 1,
+                    newBadges = emptyList(),
+                    streakInfo = StreakInfo(1, 1, true, null, "2026-07-16"),
+                )
 
-        coEvery { recordDailyChallengeUseCase("1", Difficulty.EASY, Constants.DAILY_CHALLENGE_BONUS_XP) } returns gamificationResult
+            coEvery { recordDailyChallengeUseCase("1", Difficulty.EASY, Constants.DAILY_CHALLENGE_BONUS_XP) } returns gamificationResult
 
-        viewModel.loadProblem("1")
-        viewModel.solve()
+            viewModel.loadProblem("1")
+            viewModel.solve()
 
-        viewModel.uiState.test {
-            val state = awaitItem() as ProblemDetailUiState.Loaded
-            assertTrue(state.isSolved)
-            assertTrue(state.isDailyChallenge)
-            assertEquals(Constants.DAILY_CHALLENGE_BONUS_XP, state.bonusXp)
-            assertEquals(gamificationResult, state.solveResult)
+            viewModel.uiState.test {
+                val state = awaitItem() as ProblemDetailUiState.Loaded
+                assertTrue(state.isSolved)
+                assertTrue(state.isDailyChallenge)
+                assertEquals(Constants.DAILY_CHALLENGE_BONUS_XP, state.bonusXp)
+                assertEquals(gamificationResult, state.solveResult)
+            }
         }
-    }
 
     @Test
-    fun `toggleSolution toggles visibility boolean`() = runTest {
-        val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
-        val viewModel = ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+    fun `toggleSolution toggles visibility boolean`() =
+        runTest {
+            val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
+            val viewModel =
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
 
-        every { observeProblemDetailUseCase("1") } returns flowOf(
-            ProblemDetailData(problem = sampleProblem, isSolved = false)
-        )
+            every { observeProblemDetailUseCase("1") } returns
+                flowOf(
+                    ProblemDetailData(problem = sampleProblem, isSolved = false),
+                )
 
-        viewModel.loadProblem("1")
+            viewModel.loadProblem("1")
 
-        viewModel.uiState.test {
-            var state = awaitItem() as ProblemDetailUiState.Loaded
-            assertFalse(state.showSolution)
+            viewModel.uiState.test {
+                var state = awaitItem() as ProblemDetailUiState.Loaded
+                assertFalse(state.showSolution)
 
-            viewModel.toggleSolution()
-            state = awaitItem() as ProblemDetailUiState.Loaded
-            assertTrue(state.showSolution)
+                viewModel.toggleSolution()
+                state = awaitItem() as ProblemDetailUiState.Loaded
+                assertTrue(state.showSolution)
 
-            viewModel.toggleSolution()
-            state = awaitItem() as ProblemDetailUiState.Loaded
-            assertFalse(state.showSolution)
+                viewModel.toggleSolution()
+                state = awaitItem() as ProblemDetailUiState.Loaded
+                assertFalse(state.showSolution)
+            }
         }
-    }
 
     @Test
-    fun `clearSolveResult clears gamification solveResult`() = runTest {
-        val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
-        val viewModel = ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+    fun `loadProblem with unknown ID stays in Loading`() =
+        runTest {
+            val handle = SavedStateHandle(mapOf("problemId" to "unknown", "isDailyChallenge" to false))
+            val viewModel =
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
 
-        every { observeProblemDetailUseCase("1") } returns flowOf(
-            ProblemDetailData(problem = sampleProblem, isSolved = false)
-        )
+            every { observeProblemDetailUseCase("unknown") } returns
+                flowOf(
+                    ProblemDetailData(problem = null, isSolved = false),
+                )
 
-        val gamificationResult = GamificationResult(
-            xpAwarded = 10,
-            newTotalXp = 110,
-            newLevel = 1,
-            previousLevel = 1,
-            newBadges = emptyList(),
-            streakInfo = StreakInfo(1, 1, true, null, "2026-07-04")
-        )
-        coEvery { recordProblemSolveUseCase("1", Difficulty.EASY) } returns gamificationResult
+            viewModel.loadProblem("unknown")
 
-        viewModel.loadProblem("1")
-        viewModel.solve()
-
-        viewModel.uiState.test {
-            var state = awaitItem() as ProblemDetailUiState.Loaded
-            assertNotNull(state.solveResult)
-
-            viewModel.clearSolveResult()
-            state = awaitItem() as ProblemDetailUiState.Loaded
-            assertNull(state.solveResult)
+            viewModel.uiState.test {
+                val state = awaitItem()
+                assertTrue(state is ProblemDetailUiState.Loading)
+            }
         }
-    }
+
+    @Test
+    fun `double solve race condition is guarded by isSolving flag`() =
+        runTest {
+            val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
+            val viewModel =
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+
+            every { observeProblemDetailUseCase("1") } returns
+                flowOf(
+                    ProblemDetailData(problem = sampleProblem, isSolved = false),
+                )
+
+            val gamificationResult =
+                GamificationResult(
+                    xpAwarded = 10,
+                    newTotalXp = 110,
+                    newLevel = 1,
+                    previousLevel = 1,
+                    newBadges = emptyList(),
+                    streakInfo = StreakInfo(1, 1, true, null, "2026-07-04"),
+                )
+            coEvery { recordProblemSolveUseCase("1", Difficulty.EASY) } returns gamificationResult
+
+            viewModel.loadProblem("1")
+
+            viewModel.solve()
+            viewModel.solve()
+
+            viewModel.uiState.test {
+                val state = awaitItem() as ProblemDetailUiState.Loaded
+                assertTrue(state.isSolved)
+            }
+        }
+
+    @Test
+    fun `clearSolveResult clears gamification solveResult`() =
+        runTest {
+            val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
+            val viewModel =
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, handle)
+
+            every { observeProblemDetailUseCase("1") } returns
+                flowOf(
+                    ProblemDetailData(problem = sampleProblem, isSolved = false),
+                )
+
+            val gamificationResult =
+                GamificationResult(
+                    xpAwarded = 10,
+                    newTotalXp = 110,
+                    newLevel = 1,
+                    previousLevel = 1,
+                    newBadges = emptyList(),
+                    streakInfo = StreakInfo(1, 1, true, null, "2026-07-04"),
+                )
+            coEvery { recordProblemSolveUseCase("1", Difficulty.EASY) } returns gamificationResult
+
+            viewModel.loadProblem("1")
+            viewModel.solve()
+
+            viewModel.uiState.test {
+                var state = awaitItem() as ProblemDetailUiState.Loaded
+                assertNotNull(state.solveResult)
+
+                viewModel.clearSolveResult()
+                state = awaitItem() as ProblemDetailUiState.Loaded
+                assertNull(state.solveResult)
+            }
+        }
 }

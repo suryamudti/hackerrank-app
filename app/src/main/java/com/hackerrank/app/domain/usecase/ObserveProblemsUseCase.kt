@@ -8,18 +8,20 @@ import javax.inject.Inject
 
 data class ProblemsData(
     val allProblems: List<Problem>,
-    val solvedIds: Set<String>
+    val solvedIds: Set<String>,
 )
 
-class ObserveProblemsUseCase @Inject constructor(
-    private val problemRepository: ProblemRepository
-) {
-    operator fun invoke(): Flow<ProblemsData> {
-        return combine(
-            problemRepository.getAllProblems(),
-            problemRepository.getSolvedIds()
-        ) { problems, solvedIds ->
-            ProblemsData(allProblems = problems, solvedIds = solvedIds)
+class ObserveProblemsUseCase
+    @Inject
+    constructor(
+        private val problemRepository: ProblemRepository,
+    ) {
+        operator fun invoke(): Flow<ProblemsData> {
+            return combine(
+                problemRepository.getAllProblems(),
+                problemRepository.getSolvedIds(),
+            ) { problems, solvedIds ->
+                ProblemsData(allProblems = problems, solvedIds = solvedIds)
+            }
         }
     }
-}

@@ -5,6 +5,8 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     kotlin("plugin.serialization") version "2.0.21"
+    id("org.jlleitschuh.gradle.ktlint")
+    jacoco
 }
 
 android {
@@ -17,7 +19,7 @@ android {
         targetSdk = 34
         // Define base version
         val baseVersionName = "1.0"
-        
+
         // Check if version overrides are passed from the CI command line
         versionCode = if (project.hasProperty("versionCode")) project.property("versionCode").toString().toInt() else 1
         versionName = if (project.hasProperty("versionName")) project.property("versionName").toString() else baseVersionName
@@ -26,11 +28,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            enableAndroidTestCoverage = true
+            enableUnitTestCoverage = true
+        }
         release {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -47,6 +53,19 @@ android {
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
+
+    lint {
+        abortOnError = true
+        checkReleaseBuilds = true
+        warningsAsErrors = false
+        disable += listOf("GradleDependency", "OldTargetApi", "AppBundleLocaleChanges")
+    }
 }
 
 dependencies {
@@ -60,6 +79,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    testImplementation("androidx.compose.ui:ui-test-manifest")
 
     // Activity & Lifecycle
     implementation("androidx.activity:activity-compose:1.9.0")
@@ -93,8 +113,85 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
     testImplementation("app.cash.turbine:turbine:1.1.0")
+    testImplementation("org.robolectric:robolectric:4.13")
+    testImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation(composeBom)
+    testImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(composeBom)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+}
+
+tasks.withType<Test> {
+    configure<JacocoTaskExtension> {
+        isIncludeNoLocationClasses = true
+        excludes = listOf("jdk.internal.*")
+    }
+}
+
+val jacocoTestReport by tasks.registering(JacocoReport::class) {
+    dependsOn("testDebugUnitTest")
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports for the debug build."
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    val fileFilter =
+        listOf(
+            "**/R.class", "**/R" + '$' + "*.class", "**/BuildConfig.*", "**/Manifest*.*",
+            "**/*Test*.*", "android/**/*.*", "**/*_MembersInjector.class",
+            "**/Dagger*.*", "**/*_Factory.class", "**/*_Provide*Factory.class",
+            "**/*" + '$' + "Holder.class", "**/*_GeneratedInjector.class", "**/*_HiltModules*.class",
+            "**/*Hilt_*.*", "**/hilt_aggregated_deps/**",
+        )
+    val debugTree =
+        fileTree("${project.layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {
+            exclude(fileFilter)
+        }
+    val mainSrc = "${project.projectDir}/src/main/java"
+
+    sourceDirectories.setFrom(files(mainSrc))
+    classDirectories.setFrom(files(debugTree))
+    executionData.setFrom(
+        fileTree(project.layout.buildDirectory.get()) {
+            include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+        },
+    )
+}
+
+val jacocoTestCoverageVerification by tasks.registering(JacocoCoverageVerification::class) {
+    dependsOn(jacocoTestReport)
+    group = "Verification"
+    description = "Verify Jacoco coverage limits."
+
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.30".toBigDecimal()
+            }
+        }
+    }
+
+    val fileFilter =
+        listOf(
+            "**/R.class", "**/R" + '$' + "*.class", "**/BuildConfig.*", "**/Manifest*.*",
+            "**/*Test*.*", "android/**/*.*", "**/*_MembersInjector.class",
+            "**/Dagger*.*", "**/*_Factory.class", "**/*_Provide*Factory.class",
+            "**/*" + '$' + "Holder.class", "**/*_GeneratedInjector.class", "**/*_HiltModules*.class",
+            "**/*Hilt_*.*", "**/hilt_aggregated_deps/**",
+        )
+    val debugTree =
+        fileTree("${project.layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {
+            exclude(fileFilter)
+        }
+    classDirectories.setFrom(files(debugTree))
+    executionData.setFrom(
+        fileTree(project.layout.buildDirectory.get()) {
+            include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+        },
+    )
 }

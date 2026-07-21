@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Quiz
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -34,16 +35,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -52,7 +52,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hackerrank.app.R
 import com.hackerrank.app.core.localizedName
-import com.hackerrank.app.domain.model.Difficulty
+import com.hackerrank.app.ui.components.EmptyState
 import com.hackerrank.app.ui.components.MasteryRing
 import kotlinx.coroutines.launch
 
@@ -62,7 +62,7 @@ fun DetailScreen(
     structureSlug: String,
     onBackClick: () -> Unit,
     onQuizClick: () -> Unit,
-    viewModel: DetailViewModel = hiltViewModel()
+    viewModel: DetailViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(structureSlug) {
         viewModel.loadStructure(structureSlug)
@@ -82,22 +82,33 @@ fun DetailScreen(
                         when (val s = uiState) {
                             is DetailUiState.Loaded -> s.structure.name
                             is DetailUiState.Loading -> stringResource(R.string.detail_loading)
-                        }
+                            is DetailUiState.Error -> stringResource(R.string.detail_loading)
+                        },
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.detail_back))
                     }
-                }
+                },
             )
-        }
+        },
     ) { padding ->
         when (val state = uiState) {
             is DetailUiState.Loading -> {
                 Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(modifier = Modifier.testTag("loadingIndicator"))
                 }
+                return@Scaffold
+            }
+
+            is DetailUiState.Error -> {
+                EmptyState(
+                    icon = Icons.Default.Warning,
+                    title = "Error",
+                    message = state.message,
+                    modifier = Modifier.padding(padding),
+                )
                 return@Scaffold
             }
 
@@ -106,30 +117,31 @@ fun DetailScreen(
                 val progress = state.progress
 
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                            .verticalScroll(rememberScrollState())
+                            .padding(16.dp),
                 ) {
                     // Header
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         MasteryRing(
                             progress = (progress?.masteryPercentage ?: 0f) / 100f,
                             size = 64.dp,
-                            strokeWidth = 6.dp
+                            strokeWidth = 6.dp,
                         )
                         Spacer(Modifier.width(16.dp))
                         Column {
                             Text(
                                 text = structure.name,
                                 style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
                             )
                             Text(
                                 text = "${structure.category.localizedName()} • ${structure.difficulty.localizedName()}",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -143,7 +155,7 @@ fun DetailScreen(
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = structure.explanation,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
                     )
 
                     Spacer(Modifier.height(20.dp))
@@ -165,7 +177,7 @@ fun DetailScreen(
                     val codeCopiedText = stringResource(R.string.code_copied)
                     CodeBlock(
                         code = structure.codeExample,
-                        onCopy = { scope.launch { snackbarHostState.showSnackbar(codeCopiedText) } }
+                        onCopy = { scope.launch { snackbarHostState.showSnackbar(codeCopiedText) } },
                     )
 
                     Spacer(Modifier.height(20.dp))
@@ -178,13 +190,13 @@ fun DetailScreen(
                     structure.whenToUse.forEach { useCase ->
                         Row(
                             modifier = Modifier.padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.Top
+                            verticalAlignment = Alignment.Top,
                         ) {
                             Icon(
                                 Icons.Default.CheckCircle,
                                 contentDescription = stringResource(R.string.use_case_label),
                                 tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(top = 2.dp)
+                                modifier = Modifier.padding(top = 2.dp),
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(text = useCase, style = MaterialTheme.typography.bodyLarge)
@@ -200,22 +212,25 @@ fun DetailScreen(
                     Spacer(Modifier.height(8.dp))
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
                                 text = stringResource(R.string.mastery_label, (progress?.masteryPercentage ?: 0f).toInt()),
-                                style = MaterialTheme.typography.titleMedium
+                                style = MaterialTheme.typography.titleMedium,
                             )
                             Spacer(Modifier.height(8.dp))
                             LinearProgressIndicator(
                                 progress = { (progress?.masteryPercentage ?: 0f) / 100f },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
                             )
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                text = "${stringResource(R.string.quizzes_completed, progress?.quizzesCompleted ?: 0)} | ${stringResource(R.string.quizzes_best, progress?.bestScore ?: 0, progress?.totalQuestions ?: 0)}",
-                                style = MaterialTheme.typography.bodySmall
+                                text = "${stringResource(
+                                    R.string.quizzes_completed,
+                                    progress?.quizzesCompleted ?: 0,
+                                )} | ${stringResource(R.string.quizzes_best, progress?.bestScore ?: 0, progress?.totalQuestions ?: 0)}",
+                                style = MaterialTheme.typography.bodySmall,
                             )
                         }
                     }
@@ -225,7 +240,7 @@ fun DetailScreen(
                     // Take Quiz Button
                     Button(
                         onClick = onQuizClick,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         Icon(Icons.Default.Quiz, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
@@ -245,7 +260,7 @@ private fun SectionHeader(title: String) {
         text = title,
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary
+        color = MaterialTheme.colorScheme.primary,
     )
 }
 
@@ -253,26 +268,26 @@ private fun SectionHeader(title: String) {
 private fun ComplexityTable(table: Map<String, String>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             table.entries.forEachIndexed { index, entry ->
                 if (index > 0) HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
                         text = entry.key,
                         style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
                     )
                     Text(
                         text = entry.value,
                         style = MaterialTheme.typography.bodyLarge,
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 }
             }
@@ -281,19 +296,23 @@ private fun ComplexityTable(table: Map<String, String>) {
 }
 
 @Composable
-private fun CodeBlock(code: String, onCopy: () -> Unit = {}) {
+private fun CodeBlock(
+    code: String,
+    onCopy: () -> Unit = {},
+) {
     val clipboardManager = LocalClipboardManager.current
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
     ) {
         Column(modifier = Modifier.padding(4.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.End,
             ) {
                 IconButton(onClick = {
                     clipboardManager.setText(AnnotatedString(code))
@@ -302,7 +321,7 @@ private fun CodeBlock(code: String, onCopy: () -> Unit = {}) {
                     Icon(
                         Icons.Default.ContentCopy,
                         contentDescription = stringResource(R.string.code_copy),
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(4.dp),
                     )
                 }
             }
@@ -310,7 +329,7 @@ private fun CodeBlock(code: String, onCopy: () -> Unit = {}) {
                 text = code,
                 style = MaterialTheme.typography.bodySmall,
                 fontFamily = FontFamily.Monospace,
-                modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
+                modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
             )
         }
     }

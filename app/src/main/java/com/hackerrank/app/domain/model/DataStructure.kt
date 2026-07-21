@@ -10,7 +10,7 @@ data class DataStructure(
     val whenToUse: List<String>,
     val diagramRes: String?,
     val codeExample: String,
-    val difficulty: Difficulty
+    val difficulty: Difficulty,
 )
 
 enum class DataStructureCategory(val displayName: String) {
@@ -18,11 +18,11 @@ enum class DataStructureCategory(val displayName: String) {
     TREES("Trees"),
     GRAPHS("Graphs"),
     HASH_BASED("Hash-Based"),
-    OTHER("Other")
+    OTHER("Other"),
 }
 
 enum class Difficulty(val displayName: String) {
     EASY("Easy"),
     MEDIUM("Medium"),
-    HARD("Hard")
+    HARD("Hard"),
 }

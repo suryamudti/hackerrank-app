@@ -6,7 +6,10 @@ import kotlinx.coroutines.flow.Flow
 
 interface ContentRepository {
     fun getAllStructures(): Flow<List<DataStructure>>
+
     fun getStructuresByCategory(category: DataStructureCategory): Flow<List<DataStructure>>
+
     suspend fun getStructureBySlug(slug: String): DataStructure?
+
     fun getAllCategories(): Flow<List<DataStructureCategory>>
 }

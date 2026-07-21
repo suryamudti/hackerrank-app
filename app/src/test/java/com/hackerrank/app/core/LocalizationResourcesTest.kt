@@ -5,7 +5,6 @@ import org.junit.Test
 import java.io.File
 
 class LocalizationResourcesTest {
-
     @Test
     fun `indonesian strings file exists`() {
         assertTrue("values-in/strings.xml not found", inFile.exists())
@@ -19,7 +18,7 @@ class LocalizationResourcesTest {
         val missing = enKeys - inKeys
         assertTrue(
             "Missing keys in values-in/strings.xml: ${missing.joinToString(", ")}",
-            missing.isEmpty()
+            missing.isEmpty(),
         )
     }
 
@@ -30,7 +29,7 @@ class LocalizationResourcesTest {
 
         assertTrue(
             "Key count mismatch: en=${enKeys.size} in=${inKeys.size}",
-            enKeys.size == inKeys.size
+            enKeys.size == inKeys.size,
         )
     }
 
@@ -39,11 +38,12 @@ class LocalizationResourcesTest {
         private val inFile: File = findResFile("values-in/strings.xml")
 
         private fun findResFile(relativePath: String): File {
-            val candidates = listOf(
-                File("app/src/main/res", relativePath),
-                File("src/main/res", relativePath),
-                File("../app/src/main/res", relativePath),
-            )
+            val candidates =
+                listOf(
+                    File("app/src/main/res", relativePath),
+                    File("src/main/res", relativePath),
+                    File("../app/src/main/res", relativePath),
+                )
             return candidates.firstOrNull { it.exists() }
                 ?: error("Could not find res/$relativePath (tried ${candidates.map { it.path }})")
         }

@@ -10,12 +10,13 @@ object Constants {
     const val SPEED_BONUS_THRESHOLD_MS = 60_000L // 60 seconds
 
     // Streak Milestone XP
-    val streakMilestones = mapOf(
-        3 to 100,
-        7 to 250,
-        14 to 350,
-        30 to 500
-    )
+    val streakMilestones =
+        mapOf(
+            3 to 100,
+            7 to 250,
+            14 to 350,
+            30 to 500,
+        )
 
     // Level formula: level = floor(sqrt(totalXP / 100))
     fun getLevel(totalXp: Int): Int = kotlin.math.floor(kotlin.math.sqrt((totalXp / 100).toDouble())).toInt()
@@ -35,9 +36,14 @@ object Constants {
     const val PROBLEM_HARD_XP = 50
 
     // Category order for display
-    val categoryOrder = listOf(
-        "Linear", "Trees", "Graphs", "Hash-Based", "Other"
-    )
+    val categoryOrder =
+        listOf(
+            "Linear",
+            "Trees",
+            "Graphs",
+            "Hash-Based",
+            "Other",
+        )
 
     // Daily Challenge
     const val DAILY_CHALLENGE_BONUS_XP = 30

@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProblemDao {
-
     @Query("SELECT * FROM problems ORDER BY orderIndex ASC")
     fun getAllProblems(): Flow<List<ProblemEntity>>
 

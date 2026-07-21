@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProfileDao {
-
     @Query("SELECT * FROM user_profile WHERE id = 1")
     fun getProfile(): Flow<UserProfileEntity?>
 

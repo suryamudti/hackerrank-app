@@ -13,10 +13,10 @@ import androidx.room.PrimaryKey
             entity = DataStructureEntity::class,
             parentColumns = ["id"],
             childColumns = ["structure_id"],
-            onDelete = ForeignKey.CASCADE
-        )
+            onDelete = ForeignKey.CASCADE,
+        ),
     ],
-    indices = [Index("structure_id")]
+    indices = [Index("structure_id")],
 )
 data class QuizQuestionEntity(
     @PrimaryKey val id: String,
@@ -24,5 +24,5 @@ data class QuizQuestionEntity(
     @ColumnInfo(name = "question") val question: String,
     @ColumnInfo(name = "options_json") val optionsJson: String,
     @ColumnInfo(name = "correct_index") val correctIndex: Int,
-    @ColumnInfo(name = "explanation") val explanation: String
+    @ColumnInfo(name = "explanation") val explanation: String,
 )

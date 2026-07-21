@@ -9,8 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface QuizQuestionDao {
-
-    @Query("SELECT * FROM quiz_questions WHERE structure_id = :structureId ORDER BY RANDOM()")
+    @Query("SELECT * FROM quiz_questions WHERE structure_id = :structureId")
     fun getQuestionsByStructureId(structureId: String): Flow<List<QuizQuestionEntity>>
 
     @Query("SELECT * FROM quiz_questions WHERE id = :id")

@@ -10,7 +10,7 @@ data class Problem(
     val approachExplanation: String,
     val difficulty: Difficulty,
     val category: ProblemCategory,
-    val orderIndex: Int
+    val orderIndex: Int,
 )
 
 enum class ProblemCategory(val displayName: String) {
@@ -25,5 +25,5 @@ enum class ProblemCategory(val displayName: String) {
     HASH_BASED("Hash-Based"),
     RECURSION_MATH("Recursion & Math"),
     BIT_MANIPULATION("Bit Manipulation"),
-    MISCELLANEOUS("Miscellaneous")
+    MISCELLANEOUS("Miscellaneous"),
 }

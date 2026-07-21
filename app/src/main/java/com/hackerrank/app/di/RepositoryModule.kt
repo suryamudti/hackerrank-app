@@ -5,7 +5,9 @@ import com.hackerrank.app.data.repository.ProblemRepositoryImpl
 import com.hackerrank.app.data.repository.ProgressRepositoryImpl
 import com.hackerrank.app.data.repository.QuizRepositoryImpl
 import com.hackerrank.app.domain.repository.ContentRepository
+import com.hackerrank.app.domain.repository.DailyChallengeRepository
 import com.hackerrank.app.domain.repository.ProblemRepository
+import com.hackerrank.app.domain.repository.ProfileRepository
 import com.hackerrank.app.domain.repository.ProgressRepository
 import com.hackerrank.app.domain.repository.QuizRepository
 import dagger.Binds
@@ -17,7 +19,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
-
     @Binds
     @Singleton
     abstract fun bindContentRepository(impl: ContentRepositoryImpl): ContentRepository
@@ -25,6 +26,14 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindProgressRepository(impl: ProgressRepositoryImpl): ProgressRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindProfileRepository(impl: ProgressRepositoryImpl): ProfileRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDailyChallengeRepository(impl: ProgressRepositoryImpl): DailyChallengeRepository
 
     @Binds
     @Singleton

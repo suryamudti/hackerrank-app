@@ -31,9 +31,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.hackerrank.app.R
-import com.hackerrank.app.core.LocaleManager
-import com.hackerrank.app.core.ThemeManager
+import com.hackerrank.app.core.LocalLocaleManager
+import com.hackerrank.app.core.LocalThemeManager
 import com.hackerrank.app.ui.achievements.AchievementsScreen
+import com.hackerrank.app.ui.badge.BadgeDetailScreen
 import com.hackerrank.app.ui.browse.BrowseScreen
 import com.hackerrank.app.ui.detail.DetailScreen
 import com.hackerrank.app.ui.problems.ProblemDetailScreen
@@ -44,8 +45,11 @@ import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String, val labelRes: Int, val icon: ImageVector) {
     data object Browse : Screen("browse", R.string.nav_structures, Icons.Default.Home)
+
     data object Problems : Screen("problems", R.string.nav_problems, Icons.Default.Code)
+
     data object Progress : Screen("progress", R.string.nav_progress, Icons.Default.Star)
+
     data object Achievements : Screen("achievements", R.string.nav_badges, Icons.Default.EmojiEvents)
 }
 
@@ -53,22 +57,30 @@ sealed class DetailRoute(val route: String) {
     data object StructureDetail : DetailRoute("detail/{structureSlug}") {
         fun createRoute(slug: String) = "detail/$slug"
     }
+
     data object Quiz : DetailRoute("quiz/{structureSlug}") {
         fun createRoute(slug: String) = "quiz/$slug"
     }
+
     data object ProblemDetail : DetailRoute("problem/{problemId}?isDailyChallenge={isDailyChallenge}") {
-        fun createRoute(id: String, isDailyChallenge: Boolean = false) =
-            if (isDailyChallenge) "problem/$id?isDailyChallenge=true" else "problem/$id"
+        fun createRoute(
+            id: String,
+            isDailyChallenge: Boolean = false,
+        ) = if (isDailyChallenge) "problem/$id?isDailyChallenge=true" else "problem/$id"
+    }
+
+    data object BadgeDetail : DetailRoute("badge/{badgeId}") {
+        fun createRoute(badgeId: String) = "badge/$badgeId"
     }
 }
 
 val bottomNavScreens = listOf(Screen.Browse, Screen.Problems, Screen.Progress, Screen.Achievements)
 
 @Composable
-fun NavGraph(
-    themeManager: ThemeManager? = null,
-    localeManager: LocaleManager
-) {
+fun NavGraph() {
+    val themeManager = LocalThemeManager.current
+    val localeManager = LocalLocaleManager.current
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -92,28 +104,26 @@ fun NavGraph(
                                 restoreState = true
                             }
                         },
-                        icon = { Icon(screen.icon, contentDescription = null) },
-                        label = { Text(stringResource(screen.labelRes)) }
+                        icon = { Icon(screen.icon, contentDescription = stringResource(screen.labelRes)) },
+                        label = { Text(stringResource(screen.labelRes)) },
                     )
                 }
             }
-        }
+        },
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             NavHost(
                 navController = navController,
-                startDestination = Screen.Browse.route
+                startDestination = Screen.Browse.route,
             ) {
                 composable(Screen.Browse.route) {
                     BrowseScreen(
-                        themeManager = themeManager,
-                        localeManager = localeManager,
                         onStructureClick = { slug ->
                             navController.navigate(DetailRoute.StructureDetail.createRoute(slug))
                         },
                         onError = { msg ->
                             scope.launch { snackbarHostState.showSnackbar(msg) }
-                        }
+                        },
                     )
                 }
 
@@ -127,7 +137,7 @@ fun NavGraph(
                         },
                         onError = { msg ->
                             scope.launch { snackbarHostState.showSnackbar(msg) }
-                        }
+                        },
                     )
                 }
 
@@ -135,57 +145,72 @@ fun NavGraph(
                     ProgressScreen(
                         onError = { msg ->
                             scope.launch { snackbarHostState.showSnackbar(msg) }
-                        }
+                        },
                     )
                 }
 
                 composable(Screen.Achievements.route) {
                     AchievementsScreen(
+                        onBadgeClick = { badgeId ->
+                            navController.navigate(DetailRoute.BadgeDetail.createRoute(badgeId))
+                        },
                         onError = { msg ->
                             scope.launch { snackbarHostState.showSnackbar(msg) }
-                        }
+                        },
                     )
                 }
 
                 composable(
                     route = DetailRoute.StructureDetail.route,
-                    arguments = listOf(navArgument("structureSlug") { type = NavType.StringType })
+                    arguments = listOf(navArgument("structureSlug") { type = NavType.StringType }),
                 ) { backStackEntry ->
                     val slug = backStackEntry.arguments?.getString("structureSlug") ?: return@composable
                     DetailScreen(
                         structureSlug = slug,
                         onBackClick = { navController.popBackStack() },
-                        onQuizClick = { navController.navigate(DetailRoute.Quiz.createRoute(slug)) }
+                        onQuizClick = { navController.navigate(DetailRoute.Quiz.createRoute(slug)) },
                     )
                 }
 
                 composable(
                     route = DetailRoute.Quiz.route,
-                    arguments = listOf(navArgument("structureSlug") { type = NavType.StringType })
+                    arguments = listOf(navArgument("structureSlug") { type = NavType.StringType }),
                 ) { backStackEntry ->
                     val slug = backStackEntry.arguments?.getString("structureSlug") ?: return@composable
                     QuizScreen(
                         structureSlug = slug,
-                        onBackClick = { navController.popBackStack() }
+                        onBackClick = { navController.popBackStack() },
                     )
                 }
 
                 composable(
                     route = DetailRoute.ProblemDetail.route,
-                    arguments = listOf(
-                        navArgument("problemId") { type = NavType.StringType },
-                        navArgument("isDailyChallenge") {
-                            type = NavType.BoolType
-                            defaultValue = false
-                        }
-                    )
+                    arguments =
+                        listOf(
+                            navArgument("problemId") { type = NavType.StringType },
+                            navArgument("isDailyChallenge") {
+                                type = NavType.BoolType
+                                defaultValue = false
+                            },
+                        ),
                 ) { backStackEntry ->
                     val problemId = backStackEntry.arguments?.getString("problemId") ?: return@composable
                     val isDailyChallenge = backStackEntry.arguments?.getBoolean("isDailyChallenge") ?: false
                     ProblemDetailScreen(
                         problemId = problemId,
                         isDailyChallenge = isDailyChallenge,
-                        onBackClick = { navController.popBackStack() }
+                        onBackClick = { navController.popBackStack() },
+                    )
+                }
+
+                composable(
+                    route = DetailRoute.BadgeDetail.route,
+                    arguments = listOf(navArgument("badgeId") { type = NavType.StringType }),
+                ) { backStackEntry ->
+                    val badgeId = backStackEntry.arguments?.getString("badgeId") ?: return@composable
+                    BadgeDetailScreen(
+                        badgeId = badgeId,
+                        onBackClick = { navController.popBackStack() },
                     )
                 }
             }

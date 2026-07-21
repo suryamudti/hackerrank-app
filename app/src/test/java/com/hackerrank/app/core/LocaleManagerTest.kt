@@ -16,7 +16,6 @@ import org.junit.Before
 import org.junit.Test
 
 class LocaleManagerTest {
-
     private val context: Context = mockk()
     private val sharedPreferences: SharedPreferences = mockk()
     private val editor: SharedPreferences.Editor = mockk()
@@ -40,54 +39,58 @@ class LocaleManagerTest {
     }
 
     @Test
-    fun `default locale is english`() = runTest {
-        storage["locale"] = "en"
+    fun `default locale is english`() =
+        runTest {
+            storage["locale"] = "en"
 
-        localeManager = LocaleManager(context)
+            localeManager = LocaleManager(context)
 
-        assertEquals("en", localeManager.getCurrentCode())
-        assertTrue(localeManager.isEnglish())
-    }
-
-    @Test
-    fun `default locale falls back to en when preference is null`() = runTest {
-        localeManager = LocaleManager(context)
-
-        assertEquals("en", localeManager.getCurrentCode())
-        assertTrue(localeManager.isEnglish())
-    }
+            assertEquals("en", localeManager.getCurrentCode())
+            assertTrue(localeManager.isEnglish())
+        }
 
     @Test
-    fun `setLocale saves code and updates flow`() = runTest {
-        storage["locale"] = "en"
+    fun `default locale falls back to en when preference is null`() =
+        runTest {
+            localeManager = LocaleManager(context)
 
-        localeManager = LocaleManager(context)
-
-        localeManager.setLocale("in")
-
-        assertEquals("in", storage["locale"])
-        assertEquals("in", localeManager.getCurrentCode())
-        assertFalse(localeManager.isEnglish())
-        assertEquals("in", localeManager.currentLocale.first())
-        verify { editor.putString("locale", "in") }
-        verify { editor.apply() }
-    }
+            assertEquals("en", localeManager.getCurrentCode())
+            assertTrue(localeManager.isEnglish())
+        }
 
     @Test
-    fun `setLocale to english updates correctly`() = runTest {
-        storage["locale"] = "in"
+    fun `setLocale saves code and updates flow`() =
+        runTest {
+            storage["locale"] = "en"
 
-        localeManager = LocaleManager(context)
+            localeManager = LocaleManager(context)
 
-        localeManager.setLocale("en")
+            localeManager.setLocale("in")
 
-        assertEquals("en", storage["locale"])
-        assertEquals("en", localeManager.getCurrentCode())
-        assertTrue(localeManager.isEnglish())
-        assertEquals("en", localeManager.currentLocale.first())
-        verify { editor.putString("locale", "en") }
-        verify { editor.apply() }
-    }
+            assertEquals("in", storage["locale"])
+            assertEquals("in", localeManager.getCurrentCode())
+            assertFalse(localeManager.isEnglish())
+            assertEquals("in", localeManager.currentLocale.first())
+            verify { editor.putString("locale", "in") }
+            verify { editor.apply() }
+        }
+
+    @Test
+    fun `setLocale to english updates correctly`() =
+        runTest {
+            storage["locale"] = "in"
+
+            localeManager = LocaleManager(context)
+
+            localeManager.setLocale("en")
+
+            assertEquals("en", storage["locale"])
+            assertEquals("en", localeManager.getCurrentCode())
+            assertTrue(localeManager.isEnglish())
+            assertEquals("en", localeManager.currentLocale.first())
+            verify { editor.putString("locale", "en") }
+            verify { editor.apply() }
+        }
 
     @Test
     fun `getLocaleFromContext reads stored locale`() {
