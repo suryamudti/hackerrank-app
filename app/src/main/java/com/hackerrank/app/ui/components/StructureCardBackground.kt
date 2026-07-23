@@ -72,8 +72,10 @@ private fun pickGradient(name: String): List<Color> {
     for (c in name) {
         hash = hash * 31 + c.code
     }
-    return gradientPairs[abs(hash) % gradientPairs.size]
+    val index = Math.floorMod(hash, gradientPairs.size)
+    return gradientPairs[index]
 }
+
 
 @Composable
 fun StructureCardBackground(

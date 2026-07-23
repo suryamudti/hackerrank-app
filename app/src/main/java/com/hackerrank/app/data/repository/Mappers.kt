@@ -18,10 +18,10 @@ import com.hackerrank.app.domain.model.UserProgress
 
 fun DataStructureEntity.toDomain(gson: Gson): DataStructure {
     val complexityType = object : TypeToken<Map<String, String>>() {}.type
-    val complexityTable: Map<String, String> = gson.fromJson(complexityJson, complexityType)
+    val complexityTable: Map<String, String> = gson.fromJson(complexityJson, complexityType) ?: emptyMap()
 
     val listType = object : TypeToken<List<String>>() {}.type
-    val whenToUseList: List<String> = gson.fromJson(whenToUseJson, listType)
+    val whenToUseList: List<String> = gson.fromJson(whenToUseJson, listType) ?: emptyList()
 
     return DataStructure(
         id = id,
@@ -54,7 +54,7 @@ fun UserProgressEntity.toDomain(): UserProgress =
 
 fun UserProfileEntity.toDomain(gson: Gson): UserProfile {
     val listType = object : TypeToken<List<String>>() {}.type
-    val badges: List<String> = gson.fromJson(earnedBadgeIdsJson, listType)
+    val badges: List<String> = gson.fromJson(earnedBadgeIdsJson, listType) ?: emptyList()
 
     return UserProfile(
         totalXp = totalXp,
@@ -67,7 +67,7 @@ fun UserProfileEntity.toDomain(gson: Gson): UserProfile {
 
 fun QuizQuestionEntity.toDomain(gson: Gson): QuizQuestion {
     val listType = object : TypeToken<List<String>>() {}.type
-    val optionsList: List<String> = gson.fromJson(optionsJson, listType)
+    val optionsList: List<String> = gson.fromJson(optionsJson, listType) ?: emptyList()
 
     return QuizQuestion(
         id = id,

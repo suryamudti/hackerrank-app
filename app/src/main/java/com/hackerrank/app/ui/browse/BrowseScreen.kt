@@ -89,9 +89,7 @@ fun BrowseScreen(
         }
     }
     LaunchedEffect(isRefreshing) {
-        if (isRefreshing) {
-            pullToRefreshState.startRefresh()
-        } else {
+        if (!isRefreshing) {
             pullToRefreshState.endRefresh()
         }
     }
