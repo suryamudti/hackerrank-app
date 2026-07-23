@@ -28,7 +28,7 @@
     <string name="action_hide">Sembunyikan</string>
     <string name="action_solved">Terpecahkan!</string>
     <string name="action_mark_solved">Tandai Terpecahkan (+%d XP)</string>
-    <string name="xp_earned">+%d XP diperoleh! Level %d</string>
+    <string name="xp_earned">+%1$d XP diperoleh! Level %2$d</string>
     <string name="example_title">Contoh</string>
     <string name="example_input">Masukan: </string>
     <string name="example_output">Keluaran: </string>
@@ -39,7 +39,7 @@
     <string name="progress_no_progress_title">Belum Ada Kemajuan</string>
     <string name="progress_no_progress_message">Selesaikan kuis untuk mulai melacak kemajuan.</string>
     <string name="progress_level">Level %d</string>
-    <string name="progress_xp_progress">%d / %d XP</string>
+    <string name="progress_xp_progress">%1$d / %2$d XP</string>
     <string name="progress_total_xp">Total XP: %d</string>
     <string name="progress_stat_structures">Struktur</string>
     <string name="progress_stat_mastered">Dikuasai</string>
@@ -65,21 +65,21 @@
     <string name="section_progress">Kemajuan</string>
     <string name="mastery_label">Penguasaan: %d%%</string>
     <string name="quizzes_completed">Kuis selesai: %d</string>
-    <string name="quizzes_best">Terbaik: %d/%d</string>
+    <string name="quizzes_best">Terbaik: %1$d/%2$d</string>
     <string name="action_take_quiz">Ikuti Kuis</string>
     <string name="use_case_label">Kegunaan</string>
 
     <!-- Quiz -->
     <string name="quiz_title">Kuis</string>
     <string name="quiz_back">Kembali</string>
-    <string name="quiz_question_x_of_y">Soal %d dari %d</string>
+    <string name="quiz_question_x_of_y">Soal %1$d dari %2$d</string>
     <string name="quiz_no_questions">Tidak ada soal tersedia.</string>
     <string name="quiz_correct">Benar!</string>
     <string name="quiz_incorrect">Salah</string>
     <string name="quiz_next_question">Soal Berikutnya</string>
     <string name="quiz_see_results">Lihat Hasil</string>
     <string name="quiz_complete">Kuis Selesai!</string>
-    <string name="quiz_time">Waktu: %dm %ds</string>
+    <string name="quiz_time">Waktu: %1$dm %2$ds</string>
     <string name="quiz_xp_earned">+%d XP</string>
     <string name="quiz_level_up">Naik Level! Sekarang level %d</string>
     <string name="quiz_badge_earned">Lencana: %s</string>

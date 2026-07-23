@@ -28,7 +28,7 @@
     <string name="action_hide">Hide</string>
     <string name="action_solved">Solved!</string>
     <string name="action_mark_solved">Mark as Solved (+%d XP)</string>
-    <string name="xp_earned">+%d XP earned! Level %d</string>
+    <string name="xp_earned">+%1$d XP earned! Level %2$d</string>
     <string name="example_title">Example</string>
     <string name="example_input">Input: </string>
     <string name="example_output">Output: </string>
@@ -39,7 +39,7 @@
     <string name="progress_no_progress_title">No Progress Yet</string>
     <string name="progress_no_progress_message">Complete a quiz to start tracking your progress.</string>
     <string name="progress_level">Level %d</string>
-    <string name="progress_xp_progress">%d / %d XP</string>
+    <string name="progress_xp_progress">%1$d / %2$d XP</string>
     <string name="progress_total_xp">Total XP: %d</string>
     <string name="progress_stat_structures">Structures</string>
     <string name="progress_stat_mastered">Mastered</string>
@@ -65,21 +65,21 @@
     <string name="section_progress">Progress</string>
     <string name="mastery_label">Mastery: %d%%</string>
     <string name="quizzes_completed">Quizzes completed: %d</string>
-    <string name="quizzes_best">Best: %d/%d</string>
+    <string name="quizzes_best">Best: %1$d/%2$d</string>
     <string name="action_take_quiz">Take Quiz</string>
     <string name="use_case_label">Use case</string>
 
     <!-- Quiz -->
     <string name="quiz_title">Quiz</string>
     <string name="quiz_back">Back</string>
-    <string name="quiz_question_x_of_y">Question %d of %d</string>
+    <string name="quiz_question_x_of_y">Question %1$d of %2$d</string>
     <string name="quiz_no_questions">No questions available.</string>
     <string name="quiz_correct">Correct!</string>
     <string name="quiz_incorrect">Incorrect</string>
     <string name="quiz_next_question">Next Question</string>
     <string name="quiz_see_results">See Results</string>
     <string name="quiz_complete">Quiz Complete!</string>
-    <string name="quiz_time">Time: %dm %ds</string>
+    <string name="quiz_time">Time: %1$dm %2$ds</string>
     <string name="quiz_xp_earned">+%d XP</string>
     <string name="quiz_level_up">Level Up! Now level %d</string>
     <string name="quiz_badge_earned">Badge: %s</string>
