@@ -7,6 +7,7 @@ import com.hackerrank.app.domain.model.UserProfile
 import com.hackerrank.app.domain.model.UserProgress
 import com.hackerrank.app.domain.usecase.GetRecentActivityUseCase
 import com.hackerrank.app.domain.usecase.ObserveProgressOverviewUseCase
+import com.hackerrank.app.domain.usecase.ProblemStats
 import com.hackerrank.app.domain.usecase.ProgressOverview
 import io.mockk.every
 import io.mockk.mockk
@@ -50,6 +51,7 @@ class ProgressViewModelTest {
                     categoryMastery = emptyMap(),
                     totalStructures = 0,
                     masteredStructures = 0,
+                    problemStats = ProblemStats(),
                 )
 
             every { observeProgressOverviewUseCase() } returns flowOf(overview)
@@ -63,12 +65,25 @@ class ProgressViewModelTest {
                 assertTrue(state.allProgress.isEmpty())
                 assertEquals(0, state.totalStructures)
                 assertEquals(0, state.masteredStructures)
+                assertEquals(0, state.problemStats.totalProblems)
+                assertEquals(0, state.problemStats.solvedCount)
             }
         }
 
     @Test
     fun `initializing ViewModel computes category mastery and mastered structures count`() =
         runTest {
+            val stats =
+                ProblemStats(
+                    totalProblems = 10,
+                    solvedCount = 4,
+                    easyTotal = 4,
+                    easySolved = 3,
+                    mediumTotal = 4,
+                    mediumSolved = 1,
+                    hardTotal = 2,
+                    hardSolved = 0,
+                )
             val overview =
                 ProgressOverview(
                     profile = userProfile,
@@ -80,6 +95,7 @@ class ProgressViewModelTest {
                         ),
                     totalStructures = 2,
                     masteredStructures = 1,
+                    problemStats = stats,
                 )
 
             every { observeProgressOverviewUseCase() } returns flowOf(overview)
@@ -95,6 +111,8 @@ class ProgressViewModelTest {
                 assertEquals(1, state.masteredStructures)
                 assertEquals(0.8f, state.categoryMastery[DataStructureCategory.LINEAR] ?: 0f, 0.001f)
                 assertEquals(0.4f, state.categoryMastery[DataStructureCategory.TREES] ?: 0f, 0.001f)
+                assertEquals(10, state.problemStats.totalProblems)
+                assertEquals(4, state.problemStats.solvedCount)
             }
         }
 }

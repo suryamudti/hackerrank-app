@@ -13,4 +13,10 @@ interface ProblemRepository {
     fun isSolved(problemId: String): Flow<Boolean>
 
     suspend fun markAsSolved(problemId: String)
+
+    fun getBookmarkedIds(): Flow<Set<String>>
+
+    fun isBookmarked(problemId: String): Flow<Boolean>
+
+    suspend fun toggleBookmark(problemId: String)
 }

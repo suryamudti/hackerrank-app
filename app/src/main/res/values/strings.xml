@@ -12,11 +12,16 @@
     <string name="browse_no_structures_title">No Structures Yet</string>
     <string name="browse_no_structures_message">Data structures will appear here once they are loaded.</string>
     <string name="browse_toggle_theme">Toggle theme</string>
+    <string name="search_structures_hint">Search data structures…</string>
 
     <!-- Problems -->
     <string name="problems_no_problems_title">No Problems Yet</string>
     <string name="problems_no_problems_message">Algorithm problems will appear here once loaded.</string>
     <string name="problems_filter_all">All</string>
+    <string name="search_problems_hint">Search problems…</string>
+    <string name="filter_bookmarked">Bookmarked</string>
+    <string name="bookmark_problem">Bookmark problem</string>
+    <string name="unbookmark_problem">Remove bookmark</string>
 
     <!-- Problem Detail -->
     <string name="problem_loading">Loading…</string>
@@ -44,6 +49,8 @@
     <string name="progress_stat_structures">Structures</string>
     <string name="progress_stat_mastered">Mastered</string>
     <string name="progress_stat_quizzes">Quizzes</string>
+    <string name="progress_stat_problems">Problems</string>
+    <string name="progress_problems_card_title">Algorithm Problems</string>
     <string name="progress_streak">Streak</string>
     <string name="progress_current_streak">Current: %d days</string>
     <string name="progress_longest_streak">Longest: %d days</string>

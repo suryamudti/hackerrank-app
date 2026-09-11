@@ -8,6 +8,7 @@ import com.hackerrank.app.domain.usecase.ObserveBrowseDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,6 +20,7 @@ sealed interface BrowseUiState {
     data class Loaded(
         val groupedStructures: Map<DataStructureCategory, List<DataStructure>>,
         val progressMap: Map<String, Float>,
+        val searchQuery: String = "",
     ) : BrowseUiState
 }
 
@@ -34,6 +36,9 @@ class BrowseViewModel
         private val _isRefreshing = MutableStateFlow(false)
         val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
+        private val _searchQuery = MutableStateFlow("")
+        val searchQuery: StateFlow<String> = _searchQuery
+
         init {
             loadData()
         }
@@ -41,17 +46,38 @@ class BrowseViewModel
         private fun loadData() {
             viewModelScope.launch {
                 try {
-                    observeBrowseDataUseCase().collect { data ->
-                        _uiState.value =
-                            BrowseUiState.Loaded(
-                                groupedStructures = data.groupedStructures,
-                                progressMap = data.progressMap,
-                            )
+                    combine(
+                        observeBrowseDataUseCase(),
+                        _searchQuery,
+                    ) { data, query ->
+                        val filteredGrouped =
+                            if (query.isBlank()) {
+                                data.groupedStructures
+                            } else {
+                                data.groupedStructures.mapValues { (_, structures) ->
+                                    structures.filter { s ->
+                                        s.name.contains(query, ignoreCase = true) ||
+                                            s.explanation.contains(query, ignoreCase = true)
+                                    }
+                                }.filterValues { it.isNotEmpty() }
+                            }
+
+                        BrowseUiState.Loaded(
+                            groupedStructures = filteredGrouped,
+                            progressMap = data.progressMap,
+                            searchQuery = query,
+                        )
+                    }.collect { state ->
+                        _uiState.value = state
                     }
                 } catch (e: Exception) {
                     _uiState.value = BrowseUiState.Error(e.localizedMessage ?: "Unknown error")
                 }
             }
+        }
+
+        fun onSearchQueryChanged(query: String) {
+            _searchQuery.value = query
         }
 
         fun refresh() {

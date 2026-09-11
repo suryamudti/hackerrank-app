@@ -17,8 +17,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,7 +30,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -98,27 +104,58 @@ fun ProblemsScreen(
             }
 
             is ProblemsUiState.Loaded -> {
-                if (state.allProblems.isEmpty()) {
-                    EmptyState(
-                        icon = Icons.Default.Code,
-                        title = stringResource(R.string.problems_no_problems_title),
-                        message = stringResource(R.string.problems_no_problems_message),
+                Column(modifier = Modifier.fillMaxSize()) {
+                    OutlinedTextField(
+                        value = state.searchQuery,
+                        onValueChange = { viewModel.onSearchQueryChanged(it) },
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .testTag("problemsSearchField"),
+                        placeholder = { Text(stringResource(R.string.search_problems_hint)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        },
+                        trailingIcon = {
+                            if (state.searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Clear,
+                                        contentDescription = "Clear search",
+                                    )
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.medium,
                     )
-                } else {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        DailyChallengeBanner(
-                            state = state.dailyChallenge,
-                            onProblemClick = { id -> onDailyChallengeClick(id) },
+                    DailyChallengeBanner(
+                        state = state.dailyChallenge,
+                        onProblemClick = { id -> onDailyChallengeClick(id) },
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    DifficultyFilterRow(
+                        selectedDifficulty = state.selectedDifficulty,
+                        onDifficultyClick = { viewModel.selectDifficulty(it) },
+                        showBookmarkedOnly = state.showBookmarkedOnly,
+                        onBookmarkToggle = { viewModel.toggleBookmarkedFilter() },
+                    )
+                    CategoryFilterRow(
+                        selectedCategory = state.selectedCategory,
+                        onCategoryClick = { viewModel.selectCategory(it) },
+                    )
+                    if (state.filteredProblems.isEmpty()) {
+                        EmptyState(
+                            icon = Icons.Default.Code,
+                            title = stringResource(R.string.problems_no_problems_title),
+                            message = stringResource(R.string.problems_no_problems_message),
                         )
-                        Spacer(Modifier.height(8.dp))
-                        DifficultyFilterRow(
-                            selectedDifficulty = state.selectedDifficulty,
-                            onDifficultyClick = { viewModel.selectDifficulty(it) },
-                        )
-                        CategoryFilterRow(
-                            selectedCategory = state.selectedCategory,
-                            onCategoryClick = { viewModel.selectCategory(it) },
-                        )
+                    } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -128,6 +165,8 @@ fun ProblemsScreen(
                                 ProblemCard(
                                     problem = problem,
                                     isSolved = problem.id in state.solvedIds,
+                                    isBookmarked = problem.id in state.bookmarkedIds,
+                                    onBookmarkClick = { viewModel.toggleBookmark(problem.id) },
                                     onClick = { onProblemClick(problem.id) },
                                 )
                             }
@@ -148,15 +187,29 @@ fun ProblemsScreen(
 private fun DifficultyFilterRow(
     selectedDifficulty: Difficulty?,
     onDifficultyClick: (Difficulty?) -> Unit,
+    showBookmarkedOnly: Boolean,
+    onBookmarkToggle: () -> Unit,
 ) {
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        FilterChip(
+            selected = showBookmarkedOnly,
+            onClick = onBookmarkToggle,
+            label = { Text(stringResource(R.string.filter_bookmarked)) },
+            leadingIcon = {
+                Icon(
+                    imageVector = if (showBookmarkedOnly) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                )
+            },
+        )
         FilterChip(
             selected = selectedDifficulty == null,
             onClick = { onDifficultyClick(null) },
@@ -214,6 +267,8 @@ private fun CategoryFilterRow(
 private fun ProblemCard(
     problem: Problem,
     isSolved: Boolean,
+    isBookmarked: Boolean,
+    onBookmarkClick: () -> Unit,
     onClick: () -> Unit,
 ) {
     Card(
@@ -264,8 +319,29 @@ private fun ProblemCard(
                     )
                 }
             }
+            IconButton(
+                onClick = onBookmarkClick,
+                modifier = Modifier.size(36.dp),
+            ) {
+                Icon(
+                    imageVector = if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                    contentDescription =
+                        if (isBookmarked) {
+                            stringResource(R.string.unbookmark_problem)
+                        } else {
+                            stringResource(R.string.bookmark_problem)
+                        },
+                    tint =
+                        if (isBookmarked) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        },
+                    modifier = Modifier.size(20.dp),
+                )
+            }
             if (isSolved) {
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(4.dp))
                 Icon(
                     Icons.Default.CheckCircle,
                     contentDescription = stringResource(R.string.quiz_solved),

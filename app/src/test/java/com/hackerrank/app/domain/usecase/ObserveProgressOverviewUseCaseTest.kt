@@ -3,9 +3,12 @@ package com.hackerrank.app.domain.usecase
 import com.hackerrank.app.domain.model.DataStructure
 import com.hackerrank.app.domain.model.DataStructureCategory
 import com.hackerrank.app.domain.model.Difficulty
+import com.hackerrank.app.domain.model.Problem
+import com.hackerrank.app.domain.model.ProblemCategory
 import com.hackerrank.app.domain.model.UserProfile
 import com.hackerrank.app.domain.model.UserProgress
 import com.hackerrank.app.domain.repository.ContentRepository
+import com.hackerrank.app.domain.repository.ProblemRepository
 import com.hackerrank.app.domain.repository.ProfileRepository
 import com.hackerrank.app.domain.repository.ProgressRepository
 import io.mockk.every
@@ -20,7 +23,14 @@ class ObserveProgressOverviewUseCaseTest {
     private val profileRepository: ProfileRepository = mockk()
     private val progressRepository: ProgressRepository = mockk()
     private val contentRepository: ContentRepository = mockk()
-    private val useCase = ObserveProgressOverviewUseCase(profileRepository, progressRepository, contentRepository)
+    private val problemRepository: ProblemRepository = mockk()
+    private val useCase =
+        ObserveProgressOverviewUseCase(
+            profileRepository,
+            progressRepository,
+            contentRepository,
+            problemRepository,
+        )
 
     private val structures =
         listOf(
@@ -35,6 +45,25 @@ class ObserveProgressOverviewUseCaseTest {
                 category = DataStructureCategory.TREES, explanation = "",
                 complexityTable = emptyMap(), whenToUse = emptyList(),
                 diagramRes = null, codeExample = "", difficulty = Difficulty.MEDIUM,
+            ),
+        )
+
+    private val problems =
+        listOf(
+            Problem(
+                id = "p1", title = "Two Sum", description = "", inputExample = "",
+                outputExample = "", solutionCode = "", approachExplanation = "",
+                difficulty = Difficulty.EASY, category = ProblemCategory.ARRAYS, orderIndex = 1,
+            ),
+            Problem(
+                id = "p2", title = "3Sum", description = "", inputExample = "",
+                outputExample = "", solutionCode = "", approachExplanation = "",
+                difficulty = Difficulty.MEDIUM, category = ProblemCategory.ARRAYS, orderIndex = 2,
+            ),
+            Problem(
+                id = "p3", title = "Trapping Rain Water", description = "", inputExample = "",
+                outputExample = "", solutionCode = "", approachExplanation = "",
+                difficulty = Difficulty.HARD, category = ProblemCategory.ARRAYS, orderIndex = 3,
             ),
         )
 
@@ -54,11 +83,13 @@ class ObserveProgressOverviewUseCaseTest {
         )
 
     @Test
-    fun `invoke computes category mastery and mastered count`() =
+    fun `invoke computes category mastery, mastered count, and problem stats`() =
         runTest {
             every { contentRepository.getAllStructures() } returns flowOf(structures)
             every { profileRepository.getProfile() } returns flowOf(userProfile)
             every { progressRepository.getAllProgress() } returns flowOf(progressList)
+            every { problemRepository.getAllProblems() } returns flowOf(problems)
+            every { problemRepository.getSolvedIds() } returns flowOf(setOf("p1", "p2"))
 
             val result = useCase().first()
 
@@ -68,6 +99,14 @@ class ObserveProgressOverviewUseCaseTest {
             assertEquals(1, result.masteredStructures)
             assertEquals(0.8f, result.categoryMastery[DataStructureCategory.LINEAR] ?: 0f, 0.001f)
             assertEquals(0.4f, result.categoryMastery[DataStructureCategory.TREES] ?: 0f, 0.001f)
+            assertEquals(3, result.problemStats.totalProblems)
+            assertEquals(2, result.problemStats.solvedCount)
+            assertEquals(1, result.problemStats.easySolved)
+            assertEquals(1, result.problemStats.easyTotal)
+            assertEquals(1, result.problemStats.mediumSolved)
+            assertEquals(1, result.problemStats.mediumTotal)
+            assertEquals(0, result.problemStats.hardSolved)
+            assertEquals(1, result.problemStats.hardTotal)
         }
 
     @Test
@@ -76,6 +115,8 @@ class ObserveProgressOverviewUseCaseTest {
             every { contentRepository.getAllStructures() } returns flowOf(structures)
             every { profileRepository.getProfile() } returns flowOf(null)
             every { progressRepository.getAllProgress() } returns flowOf(emptyList())
+            every { problemRepository.getAllProblems() } returns flowOf(emptyList())
+            every { problemRepository.getSolvedIds() } returns flowOf(emptySet())
 
             val result = useCase().first()
 
@@ -83,5 +124,7 @@ class ObserveProgressOverviewUseCaseTest {
             assertEquals(0, result.masteredStructures)
             assertEquals(0f, result.categoryMastery[DataStructureCategory.LINEAR] ?: 0f, 0.001f)
             assertEquals(0f, result.categoryMastery[DataStructureCategory.TREES] ?: 0f, 0.001f)
+            assertEquals(0, result.problemStats.totalProblems)
+            assertEquals(0, result.problemStats.solvedCount)
         }
 }

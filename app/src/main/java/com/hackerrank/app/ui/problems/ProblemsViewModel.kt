@@ -7,6 +7,7 @@ import com.hackerrank.app.domain.model.Problem
 import com.hackerrank.app.domain.model.ProblemCategory
 import com.hackerrank.app.domain.usecase.GetDailyChallengeUseCase
 import com.hackerrank.app.domain.usecase.ObserveProblemsUseCase
+import com.hackerrank.app.domain.usecase.ToggleProblemBookmarkUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,9 +32,12 @@ sealed interface ProblemsUiState {
         val allProblems: List<Problem>,
         val filteredProblems: List<Problem>,
         val solvedIds: Set<String>,
+        val bookmarkedIds: Set<String> = emptySet(),
         val selectedDifficulty: Difficulty?,
         val selectedCategory: ProblemCategory?,
         val dailyChallenge: DailyChallengeState,
+        val searchQuery: String = "",
+        val showBookmarkedOnly: Boolean = false,
     ) : ProblemsUiState
 }
 
@@ -43,6 +47,7 @@ class ProblemsViewModel
     constructor(
         private val observeProblemsUseCase: ObserveProblemsUseCase,
         private val getDailyChallengeUseCase: GetDailyChallengeUseCase,
+        private val toggleProblemBookmarkUseCase: ToggleProblemBookmarkUseCase,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow<ProblemsUiState>(ProblemsUiState.Loading)
         val uiState: StateFlow<ProblemsUiState> = _uiState
@@ -52,6 +57,10 @@ class ProblemsViewModel
 
         private val _selectedDifficulty = MutableStateFlow<Difficulty?>(null)
         private val _selectedCategory = MutableStateFlow<ProblemCategory?>(null)
+        private val _searchQuery = MutableStateFlow("")
+        val searchQuery: StateFlow<String> = _searchQuery
+        private val _showBookmarkedOnly = MutableStateFlow(false)
+        val showBookmarkedOnly: StateFlow<Boolean> = _showBookmarkedOnly
 
         private var problemsJob: kotlinx.coroutines.Job? = null
         private var dailyChallengeJob: kotlinx.coroutines.Job? = null
@@ -70,11 +79,20 @@ class ProblemsViewModel
                             observeProblemsUseCase(),
                             _selectedDifficulty,
                             _selectedCategory,
-                        ) { problemsData, difficulty, category ->
+                            _searchQuery,
+                            _showBookmarkedOnly,
+                        ) { problemsData, difficulty, category, query, bookmarkedOnly ->
                             val filtered =
                                 problemsData.allProblems.filter { p ->
                                     (difficulty == null || p.difficulty == difficulty) &&
-                                        (category == null || p.category == category)
+                                        (category == null || p.category == category) &&
+                                        (!bookmarkedOnly || p.id in problemsData.bookmarkedIds) &&
+                                        (
+                                            query.isBlank() ||
+                                                p.title.contains(query, ignoreCase = true) ||
+                                                p.description.contains(query, ignoreCase = true) ||
+                                                p.category.name.contains(query, ignoreCase = true)
+                                        )
                                 }
                             val current = _uiState.value
                             val dailyChallenge = if (current is ProblemsUiState.Loaded) current.dailyChallenge else DailyChallengeState()
@@ -82,9 +100,12 @@ class ProblemsViewModel
                                 allProblems = problemsData.allProblems,
                                 filteredProblems = filtered,
                                 solvedIds = problemsData.solvedIds,
+                                bookmarkedIds = problemsData.bookmarkedIds,
                                 selectedDifficulty = difficulty,
                                 selectedCategory = category,
                                 dailyChallenge = dailyChallenge,
+                                searchQuery = query,
+                                showBookmarkedOnly = bookmarkedOnly,
                             )
                         }.collect { state ->
                             _uiState.value = state
@@ -118,9 +139,12 @@ class ProblemsViewModel
                                     allProblems = emptyList(),
                                     filteredProblems = emptyList(),
                                     solvedIds = emptySet(),
+                                    bookmarkedIds = emptySet(),
                                     selectedDifficulty = null,
                                     selectedCategory = null,
                                     dailyChallenge = dcState,
+                                    searchQuery = "",
+                                    showBookmarkedOnly = false,
                                 )
                         }
                     } catch (e: Exception) {
@@ -150,5 +174,23 @@ class ProblemsViewModel
 
         fun selectCategory(category: ProblemCategory?) {
             _selectedCategory.value = if (_selectedCategory.value == category) null else category
+        }
+
+        fun onSearchQueryChanged(query: String) {
+            _searchQuery.value = query
+        }
+
+        fun toggleBookmarkedFilter() {
+            _showBookmarkedOnly.value = !_showBookmarkedOnly.value
+        }
+
+        fun toggleBookmark(problemId: String) {
+            viewModelScope.launch {
+                try {
+                    toggleProblemBookmarkUseCase(problemId)
+                } catch (e: Exception) {
+                    // Ignore or handle
+                }
+            }
         }
     }

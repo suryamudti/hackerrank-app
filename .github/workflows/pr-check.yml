@@ -25,6 +25,9 @@ jobs:
       - name: Grant Execute Permission to Gradlew
         run: chmod +x gradlew
 
+      - name: Run Style Check
+        run: ./gradlew ktlintCheck
+
       - name: Run Lint
         run: ./gradlew lintDebug
 

@@ -31,11 +31,13 @@ class ObserveProblemDetailUseCaseTest {
         runTest {
             every { problemRepository.getProblemById("1") } returns flowOf(problem)
             every { problemRepository.isSolved("1") } returns flowOf(true)
+            every { problemRepository.isBookmarked("1") } returns flowOf(true)
 
             val result = useCase("1").first()
 
             assertEquals(problem, result.problem)
             assertTrue(result.isSolved)
+            assertTrue(result.isBookmarked)
         }
 
     @Test
@@ -43,11 +45,13 @@ class ObserveProblemDetailUseCaseTest {
         runTest {
             every { problemRepository.getProblemById("1") } returns flowOf(problem)
             every { problemRepository.isSolved("1") } returns flowOf(false)
+            every { problemRepository.isBookmarked("1") } returns flowOf(false)
 
             val result = useCase("1").first()
 
             assertEquals(problem, result.problem)
             assertFalse(result.isSolved)
+            assertFalse(result.isBookmarked)
         }
 
     @Test
@@ -55,10 +59,12 @@ class ObserveProblemDetailUseCaseTest {
         runTest {
             every { problemRepository.getProblemById("1") } returns flowOf(null)
             every { problemRepository.isSolved("1") } returns flowOf(false)
+            every { problemRepository.isBookmarked("1") } returns flowOf(false)
 
             val result = useCase("1").first()
 
             assertNull(result.problem)
             assertFalse(result.isSolved)
+            assertFalse(result.isBookmarked)
         }
 }

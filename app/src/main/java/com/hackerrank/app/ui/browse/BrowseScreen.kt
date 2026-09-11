@@ -21,10 +21,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -34,6 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
@@ -119,46 +122,76 @@ fun BrowseScreen(
             }
 
             is BrowseUiState.Loaded -> {
-                if (state.groupedStructures.values.all { it.isEmpty() }) {
-                    EmptyState(
-                        icon = Icons.Default.Computer,
-                        title = stringResource(R.string.browse_no_structures_title),
-                        message = stringResource(R.string.browse_no_structures_message),
-                    )
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End,
-                            ) {
-                                localeManager?.let {
-                                    IconButton(onClick = { showLanguageDialog = true }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Language,
-                                            contentDescription = stringResource(R.string.browse_language),
-                                            modifier = Modifier.size(24.dp),
-                                        )
-                                    }
-                                }
-                                IconButton(onClick = { themeManager.toggle() }) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                        ) {
+                            localeManager?.let {
+                                IconButton(onClick = { showLanguageDialog = true }) {
                                     Icon(
-                                        imageVector =
-                                            when (themeMode) {
-                                                ThemeMode.DARK -> Icons.Default.LightMode
-                                                else -> Icons.Default.DarkMode
-                                            },
-                                        contentDescription = stringResource(R.string.browse_toggle_theme),
+                                        imageVector = Icons.Default.Language,
+                                        contentDescription = stringResource(R.string.browse_language),
                                         modifier = Modifier.size(24.dp),
                                     )
                                 }
                             }
+                            IconButton(onClick = { themeManager.toggle() }) {
+                                Icon(
+                                    imageVector =
+                                        when (themeMode) {
+                                            ThemeMode.DARK -> Icons.Default.LightMode
+                                            else -> Icons.Default.DarkMode
+                                        },
+                                    contentDescription = stringResource(R.string.browse_toggle_theme),
+                                    modifier = Modifier.size(24.dp),
+                                )
+                            }
                         }
+                    }
 
+                    item {
+                        OutlinedTextField(
+                            value = state.searchQuery,
+                            onValueChange = { viewModel.onSearchQueryChanged(it) },
+                            modifier = Modifier.fillMaxWidth().testTag("browseSearchField"),
+                            placeholder = { Text(stringResource(R.string.search_structures_hint)) },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            },
+                            trailingIcon = {
+                                if (state.searchQuery.isNotEmpty()) {
+                                    IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Clear,
+                                            contentDescription = "Clear search",
+                                        )
+                                    }
+                                }
+                            },
+                            singleLine = true,
+                            shape = MaterialTheme.shapes.medium,
+                        )
+                    }
+
+                    if (state.groupedStructures.values.all { it.isEmpty() }) {
+                        item {
+                            EmptyState(
+                                icon = Icons.Default.Computer,
+                                title = stringResource(R.string.browse_no_structures_title),
+                                message = stringResource(R.string.browse_no_structures_message),
+                            )
+                        }
+                    } else {
                         state.groupedStructures.forEach { (category, structures) ->
                             item(key = "header_${category.name}") {
                                 AnimatedVisibility(

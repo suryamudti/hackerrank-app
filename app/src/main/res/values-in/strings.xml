@@ -12,11 +12,16 @@
     <string name="browse_no_structures_title">Belum Ada Struktur</string>
     <string name="browse_no_structures_message">Struktur data akan muncul di sini setelah dimuat.</string>
     <string name="browse_toggle_theme">Ganti tema</string>
+    <string name="search_structures_hint">Cari struktur data…</string>
 
     <!-- Problems -->
     <string name="problems_no_problems_title">Belum Ada Soal</string>
     <string name="problems_no_problems_message">Soal algoritma akan muncul di sini setelah dimuat.</string>
     <string name="problems_filter_all">Semua</string>
+    <string name="search_problems_hint">Cari soal…</string>
+    <string name="filter_bookmarked">Ditandai</string>
+    <string name="bookmark_problem">Tandai soal</string>
+    <string name="unbookmark_problem">Hapus tanda</string>
 
     <!-- Problem Detail -->
     <string name="problem_loading">Memuat…</string>
@@ -44,6 +49,8 @@
     <string name="progress_stat_structures">Struktur</string>
     <string name="progress_stat_mastered">Dikuasai</string>
     <string name="progress_stat_quizzes">Kuis</string>
+    <string name="progress_stat_problems">Soal</string>
+    <string name="progress_problems_card_title">Soal Algoritma</string>
     <string name="progress_streak">Rekor</string>
     <string name="progress_current_streak">Saat ini: %d hari</string>
     <string name="progress_longest_streak">Terpanjang: %d hari</string>

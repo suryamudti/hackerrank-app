@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import kotlin.math.abs
 
 private val gradientPairs =
     listOf(
@@ -75,7 +74,6 @@ private fun pickGradient(name: String): List<Color> {
     val index = Math.floorMod(hash, gradientPairs.size)
     return gradientPairs[index]
 }
-
 
 @Composable
 fun StructureCardBackground(
