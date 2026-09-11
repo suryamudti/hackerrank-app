@@ -1,8 +1,11 @@
 package com.hackerrank.app.ui.progress
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollToNode
 import com.hackerrank.app.domain.model.DataStructureCategory
 import com.hackerrank.app.domain.model.UserProfile
 import com.hackerrank.app.domain.model.UserProgress
@@ -95,6 +98,8 @@ class ProgressScreenTest {
             }
         }
 
+        composeTestRule.onNodeWithTag("progressLazyColumn")
+            .performScrollToNode(hasText("Category Progress"))
         composeTestRule.onNodeWithText("Category Progress").assertExists()
     }
 }

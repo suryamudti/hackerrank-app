@@ -9,6 +9,7 @@ import javax.inject.Inject
 data class ProblemDetailData(
     val problem: Problem?,
     val isSolved: Boolean,
+    val isBookmarked: Boolean = false,
 )
 
 class ObserveProblemDetailUseCase
@@ -20,8 +21,13 @@ class ObserveProblemDetailUseCase
             return combine(
                 problemRepository.getProblemById(problemId),
                 problemRepository.isSolved(problemId),
-            ) { problem, isSolved ->
-                ProblemDetailData(problem = problem, isSolved = isSolved)
+                problemRepository.isBookmarked(problemId),
+            ) { problem, isSolved, isBookmarked ->
+                ProblemDetailData(
+                    problem = problem,
+                    isSolved = isSolved,
+                    isBookmarked = isBookmarked,
+                )
             }
         }
     }

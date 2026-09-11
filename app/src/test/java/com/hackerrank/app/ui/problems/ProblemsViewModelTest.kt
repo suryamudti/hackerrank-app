@@ -9,9 +9,12 @@ import com.hackerrank.app.domain.usecase.DailyChallengeResult
 import com.hackerrank.app.domain.usecase.GetDailyChallengeUseCase
 import com.hackerrank.app.domain.usecase.ObserveProblemsUseCase
 import com.hackerrank.app.domain.usecase.ProblemsData
+import com.hackerrank.app.domain.usecase.ToggleProblemBookmarkUseCase
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -21,12 +24,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ProblemsViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
     private val observeProblemsUseCase: ObserveProblemsUseCase = mockk()
     private val getDailyChallengeUseCase: GetDailyChallengeUseCase = mockk()
+    private val toggleProblemBookmarkUseCase: ToggleProblemBookmarkUseCase = mockk(relaxed = true)
 
     private val problemsList =
         listOf(
@@ -68,7 +73,7 @@ class ProblemsViewModelTest {
                     problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
 
             viewModel.uiState.test {
                 val state = awaitItem() as ProblemsUiState.Loaded
@@ -90,7 +95,7 @@ class ProblemsViewModelTest {
                     problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
 
             viewModel.uiState.test {
                 var state = awaitItem() as ProblemsUiState.Loaded
@@ -121,7 +126,7 @@ class ProblemsViewModelTest {
                     problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
 
             viewModel.uiState.test {
                 var state = awaitItem() as ProblemsUiState.Loaded
@@ -153,7 +158,7 @@ class ProblemsViewModelTest {
                     problem = problems[0], bonusXp = 10, isCompleted = false, isAvailable = true,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
 
             viewModel.uiState.test {
                 var state = awaitItem() as ProblemsUiState.Loaded
@@ -184,7 +189,7 @@ class ProblemsViewModelTest {
             every { observeProblemsUseCase() } throws RuntimeException("Network error")
             coEvery { getDailyChallengeUseCase() } throws RuntimeException("Network error")
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
 
             viewModel.uiState.test {
                 val state = awaitItem()
@@ -205,7 +210,7 @@ class ProblemsViewModelTest {
                     problem = null, bonusXp = 0, isCompleted = false, isAvailable = false,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
 
             viewModel.uiState.test {
                 val state = awaitItem() as ProblemsUiState.Loaded
@@ -226,7 +231,7 @@ class ProblemsViewModelTest {
                     problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
 
             viewModel.refresh()
 
@@ -236,5 +241,90 @@ class ProblemsViewModelTest {
                 val val2 = awaitItem()
                 assertFalse(val2)
             }
+        }
+
+    @Test
+    fun `onSearchQueryChanged filters problems matching title or description`() =
+        runTest {
+            every { observeProblemsUseCase() } returns
+                flowOf(
+                    ProblemsData(allProblems = problemsList, solvedIds = emptySet()),
+                )
+            coEvery { getDailyChallengeUseCase() } returns
+                DailyChallengeResult(
+                    problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true,
+                )
+
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
+
+            viewModel.uiState.test {
+                var state = awaitItem() as ProblemsUiState.Loaded
+                assertEquals(2, state.filteredProblems.size)
+
+                viewModel.onSearchQueryChanged("Reverse")
+                state = awaitItem() as ProblemsUiState.Loaded
+                assertEquals(1, state.filteredProblems.size)
+                assertEquals("Reverse Linked List", state.filteredProblems[0].title)
+
+                viewModel.onSearchQueryChanged("")
+                state = awaitItem() as ProblemsUiState.Loaded
+                assertEquals(2, state.filteredProblems.size)
+            }
+        }
+
+    @Test
+    fun `toggleBookmarkedFilter filters only bookmarked problems`() =
+        runTest {
+            every { observeProblemsUseCase() } returns
+                flowOf(
+                    ProblemsData(
+                        allProblems = problemsList,
+                        solvedIds = emptySet(),
+                        bookmarkedIds = setOf("2"),
+                    ),
+                )
+            coEvery { getDailyChallengeUseCase() } returns
+                DailyChallengeResult(
+                    problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true,
+                )
+
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
+
+            viewModel.uiState.test {
+                var state = awaitItem() as ProblemsUiState.Loaded
+                assertEquals(2, state.filteredProblems.size)
+                assertFalse(state.showBookmarkedOnly)
+
+                viewModel.toggleBookmarkedFilter()
+                state = awaitItem() as ProblemsUiState.Loaded
+                assertTrue(state.showBookmarkedOnly)
+                assertEquals(1, state.filteredProblems.size)
+                assertEquals("2", state.filteredProblems[0].id)
+
+                viewModel.toggleBookmarkedFilter()
+                state = awaitItem() as ProblemsUiState.Loaded
+                assertFalse(state.showBookmarkedOnly)
+                assertEquals(2, state.filteredProblems.size)
+            }
+        }
+
+    @Test
+    fun `toggleBookmark calls toggleProblemBookmarkUseCase`() =
+        runTest {
+            every { observeProblemsUseCase() } returns
+                flowOf(
+                    ProblemsData(allProblems = problemsList, solvedIds = emptySet()),
+                )
+            coEvery { getDailyChallengeUseCase() } returns
+                DailyChallengeResult(
+                    problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true,
+                )
+            coEvery { toggleProblemBookmarkUseCase("1") } returns Unit
+
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
+
+            viewModel.toggleBookmark("1")
+
+            coVerify { toggleProblemBookmarkUseCase("1") }
         }
 }

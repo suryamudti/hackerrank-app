@@ -15,6 +15,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.ContentCopy
@@ -56,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hackerrank.app.R
+import com.hackerrank.app.core.Constants
 import com.hackerrank.app.core.localizedName
 import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.ui.components.EmptyState
@@ -119,6 +122,28 @@ fun ProblemDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.problem_navigate_back))
+                    }
+                },
+                actions = {
+                    if (uiState is ProblemDetailUiState.Loaded) {
+                        val isBookmarked = (uiState as ProblemDetailUiState.Loaded).isBookmarked
+                        IconButton(onClick = { viewModel.toggleBookmark() }) {
+                            Icon(
+                                imageVector = if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                                contentDescription =
+                                    if (isBookmarked) {
+                                        stringResource(R.string.unbookmark_problem)
+                                    } else {
+                                        stringResource(R.string.bookmark_problem)
+                                    },
+                                tint =
+                                    if (isBookmarked) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurface
+                                    },
+                            )
+                        }
                     }
                 },
             )
@@ -287,9 +312,9 @@ fun ProblemDetailScreen(
 
 private fun xpForDifficulty(difficulty: Difficulty): Int =
     when (difficulty) {
-        Difficulty.EASY -> 10
-        Difficulty.MEDIUM -> 25
-        Difficulty.HARD -> 50
+        Difficulty.EASY -> Constants.PROBLEM_EASY_XP
+        Difficulty.MEDIUM -> Constants.PROBLEM_MEDIUM_XP
+        Difficulty.HARD -> Constants.PROBLEM_HARD_XP
     }
 
 @Composable

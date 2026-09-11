@@ -9,6 +9,7 @@ import javax.inject.Inject
 data class ProblemsData(
     val allProblems: List<Problem>,
     val solvedIds: Set<String>,
+    val bookmarkedIds: Set<String> = emptySet(),
 )
 
 class ObserveProblemsUseCase
@@ -20,8 +21,13 @@ class ObserveProblemsUseCase
             return combine(
                 problemRepository.getAllProblems(),
                 problemRepository.getSolvedIds(),
-            ) { problems, solvedIds ->
-                ProblemsData(allProblems = problems, solvedIds = solvedIds)
+                problemRepository.getBookmarkedIds(),
+            ) { problems, solvedIds, bookmarkedIds ->
+                ProblemsData(
+                    allProblems = problems,
+                    solvedIds = solvedIds,
+                    bookmarkedIds = bookmarkedIds,
+                )
             }
         }
     }

@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.gson.Gson
+import com.hackerrank.app.data.local.dao.BookmarkedProblemDao
 import com.hackerrank.app.data.local.dao.DataStructureDao
 import com.hackerrank.app.data.local.dao.ProblemDao
 import com.hackerrank.app.data.local.dao.ProfileDao
@@ -84,6 +85,20 @@ object DatabaseModule {
             }
         }
 
+    private val MIGRATION_5_6 =
+        object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `bookmarked_problems` (
+                        `problemId` TEXT NOT NULL PRIMARY KEY,
+                        `bookmarkedAt` INTEGER NOT NULL
+                    )
+                    """.trimIndent(),
+                )
+            }
+        }
+
     @Provides
     @Singleton
     fun provideDatabase(
@@ -94,7 +109,7 @@ object DatabaseModule {
             HackerRankDatabase::class.java,
             "hackerrank_app.db",
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
             .build()
     }
 
@@ -118,6 +133,9 @@ object DatabaseModule {
 
     @Provides
     fun provideQuizResultDao(database: HackerRankDatabase): QuizResultDao = database.quizResultDao()
+
+    @Provides
+    fun provideBookmarkedProblemDao(database: HackerRankDatabase): BookmarkedProblemDao = database.bookmarkedProblemDao()
 
     @Provides
     @Singleton

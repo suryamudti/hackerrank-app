@@ -77,4 +77,65 @@ class BrowseViewModelTest {
                 assertEquals(null, state.progressMap["2"])
             }
         }
+
+    @Test
+    fun `onSearchQueryChanged filters grouped structures by name or explanation`() =
+        runTest {
+            val structures =
+                listOf(
+                    DataStructure(
+                        id = "1",
+                        name = "Linked List",
+                        slug = "linked-list",
+                        category = DataStructureCategory.LINEAR,
+                        explanation = "Sequence of elements",
+                        complexityTable = emptyMap(),
+                        whenToUse = emptyList(),
+                        diagramRes = null,
+                        codeExample = "",
+                        difficulty = Difficulty.EASY,
+                    ),
+                    DataStructure(
+                        id = "2",
+                        name = "Binary Search Tree",
+                        slug = "bst",
+                        category = DataStructureCategory.TREES,
+                        explanation = "Hierarchical tree structure",
+                        complexityTable = emptyMap(),
+                        whenToUse = emptyList(),
+                        diagramRes = null,
+                        codeExample = "",
+                        difficulty = Difficulty.MEDIUM,
+                    ),
+                )
+
+            val browseData =
+                BrowseData(
+                    groupedStructures =
+                        mapOf(
+                            DataStructureCategory.LINEAR to listOf(structures[0]),
+                            DataStructureCategory.TREES to listOf(structures[1]),
+                        ),
+                    progressMap = emptyMap(),
+                )
+
+            every { observeBrowseDataUseCase() } returns flowOf(browseData)
+
+            val viewModel = BrowseViewModel(observeBrowseDataUseCase)
+
+            viewModel.uiState.test {
+                var state = awaitItem() as BrowseUiState.Loaded
+                assertEquals(2, state.groupedStructures.size)
+
+                viewModel.onSearchQueryChanged("tree")
+                state = awaitItem() as BrowseUiState.Loaded
+                assertEquals(1, state.groupedStructures.size)
+                assertEquals(1, state.groupedStructures[DataStructureCategory.TREES]?.size)
+                assertEquals("Binary Search Tree", state.groupedStructures[DataStructureCategory.TREES]?.get(0)?.name)
+
+                viewModel.onSearchQueryChanged("")
+                state = awaitItem() as BrowseUiState.Loaded
+                assertEquals(2, state.groupedStructures.size)
+            }
+        }
 }

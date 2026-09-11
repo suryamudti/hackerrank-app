@@ -8,6 +8,7 @@ import com.hackerrank.app.domain.model.UserProfile
 import com.hackerrank.app.domain.model.UserProgress
 import com.hackerrank.app.domain.usecase.GetRecentActivityUseCase
 import com.hackerrank.app.domain.usecase.ObserveProgressOverviewUseCase
+import com.hackerrank.app.domain.usecase.ProblemStats
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +28,7 @@ sealed interface ProgressUiState {
         val totalStructures: Int,
         val masteredStructures: Int,
         val recentActivities: List<RecentActivity>,
+        val problemStats: ProblemStats = ProblemStats(),
     ) : ProgressUiState
 }
 
@@ -54,6 +56,7 @@ class ProgressViewModel
                             totalStructures = overview.totalStructures,
                             masteredStructures = overview.masteredStructures,
                             recentActivities = recent,
+                            problemStats = overview.problemStats,
                         )
                     }.collect { state ->
                         _uiState.value = state

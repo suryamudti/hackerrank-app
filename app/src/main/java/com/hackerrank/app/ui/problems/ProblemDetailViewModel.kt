@@ -9,6 +9,7 @@ import com.hackerrank.app.domain.model.Problem
 import com.hackerrank.app.domain.usecase.ObserveProblemDetailUseCase
 import com.hackerrank.app.domain.usecase.RecordDailyChallengeUseCase
 import com.hackerrank.app.domain.usecase.RecordProblemSolveUseCase
+import com.hackerrank.app.domain.usecase.ToggleProblemBookmarkUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +29,7 @@ sealed interface ProblemDetailUiState {
         val showSolution: Boolean,
         val isDailyChallenge: Boolean,
         val bonusXp: Int,
+        val isBookmarked: Boolean = false,
     ) : ProblemDetailUiState
 }
 
@@ -38,6 +40,7 @@ class ProblemDetailViewModel
         private val observeProblemDetailUseCase: ObserveProblemDetailUseCase,
         private val recordProblemSolveUseCase: RecordProblemSolveUseCase,
         private val recordDailyChallengeUseCase: RecordDailyChallengeUseCase,
+        private val toggleProblemBookmarkUseCase: ToggleProblemBookmarkUseCase,
         savedStateHandle: SavedStateHandle,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow<ProblemDetailUiState>(ProblemDetailUiState.Loading)
@@ -58,6 +61,7 @@ class ProblemDetailViewModel
                                     showSolution = false,
                                     isDailyChallenge = isDailyChallengeArg,
                                     bonusXp = if (isDailyChallengeArg) DAILY_CHALLENGE_BONUS_XP else 0,
+                                    isBookmarked = data.isBookmarked,
                                 )
                         }
                     }
@@ -103,6 +107,19 @@ class ProblemDetailViewModel
             val state = _uiState.value
             if (state is ProblemDetailUiState.Loaded) {
                 _uiState.value = state.copy(solveResult = null)
+            }
+        }
+
+        fun toggleBookmark() {
+            val state = _uiState.value
+            if (state is ProblemDetailUiState.Loaded) {
+                viewModelScope.launch {
+                    try {
+                        toggleProblemBookmarkUseCase(state.problem.id)
+                    } catch (e: Exception) {
+                        // ignore or handle
+                    }
+                }
             }
         }
     }
