@@ -20,19 +20,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -41,9 +36,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -52,10 +45,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hackerrank.app.R
 import com.hackerrank.app.core.localizedName
+import com.hackerrank.app.core.theme.AppTheme
 import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.domain.model.Problem
 import com.hackerrank.app.domain.model.ProblemCategory
 import com.hackerrank.app.ui.components.EmptyState
+import com.hackerrank.app.ui.components.badge.DifficultyBadge
+import com.hackerrank.app.ui.components.badge.DifficultyBadgeSize
+import com.hackerrank.app.ui.components.badge.DifficultyBadgeVariant
+import com.hackerrank.app.ui.components.button.BookmarkButton
+import com.hackerrank.app.ui.components.input.AppSearchBar
+import com.hackerrank.app.ui.components.loading.LoadingView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,9 +90,7 @@ fun ProblemsScreen(
     ) {
         when (val state = uiState) {
             is ProblemsUiState.Loading -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(modifier = Modifier.testTag("loadingIndicator"))
-                }
+                LoadingView()
             }
 
             is ProblemsUiState.Error -> {
@@ -105,34 +103,12 @@ fun ProblemsScreen(
 
             is ProblemsUiState.Loaded -> {
                 Column(modifier = Modifier.fillMaxSize()) {
-                    OutlinedTextField(
-                        value = state.searchQuery,
-                        onValueChange = { viewModel.onSearchQueryChanged(it) },
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                                .testTag("problemsSearchField"),
-                        placeholder = { Text(stringResource(R.string.search_problems_hint)) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        },
-                        trailingIcon = {
-                            if (state.searchQuery.isNotEmpty()) {
-                                IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Clear,
-                                        contentDescription = "Clear search",
-                                    )
-                                }
-                            }
-                        },
-                        singleLine = true,
-                        shape = MaterialTheme.shapes.medium,
+                    AppSearchBar(
+                        query = state.searchQuery,
+                        onQueryChange = { viewModel.onSearchQueryChanged(it) },
+                        placeholder = stringResource(R.string.search_problems_hint),
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        testTag = "problemsSearchField",
                     )
                     DailyChallengeBanner(
                         state = state.dailyChallenge,
@@ -222,12 +198,7 @@ private fun DifficultyFilterRow(
                 label = { Text(diff.localizedName()) },
                 colors =
                     FilterChipDefaults.filterChipColors(
-                        selectedContainerColor =
-                            when (diff) {
-                                Difficulty.EASY -> Color(0xFF4CAF50).copy(alpha = 0.2f)
-                                Difficulty.MEDIUM -> Color(0xFFFF9800).copy(alpha = 0.2f)
-                                Difficulty.HARD -> Color(0xFFF44336).copy(alpha = 0.2f)
-                            },
+                        selectedContainerColor = AppTheme.semanticColors.difficultyContainerColor(diff),
                     ),
             )
         }
@@ -301,16 +272,10 @@ private fun ProblemCard(
                 )
                 Spacer(Modifier.height(4.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = problem.difficulty.localizedName(),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color =
-                            when (problem.difficulty) {
-                                Difficulty.EASY -> Color(0xFF4CAF50)
-                                Difficulty.MEDIUM -> Color(0xFFFF9800)
-                                Difficulty.HARD -> Color(0xFFF44336)
-                            },
+                    DifficultyBadge(
+                        difficulty = problem.difficulty,
+                        variant = DifficultyBadgeVariant.TextOnly,
+                        size = DifficultyBadgeSize.Small,
                     )
                     Text(
                         text = problem.category.localizedName(),
@@ -319,33 +284,16 @@ private fun ProblemCard(
                     )
                 }
             }
-            IconButton(
+            BookmarkButton(
+                isBookmarked = isBookmarked,
                 onClick = onBookmarkClick,
-                modifier = Modifier.size(36.dp),
-            ) {
-                Icon(
-                    imageVector = if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                    contentDescription =
-                        if (isBookmarked) {
-                            stringResource(R.string.unbookmark_problem)
-                        } else {
-                            stringResource(R.string.bookmark_problem)
-                        },
-                    tint =
-                        if (isBookmarked) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                        },
-                    modifier = Modifier.size(20.dp),
-                )
-            }
+            )
             if (isSolved) {
                 Spacer(Modifier.width(4.dp))
                 Icon(
                     Icons.Default.CheckCircle,
                     contentDescription = stringResource(R.string.quiz_solved),
-                    tint = Color(0xFF4CAF50),
+                    tint = AppTheme.semanticColors.success,
                     modifier = Modifier.size(24.dp),
                 )
             }
