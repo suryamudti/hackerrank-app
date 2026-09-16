@@ -1,7 +1,6 @@
 package com.hackerrank.app.ui.detail
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,13 +14,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -40,11 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -54,6 +46,10 @@ import com.hackerrank.app.R
 import com.hackerrank.app.core.localizedName
 import com.hackerrank.app.ui.components.EmptyState
 import com.hackerrank.app.ui.components.MasteryRing
+import com.hackerrank.app.ui.components.button.AppButton
+import com.hackerrank.app.ui.components.code.CodeBlock
+import com.hackerrank.app.ui.components.header.SectionHeader
+import com.hackerrank.app.ui.components.loading.LoadingView
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,9 +92,7 @@ fun DetailScreen(
     ) { padding ->
         when (val state = uiState) {
             is DetailUiState.Loading -> {
-                Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(modifier = Modifier.testTag("loadingIndicator"))
-                }
+                LoadingView(modifier = Modifier.padding(padding))
                 return@Scaffold
             }
 
@@ -238,30 +232,18 @@ fun DetailScreen(
                     Spacer(Modifier.height(24.dp))
 
                     // Take Quiz Button
-                    Button(
+                    AppButton(
+                        text = stringResource(R.string.action_take_quiz),
                         onClick = onQuizClick,
                         modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Icon(Icons.Default.Quiz, contentDescription = null)
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.action_take_quiz))
-                    }
+                        leadingIcon = Icons.Default.Quiz,
+                    )
 
                     Spacer(Modifier.height(16.dp))
                 }
             }
         }
     }
-}
-
-@Composable
-private fun SectionHeader(title: String) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary,
-    )
 }
 
 @Composable
@@ -291,46 +273,6 @@ private fun ComplexityTable(table: Map<String, String>) {
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun CodeBlock(
-    code: String,
-    onCopy: () -> Unit = {},
-) {
-    val clipboardManager = LocalClipboardManager.current
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors =
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            ),
-    ) {
-        Column(modifier = Modifier.padding(4.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                IconButton(onClick = {
-                    clipboardManager.setText(AnnotatedString(code))
-                    onCopy()
-                }) {
-                    Icon(
-                        Icons.Default.ContentCopy,
-                        contentDescription = stringResource(R.string.code_copy),
-                        modifier = Modifier.padding(4.dp),
-                    )
-                }
-            }
-            Text(
-                text = code,
-                style = MaterialTheme.typography.bodySmall,
-                fontFamily = FontFamily.Monospace,
-                modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
-            )
         }
     }
 }

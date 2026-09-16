@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +33,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
@@ -48,10 +46,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hackerrank.app.R
 import com.hackerrank.app.core.Constants
 import com.hackerrank.app.core.localizedName
+import com.hackerrank.app.core.theme.AppTheme
 import com.hackerrank.app.domain.model.DataStructureCategory
 import com.hackerrank.app.ui.components.ConfettiOverlay
 import com.hackerrank.app.ui.components.EmptyState
 import com.hackerrank.app.ui.components.MasteryRing
+import com.hackerrank.app.ui.components.badge.DifficultyPill
+import com.hackerrank.app.ui.components.card.StatCard
+import com.hackerrank.app.ui.components.loading.LoadingView
 import kotlinx.coroutines.delay
 
 @Composable
@@ -86,9 +88,7 @@ fun ProgressScreen(
     Box(Modifier.fillMaxSize()) {
         when (val state = uiState) {
             is ProgressUiState.Loading -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(modifier = Modifier.testTag("loadingIndicator"))
-                }
+                LoadingView()
             }
 
             is ProgressUiState.Error -> {
@@ -294,21 +294,21 @@ private fun ContentProgressScreen(state: ProgressUiState.Loaded) {
                             label = stringResource(R.string.difficulty_easy),
                             solved = state.problemStats.easySolved,
                             total = state.problemStats.easyTotal,
-                            color = Color(0xFF4CAF50),
+                            color = AppTheme.semanticColors.easy,
                             modifier = Modifier.weight(1f),
                         )
                         DifficultyPill(
                             label = stringResource(R.string.difficulty_medium),
                             solved = state.problemStats.mediumSolved,
                             total = state.problemStats.mediumTotal,
-                            color = Color(0xFFFF9800),
+                            color = AppTheme.semanticColors.medium,
                             modifier = Modifier.weight(1f),
                         )
                         DifficultyPill(
                             label = stringResource(R.string.difficulty_hard),
                             solved = state.problemStats.hardSolved,
                             total = state.problemStats.hardTotal,
-                            color = Color(0xFFF44336),
+                            color = AppTheme.semanticColors.hard,
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -405,40 +405,6 @@ private fun formatDate(timestamp: Long): String {
 }
 
 @Composable
-private fun StatCard(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier,
-) {
-    Card(
-        modifier = modifier,
-        colors =
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            ),
-    ) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}
-
-@Composable
 private fun CategoryProgressCard(
     category: DataStructureCategory,
     progress: Float,
@@ -468,38 +434,6 @@ private fun CategoryProgressCard(
                 text = "${(progress * 100).toInt()}%",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-            )
-        }
-    }
-}
-
-@Composable
-private fun DifficultyPill(
-    label: String,
-    solved: Int,
-    total: Int,
-    color: Color,
-    modifier: Modifier = Modifier,
-) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.12f)),
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 4.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                color = color,
-            )
-            Spacer(Modifier.height(2.dp))
-            Text(
-                text = "$solved / $total",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
             )
         }
     }

@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -44,6 +42,7 @@ import com.hackerrank.app.R
 import com.hackerrank.app.core.localizedTitle
 import com.hackerrank.app.ui.components.ConfettiOverlay
 import com.hackerrank.app.ui.components.EmptyState
+import com.hackerrank.app.ui.components.loading.LoadingView
 import kotlinx.coroutines.delay
 
 @Composable
@@ -88,9 +87,7 @@ fun AchievementsScreen(
     Box(Modifier.fillMaxSize()) {
         when (val state = uiState) {
             is AchievementsUiState.Loading -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(modifier = Modifier.testTag("loadingIndicator"))
-                }
+                LoadingView()
             }
 
             is AchievementsUiState.Error -> {

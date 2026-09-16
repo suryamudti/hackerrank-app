@@ -64,9 +64,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hackerrank.app.R
 import com.hackerrank.app.core.localizedTitle
+import com.hackerrank.app.core.theme.AppTheme
 import com.hackerrank.app.domain.model.QuizSession
 import com.hackerrank.app.ui.components.ConfettiOverlay
 import com.hackerrank.app.ui.components.EmptyState
+import com.hackerrank.app.ui.components.button.AppButton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
@@ -313,8 +315,8 @@ private fun QuizContent(
                 val buttonColor =
                     when {
                         !showExplanation -> MaterialTheme.colorScheme.primary
-                        isCorrect -> Color(0xFF4CAF50)
-                        isSelected -> Color(0xFFE53935)
+                        isCorrect -> AppTheme.semanticColors.success
+                        isSelected -> AppTheme.semanticColors.error
                         else -> MaterialTheme.colorScheme.primary
                     }
 
@@ -384,14 +386,14 @@ private fun QuizContent(
                                     } else {
                                         stringResource(R.string.quiz_incorrect)
                                     },
-                                tint = if (isCorrect) Color(0xFF4CAF50) else Color(0xFFE53935),
+                                tint = if (isCorrect) AppTheme.semanticColors.success else AppTheme.semanticColors.error,
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
                                 text = if (isCorrect) stringResource(R.string.quiz_correct) else stringResource(R.string.quiz_incorrect),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = if (isCorrect) Color(0xFF4CAF50) else Color(0xFFE53935),
+                                color = if (isCorrect) AppTheme.semanticColors.success else AppTheme.semanticColors.error,
                             )
                         }
                         Spacer(Modifier.height(8.dp))
@@ -403,12 +405,11 @@ private fun QuizContent(
 
         // Next button
         if (showExplanation) {
-            Button(
+            AppButton(
+                text = if (isLastQuestion) stringResource(R.string.quiz_see_results) else stringResource(R.string.quiz_next_question),
                 onClick = onNext,
                 modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(if (isLastQuestion) stringResource(R.string.quiz_see_results) else stringResource(R.string.quiz_next_question))
-            }
+            )
         }
     }
 }
@@ -640,15 +641,15 @@ private fun ReviewAnswersContent(
 
                             val backgroundColor =
                                 when {
-                                    isCorrect -> Color(0xFFE8F5E9)
-                                    isSelected && !isCorrect -> Color(0xFFFFEBEE)
+                                    isCorrect -> AppTheme.semanticColors.successContainer
+                                    isSelected && !isCorrect -> AppTheme.semanticColors.errorContainer
                                     else -> Color.Transparent
                                 }
 
                             val borderColor =
                                 when {
-                                    isCorrect -> Color(0xFF4CAF50)
-                                    isSelected && !isCorrect -> Color(0xFFE53935)
+                                    isCorrect -> AppTheme.semanticColors.success
+                                    isSelected && !isCorrect -> AppTheme.semanticColors.error
                                     else -> Color.Transparent
                                 }
 
@@ -678,15 +679,15 @@ private fun ReviewAnswersContent(
                                         style = MaterialTheme.typography.bodyMedium,
                                         color =
                                             when {
-                                                isCorrect -> Color(0xFF2E7D32)
-                                                isSelected && !isCorrect -> Color(0xFFC62828)
+                                                isCorrect -> AppTheme.semanticColors.onSuccessContainer
+                                                isSelected && !isCorrect -> AppTheme.semanticColors.onErrorContainer
                                                 else -> MaterialTheme.colorScheme.onSurface
                                             },
                                     )
                                     if (isCorrect) {
-                                        Icon(Icons.Default.CheckCircle, contentDescription = "Correct", tint = Color(0xFF4CAF50))
+                                        Icon(Icons.Default.CheckCircle, contentDescription = "Correct", tint = AppTheme.semanticColors.success)
                                     } else if (isSelected) {
-                                        Icon(Icons.Default.Cancel, contentDescription = "Incorrect", tint = Color(0xFFE53935))
+                                        Icon(Icons.Default.Cancel, contentDescription = "Incorrect", tint = AppTheme.semanticColors.error)
                                     }
                                 }
                             }

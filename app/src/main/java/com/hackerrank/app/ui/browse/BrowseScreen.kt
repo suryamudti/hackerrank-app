@@ -21,22 +21,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
@@ -52,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -66,10 +61,14 @@ import com.hackerrank.app.core.ThemeMode
 import com.hackerrank.app.core.localizedName
 import com.hackerrank.app.domain.model.DataStructure
 import com.hackerrank.app.domain.model.DataStructureCategory
-import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.ui.components.EmptyState
 import com.hackerrank.app.ui.components.MasteryRing
 import com.hackerrank.app.ui.components.StructureCardBackground
+import com.hackerrank.app.ui.components.badge.DifficultyBadge
+import com.hackerrank.app.ui.components.badge.DifficultyBadgeSize
+import com.hackerrank.app.ui.components.badge.DifficultyBadgeVariant
+import com.hackerrank.app.ui.components.input.AppSearchBar
+import com.hackerrank.app.ui.components.loading.LoadingView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,12 +104,7 @@ fun BrowseScreen(
     ) {
         when (val state = uiState) {
             is BrowseUiState.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.testTag("loadingIndicator"))
-                }
+                LoadingView()
             }
 
             is BrowseUiState.Error -> {
@@ -156,30 +150,11 @@ fun BrowseScreen(
                     }
 
                     item {
-                        OutlinedTextField(
-                            value = state.searchQuery,
-                            onValueChange = { viewModel.onSearchQueryChanged(it) },
-                            modifier = Modifier.fillMaxWidth().testTag("browseSearchField"),
-                            placeholder = { Text(stringResource(R.string.search_structures_hint)) },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Search,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            },
-                            trailingIcon = {
-                                if (state.searchQuery.isNotEmpty()) {
-                                    IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Clear,
-                                            contentDescription = "Clear search",
-                                        )
-                                    }
-                                }
-                            },
-                            singleLine = true,
-                            shape = MaterialTheme.shapes.medium,
+                        AppSearchBar(
+                            query = state.searchQuery,
+                            onQueryChange = { viewModel.onSearchQueryChanged(it) },
+                            placeholder = stringResource(R.string.search_structures_hint),
+                            testTag = "browseSearchField",
                         )
                     }
 
@@ -320,15 +295,10 @@ private fun StructureCard(
                     color = Color.White,
                 )
                 Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = structure.difficulty.localizedName(),
-                    style = MaterialTheme.typography.labelSmall,
-                    color =
-                        when (structure.difficulty) {
-                            Difficulty.EASY -> Color(0xFF4CAF50)
-                            Difficulty.MEDIUM -> Color(0xFFFF9800)
-                            Difficulty.HARD -> Color(0xFFF44336)
-                        },
+                DifficultyBadge(
+                    difficulty = structure.difficulty,
+                    variant = DifficultyBadgeVariant.TextOnly,
+                    size = DifficultyBadgeSize.Small,
                 )
             }
             MasteryRing(

@@ -29,6 +29,8 @@ import com.hackerrank.app.core.localizedDescription
 import com.hackerrank.app.core.localizedTitle
 import com.hackerrank.app.domain.usecase.BadgeWithProgress
 import com.hackerrank.app.ui.components.EmptyState
+import com.hackerrank.app.ui.components.badge.StatusBadge
+import com.hackerrank.app.ui.components.loading.LoadingView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,7 +75,7 @@ fun BadgeDetailScreen(
         ) {
             when (val state = uiState) {
                 is BadgeDetailUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.testTag("loadingIndicator"))
+                    LoadingView()
                 }
                 is BadgeDetailUiState.Error -> {
                     EmptyState(
@@ -147,33 +149,22 @@ private fun BadgeDetailContent(badgeProgress: BadgeWithProgress) {
         Spacer(modifier = Modifier.height(12.dp))
 
         // Unlock status badge
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color =
+        StatusBadge(
+            text = if (isEarned) "🏆 Earned" else "🔒 Locked",
+            containerColor =
                 if (isEarned) {
                     MaterialTheme.colorScheme.primaryContainer
                 } else {
                     MaterialTheme.colorScheme.surfaceVariant
                 },
-            modifier = Modifier.testTag("statusBadge"),
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = if (isEarned) "🏆 Earned" else "🔒 Locked",
-                    style = MaterialTheme.typography.labelLarge,
-                    color =
-                        if (isEarned) {
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
-        }
+            contentColor =
+                if (isEarned) {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            testTag = "statusBadge",
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 

@@ -19,12 +19,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hackerrank.app.R
 import com.hackerrank.app.core.localizedName
+import com.hackerrank.app.core.theme.AppTheme
 
 @Composable
 fun DailyChallengeBanner(
@@ -57,7 +57,7 @@ fun DailyChallengeBanner(
             Icon(
                 imageVector = if (state.isCompleted) Icons.Default.CheckCircle else Icons.Default.Whatshot,
                 contentDescription = null,
-                tint = if (state.isCompleted) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onTertiaryContainer,
+                tint = if (state.isCompleted) AppTheme.semanticColors.success else MaterialTheme.colorScheme.onTertiaryContainer,
                 modifier = Modifier.size(32.dp),
             )
             Spacer(Modifier.width(12.dp))
@@ -88,7 +88,7 @@ fun DailyChallengeBanner(
                     text = stringResource(R.string.daily_challenge_completed),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4CAF50),
+                    color = AppTheme.semanticColors.success,
                 )
             } else {
                 Text(
