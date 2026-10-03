@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Code Practice</string>
 
     <!-- Navigation -->
@@ -52,8 +52,14 @@
     <string name="progress_stat_problems">Problems</string>
     <string name="progress_problems_card_title">Algorithm Problems</string>
     <string name="progress_streak">Streak</string>
-    <string name="progress_current_streak">Current: %d days</string>
-    <string name="progress_longest_streak">Longest: %d days</string>
+    <plurals name="progress_current_streak">
+        <item quantity="one">Current: %d day</item>
+        <item quantity="other">Current: %d days</item>
+    </plurals>
+    <plurals name="progress_longest_streak">
+        <item quantity="one">Longest: %d day</item>
+        <item quantity="other">Longest: %d days</item>
+    </plurals>
     <string name="progress_category_progress">Category Progress</string>
 
     <!-- Achievements -->
@@ -153,7 +159,7 @@
     <string name="daily_challenge_bonus">+%d XP Bonus</string>
     <string name="daily_challenge_completed">Completed</string>
     <string name="daily_challenge_solve">Solve</string>
-    <string name="daily_challenge_bonus_earned">+%d Bonus XP</string>
+    <string name="daily_challenge_bonus_earned" tools:ignore="PluralsCandidate">+%d Bonus XP</string>
 
     <!-- Language -->
     <string name="browse_language">Language</string>

@@ -50,7 +50,7 @@ class LocalizationResourcesTest {
 
         private fun extractKeys(file: File): Set<String> {
             val content = file.readText()
-            val regex = Regex("""<string name="([^"]+)">""")
+            val regex = Regex("""<(?:string|plurals)\s+name="([^"]+)"[^>]*>""")
             return regex.findAll(content).map { it.groupValues[1] }.toSet()
         }
     }

@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -221,12 +222,24 @@ private fun ContentProgressScreen(state: ProgressUiState.Loaded) {
                         )
                         Spacer(Modifier.width(12.dp))
                         Column {
+                            val currentStreak = profile?.currentStreak ?: 0
+                            val longestStreak = profile?.longestStreak ?: 0
                             Text(
-                                text = stringResource(R.string.progress_current_streak, profile?.currentStreak ?: 0),
+                                text =
+                                    pluralStringResource(
+                                        R.plurals.progress_current_streak,
+                                        currentStreak,
+                                        currentStreak,
+                                    ),
                                 style = MaterialTheme.typography.titleLarge,
                             )
                             Text(
-                                text = stringResource(R.string.progress_longest_streak, profile?.longestStreak ?: 0),
+                                text =
+                                    pluralStringResource(
+                                        R.plurals.progress_longest_streak,
+                                        longestStreak,
+                                        longestStreak,
+                                    ),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )

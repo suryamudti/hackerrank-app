@@ -63,7 +63,7 @@ android {
     lint {
         abortOnError = true
         checkReleaseBuilds = true
-        warningsAsErrors = false
+        warningsAsErrors = true
         disable += listOf("GradleDependency", "OldTargetApi", "AppBundleLocaleChanges")
     }
 }
@@ -79,7 +79,6 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-    testImplementation("androidx.compose.ui:ui-test-manifest")
 
     // Activity & Lifecycle
     implementation("androidx.activity:activity-compose:1.9.0")

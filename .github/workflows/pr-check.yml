@@ -6,7 +6,52 @@ on:
       - main
       - master
 
+concurrency:
+  group: pr-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Grant Execute Permission to Gradlew
+        run: chmod +x gradlew
+
+      - name: Run Style Check (ktlint)
+        run: ./gradlew ktlintCheck
+
+      # lintDebug alone is not enough: the `lint` task only wires up the debug
+      # variant, so release-only checks (e.g. MonochromeLauncherIcon) would be
+      # skipped. Warnings fail the build via warningsAsErrors in app/build.gradle.kts.
+      - name: Run Android Lint (debug + release)
+        run: ./gradlew lintDebug lintRelease
+
+      - name: Upload Lint Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-reports
+          path: |
+            app/build/reports/lint-results-*
+            app/build/reports/ktlint/
+          if-no-files-found: ignore
+          retention-days: 7
+
   test:
     name: Run Unit Tests
     runs-on: ubuntu-latest
@@ -25,11 +70,14 @@ jobs:
       - name: Grant Execute Permission to Gradlew
         run: chmod +x gradlew
 
-      - name: Run Style Check
-        run: ./gradlew ktlintCheck
-
-      - name: Run Lint
-        run: ./gradlew lintDebug
-
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
+
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report
+          path: app/build/reports/tests/testDebugUnitTest/
+          if-no-files-found: ignore
+          retention-days: 7

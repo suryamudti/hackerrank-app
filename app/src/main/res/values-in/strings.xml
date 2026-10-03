@@ -52,8 +52,12 @@
     <string name="progress_stat_problems">Soal</string>
     <string name="progress_problems_card_title">Soal Algoritma</string>
     <string name="progress_streak">Rekor</string>
-    <string name="progress_current_streak">Saat ini: %d hari</string>
-    <string name="progress_longest_streak">Terpanjang: %d hari</string>
+    <plurals name="progress_current_streak">
+        <item quantity="other">Saat ini: %d hari</item>
+    </plurals>
+    <plurals name="progress_longest_streak">
+        <item quantity="other">Terpanjang: %d hari</item>
+    </plurals>
     <string name="progress_category_progress">Kemajuan Kategori</string>
 
     <!-- Achievements -->
