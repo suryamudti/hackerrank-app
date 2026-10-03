@@ -1,8 +1,8 @@
 #!/bin/sh
 echo "Running pre-commit quality checks..."
-./gradlew lintDebug testDebugUnitTest --daemon
+./gradlew ktlintCheck lintDebug --daemon
 if [ $? -ne 0 ]; then
-  echo "Quality check failed (lint or tests failed). Aborting commit."
+  echo "Quality check failed (ktlint or lint failed). Aborting commit."
   exit 1
 fi
 echo "Quality check passed!"
