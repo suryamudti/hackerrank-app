@@ -1,9 +1,9 @@
 package com.hackerrank.app.data.seed
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.hackerrank.app.core.util.AppLog
 import com.hackerrank.app.data.local.HackerRankDatabase
 import com.hackerrank.app.data.local.entity.DataStructureEntity
 import com.hackerrank.app.data.local.entity.ProblemEntity
@@ -46,7 +46,7 @@ class SeedInitializer
                 val type = object : TypeToken<List<DataStructureEntity>>() {}.type
                 gson.fromJson(json, type)
             } catch (e: Exception) {
-                Log.w("SeedInitializer", "Failed to load structures from assets, using fallback", e)
+                AppLog.w("SeedInitializer", "Failed to load structures from assets, using fallback", e)
                 SeedData.getStructures()
             }
         }
@@ -57,7 +57,7 @@ class SeedInitializer
                 val type = object : TypeToken<List<QuizQuestionEntity>>() {}.type
                 gson.fromJson(json, type)
             } catch (e: Exception) {
-                Log.w("SeedInitializer", "Failed to load quizzes from assets, using fallback", e)
+                AppLog.w("SeedInitializer", "Failed to load quizzes from assets, using fallback", e)
                 SeedData.getQuizQuestionsList()
             }
         }
@@ -68,7 +68,7 @@ class SeedInitializer
                 val type = object : TypeToken<List<ProblemEntity>>() {}.type
                 gson.fromJson(json, type)
             } catch (e: Exception) {
-                Log.w("SeedInitializer", "Failed to load problems from assets, using fallback", e)
+                AppLog.w("SeedInitializer", "Failed to load problems from assets, using fallback", e)
                 ProblemSeedData.getProblems()
             }
         }

@@ -21,8 +21,6 @@ object Constants {
     // Level formula: level = floor(sqrt(totalXP / 100))
     fun getLevel(totalXp: Int): Int = kotlin.math.floor(kotlin.math.sqrt((totalXp / 100).toDouble())).toInt()
 
-    fun getXpForNextLevel(level: Int): Int = (level + 1) * (level + 1) * 100
-
     fun getXpProgress(totalXp: Int): Pair<Int, Int> {
         val level = getLevel(totalXp)
         val currentLevelXp = level * level * 100
@@ -34,16 +32,6 @@ object Constants {
     const val PROBLEM_EASY_XP = 10
     const val PROBLEM_MEDIUM_XP = 25
     const val PROBLEM_HARD_XP = 50
-
-    // Category order for display
-    val categoryOrder =
-        listOf(
-            "Linear",
-            "Trees",
-            "Graphs",
-            "Hash-Based",
-            "Other",
-        )
 
     // Daily Challenge
     const val DAILY_CHALLENGE_BONUS_XP = 30
