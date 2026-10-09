@@ -4,7 +4,6 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
-    kotlin("plugin.serialization") version "2.0.21"
     id("org.jlleitschuh.gradle.ktlint")
     jacoco
 }
@@ -98,14 +97,8 @@ dependencies {
     ksp("com.google.dagger:hilt-android-compiler:2.51.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
-    // Coil
-    implementation("io.coil-kt:coil-compose:2.6.0")
-
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
-
-    // Lottie
-    implementation("com.airbnb.android:lottie-compose:6.4.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

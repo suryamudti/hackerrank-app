@@ -24,3 +24,14 @@
 -keep class com.google.gson.** { *; }
 -keep class * extends com.google.gson.reflect.TypeToken
 -dontwarn com.google.gson.**
+
+# Strip Log calls in release builds
+-assumenosideeffects class android.util.Log {
+    public static boolean isLoggable(java.lang.String, int);
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+    public static int w(...);
+    public static int e(...);
+    public static int println(...);
+}
