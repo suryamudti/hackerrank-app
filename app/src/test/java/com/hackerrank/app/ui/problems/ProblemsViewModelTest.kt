@@ -1,5 +1,6 @@
 package com.hackerrank.app.ui.problems
 
+import android.content.Context
 import app.cash.turbine.test
 import com.hackerrank.app.MainDispatcherRule
 import com.hackerrank.app.domain.model.Difficulty
@@ -32,6 +33,7 @@ class ProblemsViewModelTest {
     private val observeProblemsUseCase: ObserveProblemsUseCase = mockk()
     private val getDailyChallengeUseCase: GetDailyChallengeUseCase = mockk()
     private val toggleProblemBookmarkUseCase: ToggleProblemBookmarkUseCase = mockk(relaxed = true)
+    private val context: Context = mockk(relaxed = true)
 
     private val problemsList =
         listOf(
@@ -73,7 +75,7 @@ class ProblemsViewModelTest {
                     problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase, context)
 
             viewModel.uiState.test {
                 val state = awaitItem() as ProblemsUiState.Loaded
@@ -95,7 +97,7 @@ class ProblemsViewModelTest {
                     problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase, context)
 
             viewModel.uiState.test {
                 var state = awaitItem() as ProblemsUiState.Loaded
@@ -126,7 +128,7 @@ class ProblemsViewModelTest {
                     problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase, context)
 
             viewModel.uiState.test {
                 var state = awaitItem() as ProblemsUiState.Loaded
@@ -158,7 +160,7 @@ class ProblemsViewModelTest {
                     problem = problems[0], bonusXp = 10, isCompleted = false, isAvailable = true,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase, context)
 
             viewModel.uiState.test {
                 var state = awaitItem() as ProblemsUiState.Loaded
@@ -189,7 +191,7 @@ class ProblemsViewModelTest {
             every { observeProblemsUseCase() } throws RuntimeException("Network error")
             coEvery { getDailyChallengeUseCase() } throws RuntimeException("Network error")
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase, context)
 
             viewModel.uiState.test {
                 val state = awaitItem()
@@ -210,7 +212,7 @@ class ProblemsViewModelTest {
                     problem = null, bonusXp = 0, isCompleted = false, isAvailable = false,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase, context)
 
             viewModel.uiState.test {
                 val state = awaitItem() as ProblemsUiState.Loaded
@@ -231,7 +233,7 @@ class ProblemsViewModelTest {
                     problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase, context)
 
             viewModel.refresh()
 
@@ -255,7 +257,7 @@ class ProblemsViewModelTest {
                     problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase, context)
 
             viewModel.uiState.test {
                 var state = awaitItem() as ProblemsUiState.Loaded
@@ -288,7 +290,7 @@ class ProblemsViewModelTest {
                     problem = problemsList[0], bonusXp = 10, isCompleted = false, isAvailable = true,
                 )
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase, context)
 
             viewModel.uiState.test {
                 var state = awaitItem() as ProblemsUiState.Loaded
@@ -321,7 +323,7 @@ class ProblemsViewModelTest {
                 )
             coEvery { toggleProblemBookmarkUseCase("1") } returns Unit
 
-            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase)
+            val viewModel = ProblemsViewModel(observeProblemsUseCase, getDailyChallengeUseCase, toggleProblemBookmarkUseCase, context)
 
             viewModel.toggleBookmark("1")
 

@@ -1,11 +1,14 @@
 package com.hackerrank.app.ui.detail
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hackerrank.app.R
 import com.hackerrank.app.domain.model.DataStructure
 import com.hackerrank.app.domain.model.UserProgress
 import com.hackerrank.app.domain.usecase.ObserveStructureDetailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -27,6 +30,7 @@ class DetailViewModel
     @Inject
     constructor(
         private val observeStructureDetailUseCase: ObserveStructureDetailUseCase,
+        @ApplicationContext private val context: Context,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow<DetailUiState>(DetailUiState.Loading)
         val uiState: StateFlow<DetailUiState> = _uiState
@@ -44,7 +48,7 @@ class DetailViewModel
                         }
                     }
                 } catch (e: Exception) {
-                    _uiState.value = DetailUiState.Error(e.localizedMessage ?: "Unknown error")
+                    _uiState.value = DetailUiState.Error(e.localizedMessage ?: context.getString(R.string.error_unknown))
                 }
             }
         }

@@ -1,7 +1,9 @@
 package com.hackerrank.app.ui.badge
 
+import android.content.Context
 import app.cash.turbine.test
 import com.hackerrank.app.MainDispatcherRule
+import com.hackerrank.app.R
 import com.hackerrank.app.domain.model.Badge
 import com.hackerrank.app.domain.usecase.BadgeWithProgress
 import com.hackerrank.app.domain.usecase.ObserveBadgesUseCase
@@ -18,6 +20,7 @@ class BadgeDetailViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val observeBadgesUseCase: ObserveBadgesUseCase = mockk()
+    private val context: Context = mockk(relaxed = true)
 
     @Test
     fun `loadBadge loads correct badge state successfully`() =
@@ -39,7 +42,7 @@ class BadgeDetailViewModelTest {
                 )
             every { observeBadgesUseCase() } returns flowOf(badges)
 
-            val viewModel = BadgeDetailViewModel(observeBadgesUseCase)
+            val viewModel = BadgeDetailViewModel(observeBadgesUseCase, context)
             viewModel.loadBadge("first_steps")
 
             viewModel.uiState.test {
@@ -54,8 +57,9 @@ class BadgeDetailViewModelTest {
     fun `loadBadge exposes error when badge not found`() =
         runTest {
             every { observeBadgesUseCase() } returns flowOf(emptyList())
+            every { context.getString(R.string.badge_not_found) } returns "Badge not found"
 
-            val viewModel = BadgeDetailViewModel(observeBadgesUseCase)
+            val viewModel = BadgeDetailViewModel(observeBadgesUseCase, context)
             viewModel.loadBadge("unknown_badge")
 
             viewModel.uiState.test {

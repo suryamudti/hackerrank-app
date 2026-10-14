@@ -1,11 +1,14 @@
 package com.hackerrank.app.ui.browse
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hackerrank.app.R
 import com.hackerrank.app.domain.model.DataStructure
 import com.hackerrank.app.domain.model.DataStructureCategory
 import com.hackerrank.app.domain.usecase.ObserveBrowseDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -29,6 +32,7 @@ class BrowseViewModel
     @Inject
     constructor(
         private val observeBrowseDataUseCase: ObserveBrowseDataUseCase,
+        @ApplicationContext private val context: Context,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow<BrowseUiState>(BrowseUiState.Loading)
         val uiState: StateFlow<BrowseUiState> = _uiState
@@ -71,7 +75,7 @@ class BrowseViewModel
                         _uiState.value = state
                     }
                 } catch (e: Exception) {
-                    _uiState.value = BrowseUiState.Error(e.localizedMessage ?: "Unknown error")
+                    _uiState.value = BrowseUiState.Error(e.localizedMessage ?: context.getString(R.string.error_unknown))
                 }
             }
         }
@@ -87,7 +91,7 @@ class BrowseViewModel
                     kotlinx.coroutines.delay(1000)
                     loadData()
                 } catch (e: Exception) {
-                    _uiState.value = BrowseUiState.Error(e.localizedMessage ?: "Unknown error")
+                    _uiState.value = BrowseUiState.Error(e.localizedMessage ?: context.getString(R.string.error_unknown))
                 } finally {
                     _isRefreshing.value = false
                 }

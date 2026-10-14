@@ -1,5 +1,6 @@
 package com.hackerrank.app.ui.detail
 
+import android.content.Context
 import app.cash.turbine.test
 import com.hackerrank.app.MainDispatcherRule
 import com.hackerrank.app.domain.model.DataStructure
@@ -22,7 +23,8 @@ class DetailViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val observeStructureDetailUseCase: ObserveStructureDetailUseCase = mockk()
-    private val viewModel = DetailViewModel(observeStructureDetailUseCase)
+    private val context: Context = mockk(relaxed = true)
+    private val viewModel = DetailViewModel(observeStructureDetailUseCase, context)
 
     @Test
     fun `unknown slug returns null structure and stays in Loading`() =

@@ -140,7 +140,7 @@ fun ProblemDetailScreen(
             is ProblemDetailUiState.Error -> {
                 EmptyState(
                     icon = Icons.Default.Warning,
-                    title = "Error",
+                    title = stringResource(R.string.common_error_title),
                     message = state.message,
                     modifier = Modifier.padding(padding),
                 )

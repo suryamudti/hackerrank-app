@@ -1,5 +1,6 @@
 package com.hackerrank.app.ui.browse
 
+import android.content.Context
 import app.cash.turbine.test
 import com.hackerrank.app.MainDispatcherRule
 import com.hackerrank.app.domain.model.DataStructure
@@ -20,6 +21,7 @@ class BrowseViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val observeBrowseDataUseCase: ObserveBrowseDataUseCase = mockk()
+    private val context: Context = mockk(relaxed = true)
 
     @Test
     fun `initializing ViewModel loads structures and maps progress successfully`() =
@@ -64,7 +66,7 @@ class BrowseViewModelTest {
 
             every { observeBrowseDataUseCase() } returns flowOf(browseData)
 
-            val viewModel = BrowseViewModel(observeBrowseDataUseCase)
+            val viewModel = BrowseViewModel(observeBrowseDataUseCase, context)
 
             viewModel.uiState.test {
                 val state = awaitItem() as BrowseUiState.Loaded
@@ -121,7 +123,7 @@ class BrowseViewModelTest {
 
             every { observeBrowseDataUseCase() } returns flowOf(browseData)
 
-            val viewModel = BrowseViewModel(observeBrowseDataUseCase)
+            val viewModel = BrowseViewModel(observeBrowseDataUseCase, context)
 
             viewModel.uiState.test {
                 var state = awaitItem() as BrowseUiState.Loaded

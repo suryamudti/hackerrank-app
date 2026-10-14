@@ -1,5 +1,6 @@
 package com.hackerrank.app.ui.problems
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.hackerrank.app.MainDispatcherRule
@@ -36,6 +37,7 @@ class ProblemDetailViewModelTest {
     private val recordProblemSolveUseCase: RecordProblemSolveUseCase = mockk()
     private val recordDailyChallengeUseCase: RecordDailyChallengeUseCase = mockk()
     private val toggleProblemBookmarkUseCase: ToggleProblemBookmarkUseCase = mockk(relaxed = true)
+    private val context: Context = mockk(relaxed = true)
 
     private val sampleProblem =
         Problem(
@@ -56,7 +58,7 @@ class ProblemDetailViewModelTest {
         runTest {
             val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
             val viewModel =
-                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle)
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle, context)
 
             every { observeProblemDetailUseCase("1") } returns
                 flowOf(
@@ -78,7 +80,7 @@ class ProblemDetailViewModelTest {
         runTest {
             val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
             val viewModel =
-                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle)
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle, context)
 
             every { observeProblemDetailUseCase("1") } returns
                 flowOf(
@@ -100,7 +102,7 @@ class ProblemDetailViewModelTest {
         runTest {
             val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
             val viewModel =
-                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle)
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle, context)
 
             every { observeProblemDetailUseCase("1") } returns
                 flowOf(
@@ -135,7 +137,7 @@ class ProblemDetailViewModelTest {
         runTest {
             val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to true))
             val viewModel =
-                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle)
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle, context)
 
             every { observeProblemDetailUseCase("1") } returns
                 flowOf(
@@ -171,7 +173,7 @@ class ProblemDetailViewModelTest {
         runTest {
             val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
             val viewModel =
-                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle)
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle, context)
 
             every { observeProblemDetailUseCase("1") } returns
                 flowOf(
@@ -199,7 +201,7 @@ class ProblemDetailViewModelTest {
         runTest {
             val handle = SavedStateHandle(mapOf("problemId" to "unknown", "isDailyChallenge" to false))
             val viewModel =
-                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle)
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle, context)
 
             every { observeProblemDetailUseCase("unknown") } returns
                 flowOf(
@@ -219,7 +221,7 @@ class ProblemDetailViewModelTest {
         runTest {
             val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
             val viewModel =
-                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle)
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle, context)
 
             every { observeProblemDetailUseCase("1") } returns
                 flowOf(
@@ -253,7 +255,7 @@ class ProblemDetailViewModelTest {
         runTest {
             val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
             val viewModel =
-                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle)
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle, context)
 
             every { observeProblemDetailUseCase("1") } returns
                 flowOf(
@@ -289,7 +291,7 @@ class ProblemDetailViewModelTest {
         runTest {
             val handle = SavedStateHandle(mapOf("problemId" to "1", "isDailyChallenge" to false))
             val viewModel =
-                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle)
+                ProblemDetailViewModel(observeProblemDetailUseCase, recordProblemSolveUseCase, recordDailyChallengeUseCase, toggleProblemBookmarkUseCase, handle, context)
 
             every { observeProblemDetailUseCase("1") } returns
                 flowOf(

@@ -1,5 +1,6 @@
 package com.hackerrank.app.ui.achievements
 
+import android.content.Context
 import app.cash.turbine.test
 import com.hackerrank.app.MainDispatcherRule
 import com.hackerrank.app.domain.model.Badge
@@ -21,13 +22,14 @@ class AchievementsViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val observeBadgesUseCase: ObserveBadgesUseCase = mockk()
+    private val context: Context = mockk(relaxed = true)
 
     @Test
     fun `error from use case leads to Error state`() =
         runTest {
             every { observeBadgesUseCase() } throws RuntimeException("Failed to load")
 
-            val viewModel = AchievementsViewModel(observeBadgesUseCase)
+            val viewModel = AchievementsViewModel(observeBadgesUseCase, context)
 
             viewModel.uiState.test {
                 val state = awaitItem()
@@ -41,7 +43,7 @@ class AchievementsViewModelTest {
         runTest {
             every { observeBadgesUseCase() } returns flowOf(emptyList())
 
-            val viewModel = AchievementsViewModel(observeBadgesUseCase)
+            val viewModel = AchievementsViewModel(observeBadgesUseCase, context)
 
             viewModel.uiState.test {
                 val state = awaitItem() as AchievementsUiState.Loaded
@@ -136,7 +138,7 @@ class AchievementsViewModelTest {
 
             every { observeBadgesUseCase() } returns flowOf(badgeWithProgressList)
 
-            val viewModel = AchievementsViewModel(observeBadgesUseCase)
+            val viewModel = AchievementsViewModel(observeBadgesUseCase, context)
 
             viewModel.uiState.test {
                 val state = awaitItem() as AchievementsUiState.Loaded

@@ -1,8 +1,10 @@
 package com.hackerrank.app.ui.problems
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hackerrank.app.R
 import com.hackerrank.app.core.Constants.DAILY_CHALLENGE_BONUS_XP
 import com.hackerrank.app.domain.model.GamificationResult
 import com.hackerrank.app.domain.model.Problem
@@ -11,6 +13,7 @@ import com.hackerrank.app.domain.usecase.RecordDailyChallengeUseCase
 import com.hackerrank.app.domain.usecase.RecordProblemSolveUseCase
 import com.hackerrank.app.domain.usecase.ToggleProblemBookmarkUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -42,6 +45,7 @@ class ProblemDetailViewModel
         private val recordDailyChallengeUseCase: RecordDailyChallengeUseCase,
         private val toggleProblemBookmarkUseCase: ToggleProblemBookmarkUseCase,
         savedStateHandle: SavedStateHandle,
+        @ApplicationContext private val context: Context,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow<ProblemDetailUiState>(ProblemDetailUiState.Loading)
         val uiState: StateFlow<ProblemDetailUiState> = _uiState
@@ -66,7 +70,7 @@ class ProblemDetailViewModel
                         }
                     }
                 } catch (e: Exception) {
-                    _uiState.value = ProblemDetailUiState.Error(e.localizedMessage ?: "Unknown error")
+                    _uiState.value = ProblemDetailUiState.Error(e.localizedMessage ?: context.getString(R.string.error_unknown))
                 }
             }
         }
@@ -91,7 +95,7 @@ class ProblemDetailViewModel
                             solveResult = result,
                         )
                 } catch (e: Exception) {
-                    _uiState.value = ProblemDetailUiState.Error(e.localizedMessage ?: "Unknown error")
+                    _uiState.value = ProblemDetailUiState.Error(e.localizedMessage ?: context.getString(R.string.error_unknown))
                 }
             }
         }
