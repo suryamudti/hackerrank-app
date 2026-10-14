@@ -11,8 +11,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import com.hackerrank.app.R
 import kotlin.random.Random
 
 private data class ConfettiParticle(
@@ -32,6 +34,7 @@ fun ConfettiOverlay(
 ) {
     if (!visible) return
 
+    val confettiDesc = stringResource(R.string.desc_confetti)
     val particles =
         remember {
             val colors =
@@ -71,7 +74,7 @@ fun ConfettiOverlay(
         modifier =
             modifier
                 .fillMaxSize()
-                .semantics { contentDescription = "Confetti celebration" },
+                .semantics { contentDescription = confettiDesc },
     ) {
         particles.forEach { p ->
             val x = (p.startX + p.velocityX * progress.value) * size.width

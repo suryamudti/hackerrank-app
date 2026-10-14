@@ -1,5 +1,6 @@
 package com.hackerrank.app.ui.quiz
 
+import android.content.Context
 import app.cash.turbine.test
 import com.hackerrank.app.MainDispatcherRule
 import com.hackerrank.app.domain.model.DataStructure
@@ -32,12 +33,14 @@ class QuizViewModelTest {
     private val contentRepository: ContentRepository = mockk()
     private val quizRepository: QuizRepository = mockk()
     private val finishQuizUseCase: FinishQuizUseCase = mockk()
+    private val context: Context = mockk(relaxed = true)
 
     private val viewModel =
         QuizViewModel(
             contentRepository,
             quizRepository,
             finishQuizUseCase,
+            context,
         )
 
     private val sampleStructure =

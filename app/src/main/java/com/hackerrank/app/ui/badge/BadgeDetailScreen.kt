@@ -80,7 +80,7 @@ fun BadgeDetailScreen(
                 is BadgeDetailUiState.Error -> {
                     EmptyState(
                         icon = Icons.Default.EmojiEvents,
-                        title = "Error",
+                        title = stringResource(R.string.common_error_title),
                         message = state.message,
                     )
                 }

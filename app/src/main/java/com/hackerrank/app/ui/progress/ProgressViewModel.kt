@@ -1,7 +1,9 @@
 package com.hackerrank.app.ui.progress
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hackerrank.app.R
 import com.hackerrank.app.domain.model.DataStructureCategory
 import com.hackerrank.app.domain.model.RecentActivity
 import com.hackerrank.app.domain.model.UserProfile
@@ -10,6 +12,7 @@ import com.hackerrank.app.domain.usecase.GetRecentActivityUseCase
 import com.hackerrank.app.domain.usecase.ObserveProgressOverviewUseCase
 import com.hackerrank.app.domain.usecase.ProblemStats
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -38,6 +41,7 @@ class ProgressViewModel
     constructor(
         private val observeProgressOverviewUseCase: ObserveProgressOverviewUseCase,
         private val getRecentActivityUseCase: GetRecentActivityUseCase,
+        @ApplicationContext private val context: Context,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow<ProgressUiState>(ProgressUiState.Loading)
         val uiState: StateFlow<ProgressUiState> = _uiState
@@ -62,7 +66,7 @@ class ProgressViewModel
                         _uiState.value = state
                     }
                 } catch (e: Exception) {
-                    _uiState.value = ProgressUiState.Error(e.localizedMessage ?: "Unknown error")
+                    _uiState.value = ProgressUiState.Error(e.localizedMessage ?: context.getString(R.string.error_unknown))
                 }
             }
         }

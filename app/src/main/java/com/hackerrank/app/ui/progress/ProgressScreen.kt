@@ -95,7 +95,7 @@ fun ProgressScreen(
             is ProgressUiState.Error -> {
                 EmptyState(
                     icon = Icons.Default.Warning,
-                    title = "Error",
+                    title = stringResource(R.string.common_error_title),
                     message = state.message,
                 )
             }
@@ -214,11 +214,12 @@ private fun ContentProgressScreen(state: ProgressUiState.Loaded) {
                         fontWeight = FontWeight.Bold,
                     )
                     Spacer(Modifier.height(8.dp))
+                    val streakFlameDesc = stringResource(R.string.desc_streak_flame)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "\uD83D\uDD25",
                             style = MaterialTheme.typography.displayMedium,
-                            modifier = Modifier.semantics { contentDescription = "Streak flame" },
+                            modifier = Modifier.semantics { contentDescription = streakFlameDesc },
                         )
                         Spacer(Modifier.width(12.dp))
                         Column {

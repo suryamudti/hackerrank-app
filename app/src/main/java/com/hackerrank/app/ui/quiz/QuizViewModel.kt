@@ -1,7 +1,9 @@
 package com.hackerrank.app.ui.quiz
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hackerrank.app.R
 import com.hackerrank.app.core.Constants
 import com.hackerrank.app.domain.model.GamificationResult
 import com.hackerrank.app.domain.model.QuizSession
@@ -9,6 +11,7 @@ import com.hackerrank.app.domain.repository.ContentRepository
 import com.hackerrank.app.domain.repository.QuizRepository
 import com.hackerrank.app.domain.usecase.FinishQuizUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -41,6 +44,7 @@ class QuizViewModel
         private val contentRepository: ContentRepository,
         private val quizRepository: QuizRepository,
         private val finishQuizUseCase: FinishQuizUseCase,
+        @ApplicationContext private val context: Context,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow<QuizState>(QuizState.Loading)
         val uiState: StateFlow<QuizState> = _uiState
@@ -62,7 +66,7 @@ class QuizViewModel
                         _uiState.value = QuizState.Ready(session)
                     }
                 } catch (e: Exception) {
-                    _uiState.value = QuizState.Error(e.localizedMessage ?: "Unknown error")
+                    _uiState.value = QuizState.Error(e.localizedMessage ?: context.getString(R.string.error_unknown))
                 }
             }
         }
@@ -127,7 +131,7 @@ class QuizViewModel
                             gamificationResult = result.gamificationResult,
                         )
                 } catch (e: Exception) {
-                    _uiState.value = QuizState.Error(e.localizedMessage ?: "Unknown error")
+                    _uiState.value = QuizState.Error(e.localizedMessage ?: context.getString(R.string.error_unknown))
                 }
             }
         }

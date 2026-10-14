@@ -1,5 +1,6 @@
 package com.hackerrank.app.ui.progress
 
+import android.content.Context
 import app.cash.turbine.test
 import com.hackerrank.app.MainDispatcherRule
 import com.hackerrank.app.domain.model.DataStructureCategory
@@ -25,6 +26,7 @@ class ProgressViewModelTest {
 
     private val observeProgressOverviewUseCase: ObserveProgressOverviewUseCase = mockk()
     private val getRecentActivityUseCase: GetRecentActivityUseCase = mockk()
+    private val context: Context = mockk(relaxed = true)
 
     private val progressList =
         listOf(
@@ -57,7 +59,7 @@ class ProgressViewModelTest {
             every { observeProgressOverviewUseCase() } returns flowOf(overview)
             every { getRecentActivityUseCase() } returns flowOf(emptyList())
 
-            val viewModel = ProgressViewModel(observeProgressOverviewUseCase, getRecentActivityUseCase)
+            val viewModel = ProgressViewModel(observeProgressOverviewUseCase, getRecentActivityUseCase, context)
 
             viewModel.uiState.test {
                 val state = awaitItem() as ProgressUiState.Loaded
@@ -101,7 +103,7 @@ class ProgressViewModelTest {
             every { observeProgressOverviewUseCase() } returns flowOf(overview)
             every { getRecentActivityUseCase() } returns flowOf(emptyList())
 
-            val viewModel = ProgressViewModel(observeProgressOverviewUseCase, getRecentActivityUseCase)
+            val viewModel = ProgressViewModel(observeProgressOverviewUseCase, getRecentActivityUseCase, context)
 
             viewModel.uiState.test {
                 val state = awaitItem() as ProgressUiState.Loaded

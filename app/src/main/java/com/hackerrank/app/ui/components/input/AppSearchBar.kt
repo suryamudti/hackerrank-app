@@ -12,6 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.hackerrank.app.R
 
 /**
  * Standardized search bar component with clear button, placeholder, and search icon.
@@ -49,7 +51,7 @@ fun AppSearchBar(
                 IconButton(onClick = onClearClick) {
                     Icon(
                         imageVector = Icons.Default.Clear,
-                        contentDescription = "Clear search",
+                        contentDescription = stringResource(R.string.desc_clear_search),
                     )
                 }
             }

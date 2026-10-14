@@ -96,7 +96,7 @@ fun ProblemsScreen(
             is ProblemsUiState.Error -> {
                 EmptyState(
                     icon = Icons.Default.Code,
-                    title = "Error",
+                    title = stringResource(R.string.common_error_title),
                     message = state.message,
                 )
             }

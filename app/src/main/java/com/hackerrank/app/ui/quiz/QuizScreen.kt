@@ -179,7 +179,7 @@ fun QuizScreen(
                     is QuizState.Error -> {
                         EmptyState(
                             icon = Icons.Default.Warning,
-                            title = "Error",
+                            title = stringResource(R.string.common_error_title),
                             message = state.message,
                         )
                     }
@@ -321,13 +321,13 @@ private fun QuizContent(
                         else -> MaterialTheme.colorScheme.primary
                     }
 
-                val optionLetter = ('A' + index)
+                val optionLetter = ('A' + index).toString()
                 val optionDesc =
-                    "Option $optionLetter: $option" +
+                    stringResource(R.string.quiz_option_desc, optionLetter, option) +
                         if (showExplanation && isCorrect) {
-                            " - Correct answer"
+                            stringResource(R.string.quiz_option_correct_suffix)
                         } else if (showExplanation && isSelected && !isCorrect) {
-                            " - Your answer (incorrect)"
+                            stringResource(R.string.quiz_option_incorrect_suffix)
                         } else {
                             ""
                         }
@@ -555,7 +555,7 @@ private fun QuizResults(
             onClick = onReviewClick,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Review Answers")
+            Text(stringResource(R.string.quiz_review_answers))
         }
 
         Spacer(Modifier.height(12.dp))
@@ -600,11 +600,11 @@ private fun ReviewAnswersContent(
             modifier = Modifier.fillMaxWidth(),
         ) {
             IconButton(onClick = onBackToResults) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to results")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.quiz_back_to_results))
             }
             Spacer(Modifier.width(8.dp))
             Text(
-                text = "Review Answers",
+                text = stringResource(R.string.quiz_review_answers),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
@@ -686,9 +686,9 @@ private fun ReviewAnswersContent(
                                             },
                                     )
                                     if (isCorrect) {
-                                        Icon(Icons.Default.CheckCircle, contentDescription = "Correct", tint = AppTheme.semanticColors.success)
+                                        Icon(Icons.Default.CheckCircle, contentDescription = stringResource(R.string.quiz_correct), tint = AppTheme.semanticColors.success)
                                     } else if (isSelected) {
-                                        Icon(Icons.Default.Cancel, contentDescription = "Incorrect", tint = AppTheme.semanticColors.error)
+                                        Icon(Icons.Default.Cancel, contentDescription = stringResource(R.string.quiz_incorrect), tint = AppTheme.semanticColors.error)
                                     }
                                 }
                             }
@@ -696,7 +696,7 @@ private fun ReviewAnswersContent(
 
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = "Explanation: ${question.explanation}",
+                            text = stringResource(R.string.quiz_review_explanation, question.explanation),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

@@ -1,10 +1,13 @@
 package com.hackerrank.app.ui.badge
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hackerrank.app.R
 import com.hackerrank.app.domain.usecase.BadgeWithProgress
 import com.hackerrank.app.domain.usecase.ObserveBadgesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -25,6 +28,7 @@ class BadgeDetailViewModel
     @Inject
     constructor(
         private val observeBadgesUseCase: ObserveBadgesUseCase,
+        @ApplicationContext private val context: Context,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow<BadgeDetailUiState>(BadgeDetailUiState.Loading)
         val uiState: StateFlow<BadgeDetailUiState> = _uiState
@@ -37,11 +41,11 @@ class BadgeDetailViewModel
                         if (badge != null) {
                             _uiState.value = BadgeDetailUiState.Loaded(badge)
                         } else {
-                            _uiState.value = BadgeDetailUiState.Error("Badge not found")
+                            _uiState.value = BadgeDetailUiState.Error(context.getString(R.string.badge_not_found))
                         }
                     }
                 } catch (e: Exception) {
-                    _uiState.value = BadgeDetailUiState.Error(e.localizedMessage ?: "Unknown error")
+                    _uiState.value = BadgeDetailUiState.Error(e.localizedMessage ?: context.getString(R.string.error_unknown))
                 }
             }
         }

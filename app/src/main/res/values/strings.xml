@@ -2,6 +2,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Code Practice</string>
 
+    <!-- Common -->
+    <string name="common_error_title">Error</string>
+    <string name="error_unknown">Unknown error</string>
+    <string name="badge_not_found">Badge not found</string>
+
     <!-- Navigation -->
     <string name="nav_structures">Structures</string>
     <string name="nav_problems">Problems</string>
@@ -101,6 +106,17 @@
     <string name="quiz_retry_desc">Retry quiz</string>
     <string name="quiz_go_back">Go back</string>
     <string name="quiz_solved">Solved</string>
+    <string name="quiz_review_answers">Review Answers</string>
+    <string name="quiz_back_to_results">Back to results</string>
+    <string name="quiz_option_desc">Option %1$s: %2$s</string>
+    <string name="quiz_option_correct_suffix"> - Correct answer</string>
+    <string name="quiz_option_incorrect_suffix"> - Your answer (incorrect)</string>
+    <string name="quiz_review_explanation">Explanation: %1$s</string>
+
+    <!-- Accessibility -->
+    <string name="desc_streak_flame">Streak flame</string>
+    <string name="desc_confetti">Confetti celebration</string>
+    <string name="desc_clear_search">Clear search</string>
 
     <!-- Categories and Difficulties -->
     <string name="category_linear">Linear</string>
