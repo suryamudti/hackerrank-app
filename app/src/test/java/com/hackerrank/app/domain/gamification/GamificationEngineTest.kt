@@ -15,7 +15,9 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -26,8 +28,49 @@ class GamificationEngineTest {
     private val engine = GamificationEngine(profileRepository, progressRepository)
     private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
+    @Before
+    fun setup() {
+        coEvery { progressRepository.getAllProgressSync() } returns emptyList()
+    }
+
     @Test
-    fun `recordLogin updates streak and daily login XP`() =
+    fun `recordLogin updates streak and daily login XP on non-milestone day`() =
+        runTest {
+            val yesterday = LocalDate.now().minusDays(1).format(dateFormatter)
+            val initialProfile =
+                UserProfile(
+                    totalXp = 100,
+                    currentStreak = 1,
+                    longestStreak = 1,
+                    lastActiveDate = yesterday,
+                    earnedBadgeIds = emptyList(),
+                )
+
+            coEvery { profileRepository.getProfileSync() } returns initialProfile
+            coEvery { profileRepository.upsertProfile(any()) } returns Unit
+
+            val result = engine.recordLogin()
+
+            assertEquals(Constants.DAILY_LOGIN_XP, result.xpAwarded)
+            assertEquals(110, result.newTotalXp)
+            assertEquals(2, result.streakInfo.currentStreak)
+            assertTrue(result.streakInfo.isNewStreakDay)
+            assertNull(result.streakInfo.streakMilestoneReached)
+
+            coVerify {
+                profileRepository.upsertProfile(
+                    withArg {
+                        assertEquals(110, it.totalXp)
+                        assertEquals(2, it.currentStreak)
+                        assertEquals(2, it.longestStreak)
+                        assertEquals(LocalDate.now().format(dateFormatter), it.lastActiveDate)
+                    },
+                )
+            }
+        }
+
+    @Test
+    fun `recordLogin awards streak milestone bonus XP when milestone reached`() =
         runTest {
             val yesterday = LocalDate.now().minusDays(1).format(dateFormatter)
             val initialProfile =
@@ -44,21 +87,70 @@ class GamificationEngineTest {
 
             val result = engine.recordLogin()
 
-            assertEquals(Constants.DAILY_LOGIN_XP, result.xpAwarded)
-            assertEquals(110, result.newTotalXp)
+            // 10 XP daily login + 100 XP 3-day streak milestone = 110 XP awarded
+            assertEquals(110, result.xpAwarded)
+            assertEquals(210, result.newTotalXp)
             assertEquals(3, result.streakInfo.currentStreak)
             assertTrue(result.streakInfo.isNewStreakDay)
+            assertEquals(3, result.streakInfo.streakMilestoneReached)
 
             coVerify {
                 profileRepository.upsertProfile(
                     withArg {
-                        assertEquals(110, it.totalXp)
+                        assertEquals(210, it.totalXp)
                         assertEquals(3, it.currentStreak)
                         assertEquals(3, it.longestStreak)
                         assertEquals(LocalDate.now().format(dateFormatter), it.lastActiveDate)
                     },
                 )
             }
+        }
+
+    @Test
+    fun `milestone bonus not duplicated if quiz completed after login on milestone day`() =
+        runTest {
+            val yesterday = LocalDate.now().minusDays(1).format(dateFormatter)
+            val today = LocalDate.now().format(dateFormatter)
+            val initialProfile =
+                UserProfile(
+                    totalXp = 100,
+                    currentStreak = 2,
+                    longestStreak = 2,
+                    lastActiveDate = yesterday,
+                    earnedBadgeIds = emptyList(),
+                )
+            val postLoginProfile =
+                UserProfile(
+                    totalXp = 210,
+                    currentStreak = 3,
+                    longestStreak = 3,
+                    lastActiveDate = today,
+                    earnedBadgeIds = listOf(BadgeDefinition.STREAK_NOVICE.id),
+                )
+
+            coEvery { profileRepository.getProfileSync() } returns initialProfile andThen postLoginProfile
+            coEvery { profileRepository.upsertProfile(any()) } returns Unit
+
+            // Step 1: Login triggers milestone bonus
+            val loginResult = engine.recordLogin()
+            assertEquals(110, loginResult.xpAwarded)
+            assertEquals(210, loginResult.newTotalXp)
+            assertEquals(3, loginResult.streakInfo.streakMilestoneReached)
+
+            // Step 2: Completing a quiz later that day should NOT re-award the milestone bonus
+            val quizResult =
+                engine.recordQuizComplete(
+                    score = 6,
+                    totalQuestions = 8,
+                    elapsedTimeMs = 90_000L,
+                    structureId = "struct1",
+                )
+
+            // 50 base + 20 daily quiz = 70 XP (no milestone bonus)
+            assertEquals(70, quizResult.xpAwarded)
+            assertEquals(280, quizResult.newTotalXp)
+            assertNull(quizResult.streakInfo.streakMilestoneReached)
+            assertFalse(quizResult.streakInfo.isNewStreakDay)
         }
 
     @Test

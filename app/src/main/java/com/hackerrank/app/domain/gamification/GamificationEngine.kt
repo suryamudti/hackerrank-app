@@ -7,12 +7,28 @@ import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.domain.model.GamificationResult
 import com.hackerrank.app.domain.model.StreakInfo
 import com.hackerrank.app.domain.model.UserProfile
+import com.hackerrank.app.domain.model.UserProgress
 import com.hackerrank.app.domain.repository.ProfileRepository
 import com.hackerrank.app.domain.repository.ProgressRepository
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private sealed interface GamificationEvent {
+    data class Quiz(
+        val score: Int,
+        val totalQuestions: Int,
+        val elapsedTimeMs: Long,
+        val structureId: String,
+    ) : GamificationEvent
+
+    data class Problem(val difficulty: Difficulty) : GamificationEvent
+
+    data class DailyChallenge(val difficulty: Difficulty, val bonusXp: Int) : GamificationEvent
+
+    data object Login : GamificationEvent
+}
 
 @Singleton
 class GamificationEngine
@@ -28,162 +44,33 @@ class GamificationEngine
             totalQuestions: Int,
             elapsedTimeMs: Long,
             structureId: String,
-        ): GamificationResult {
-            val profile = profileRepository.getProfileSync() ?: UserProfile()
-            val isPerfect = score == totalQuestions
-
-            // Calculate XP
-            var xpGained = Constants.BASE_QUIZ_XP
-            if (isPerfect) xpGained += Constants.PERFECT_SCORE_BONUS
-            if (elapsedTimeMs < Constants.SPEED_BONUS_THRESHOLD_MS) {
-                xpGained += Constants.SPEED_BONUS_MAX
-            }
-            xpGained += Constants.DAILY_QUIZ_XP
-
-            // Update streak
-            val streakResult = updateStreak(profile)
-            if (streakResult.streakMilestoneReached != null) {
-                xpGained += Constants.streakMilestones[streakResult.streakMilestoneReached] ?: 0
-            }
-
-            val oldLevel = Constants.getLevel(profile.totalXp)
-            val newTotalXp = profile.totalXp + xpGained
-            val newLevel = Constants.getLevel(newTotalXp)
-
-            // Evaluate badges
-            val allProgress = progressRepository.getAllProgressSync()
-            val currentBadges = profile.earnedBadgeIds.toMutableSet()
-            val newBadges =
-                evaluateBadges(
-                    profile = profile.copy(totalXp = newTotalXp, currentStreak = streakResult.currentStreak),
-                    isPerfect = isPerfect,
+        ): GamificationResult =
+            applyEvent(
+                GamificationEvent.Quiz(
+                    score = score,
+                    totalQuestions = totalQuestions,
                     elapsedTimeMs = elapsedTimeMs,
                     structureId = structureId,
-                    allProgress = allProgress,
-                    earnedBadgeIds = currentBadges,
-                )
-            currentBadges.addAll(newBadges.map { it.id })
-
-            // Persist
-            val updatedProfile =
-                profile.copy(
-                    totalXp = newTotalXp,
-                    currentStreak = streakResult.currentStreak,
-                    longestStreak = streakResult.longestStreak,
-                    lastActiveDate = streakResult.lastActiveDate,
-                    earnedBadgeIds = currentBadges.toList(),
-                )
-            profileRepository.upsertProfile(updatedProfile)
-
-            return GamificationResult(
-                xpAwarded = xpGained,
-                newTotalXp = newTotalXp,
-                newLevel = newLevel,
-                previousLevel = oldLevel,
-                newBadges = newBadges,
-                streakInfo = streakResult,
+                ),
             )
-        }
 
-        suspend fun recordProblemSolved(difficulty: Difficulty): GamificationResult {
-            val xpGained =
-                when (difficulty) {
-                    Difficulty.EASY -> Constants.PROBLEM_EASY_XP
-                    Difficulty.MEDIUM -> Constants.PROBLEM_MEDIUM_XP
-                    Difficulty.HARD -> Constants.PROBLEM_HARD_XP
-                }
-            val profile = profileRepository.getProfileSync() ?: UserProfile()
-            val streakResult = updateStreak(profile)
-            val oldLevel = Constants.getLevel(profile.totalXp)
-            val newTotalXp = profile.totalXp + xpGained
-            val newLevel = Constants.getLevel(newTotalXp)
-
-            val currentBadges = profile.earnedBadgeIds.toMutableSet()
-            val newBadges =
-                evaluateBadges(
-                    profile = profile.copy(totalXp = newTotalXp, currentStreak = streakResult.currentStreak),
-                    isPerfect = false,
-                    elapsedTimeMs = 0L,
-                    structureId = "",
-                    allProgress = emptyList(),
-                    earnedBadgeIds = currentBadges,
-                )
-            currentBadges.addAll(newBadges.map { it.id })
-
-            val updatedProfile =
-                profile.copy(
-                    totalXp = newTotalXp,
-                    currentStreak = streakResult.currentStreak,
-                    longestStreak = streakResult.longestStreak,
-                    lastActiveDate = streakResult.lastActiveDate,
-                    earnedBadgeIds = currentBadges.toList(),
-                )
-            profileRepository.upsertProfile(updatedProfile)
-
-            return GamificationResult(
-                xpAwarded = xpGained,
-                newTotalXp = newTotalXp,
-                newLevel = newLevel,
-                previousLevel = oldLevel,
-                newBadges = newBadges,
-                streakInfo = streakResult,
-            )
-        }
+        suspend fun recordProblemSolved(difficulty: Difficulty): GamificationResult =
+            applyEvent(GamificationEvent.Problem(difficulty))
 
         suspend fun recordDailyChallengeCompleted(
             difficulty: Difficulty,
             bonusXp: Int,
-        ): GamificationResult {
-            val problemXp =
-                when (difficulty) {
-                    Difficulty.EASY -> Constants.PROBLEM_EASY_XP
-                    Difficulty.MEDIUM -> Constants.PROBLEM_MEDIUM_XP
-                    Difficulty.HARD -> Constants.PROBLEM_HARD_XP
-                }
-            val totalXpGained = problemXp + bonusXp
-            val profile = profileRepository.getProfileSync() ?: UserProfile()
-            val streakResult = updateStreak(profile)
-            val oldLevel = Constants.getLevel(profile.totalXp)
-            val newTotalXp = profile.totalXp + totalXpGained
-            val newLevel = Constants.getLevel(newTotalXp)
+        ): GamificationResult =
+            applyEvent(GamificationEvent.DailyChallenge(difficulty, bonusXp))
 
-            val currentBadges = profile.earnedBadgeIds.toMutableSet()
-            val newBadges =
-                evaluateBadges(
-                    profile = profile.copy(totalXp = newTotalXp, currentStreak = streakResult.currentStreak),
-                    isPerfect = false,
-                    elapsedTimeMs = 0L,
-                    structureId = "",
-                    allProgress = emptyList(),
-                    earnedBadgeIds = currentBadges,
-                )
-            currentBadges.addAll(newBadges.map { it.id })
+        suspend fun recordLogin(): GamificationResult =
+            applyEvent(GamificationEvent.Login)
 
-            val updatedProfile =
-                profile.copy(
-                    totalXp = newTotalXp,
-                    currentStreak = streakResult.currentStreak,
-                    longestStreak = streakResult.longestStreak,
-                    lastActiveDate = streakResult.lastActiveDate,
-                    earnedBadgeIds = currentBadges.toList(),
-                )
-            profileRepository.upsertProfile(updatedProfile)
-
-            return GamificationResult(
-                xpAwarded = totalXpGained,
-                newTotalXp = newTotalXp,
-                newLevel = newLevel,
-                previousLevel = oldLevel,
-                newBadges = newBadges,
-                streakInfo = streakResult,
-            )
-        }
-
-        suspend fun recordLogin(): GamificationResult {
+        private suspend fun applyEvent(event: GamificationEvent): GamificationResult {
             val profile = profileRepository.getProfileSync() ?: UserProfile()
             val todayStr = LocalDate.now().format(dateFormatter)
 
-            if (profile.lastActiveDate == todayStr) {
+            if (event is GamificationEvent.Login && profile.lastActiveDate == todayStr) {
                 val streakResult = updateStreak(profile)
                 return GamificationResult(
                     xpAwarded = 0,
@@ -195,10 +82,57 @@ class GamificationEngine
                 )
             }
 
+            var xpGained =
+                when (event) {
+                    is GamificationEvent.Quiz -> {
+                        var quizXp = Constants.BASE_QUIZ_XP + Constants.DAILY_QUIZ_XP
+                        if (event.score == event.totalQuestions) {
+                            quizXp += Constants.PERFECT_SCORE_BONUS
+                        }
+                        if (event.elapsedTimeMs < Constants.SPEED_BONUS_THRESHOLD_MS) {
+                            quizXp += Constants.SPEED_BONUS_MAX
+                        }
+                        quizXp
+                    }
+                    is GamificationEvent.Problem ->
+                        when (event.difficulty) {
+                            Difficulty.EASY -> Constants.PROBLEM_EASY_XP
+                            Difficulty.MEDIUM -> Constants.PROBLEM_MEDIUM_XP
+                            Difficulty.HARD -> Constants.PROBLEM_HARD_XP
+                        }
+                    is GamificationEvent.DailyChallenge -> {
+                        val problemXp =
+                            when (event.difficulty) {
+                                Difficulty.EASY -> Constants.PROBLEM_EASY_XP
+                                Difficulty.MEDIUM -> Constants.PROBLEM_MEDIUM_XP
+                                Difficulty.HARD -> Constants.PROBLEM_HARD_XP
+                            }
+                        problemXp + event.bonusXp
+                    }
+                    is GamificationEvent.Login -> Constants.DAILY_LOGIN_XP
+                }
+
             val streakResult = updateStreak(profile)
+            if (streakResult.streakMilestoneReached != null) {
+                xpGained += Constants.streakMilestones[streakResult.streakMilestoneReached] ?: 0
+            }
+
             val oldLevel = Constants.getLevel(profile.totalXp)
-            val newTotalXp = profile.totalXp + Constants.DAILY_LOGIN_XP
+            val newTotalXp = profile.totalXp + xpGained
             val newLevel = Constants.getLevel(newTotalXp)
+
+            val allProgress = progressRepository.getAllProgressSync()
+            val currentBadges = profile.earnedBadgeIds.toMutableSet()
+            val newBadges =
+                evaluateBadges(
+                    profile = profile.copy(totalXp = newTotalXp, currentStreak = streakResult.currentStreak),
+                    isPerfect = (event as? GamificationEvent.Quiz)?.let { it.score == it.totalQuestions } ?: false,
+                    elapsedTimeMs = (event as? GamificationEvent.Quiz)?.elapsedTimeMs ?: 0L,
+                    structureId = (event as? GamificationEvent.Quiz)?.structureId ?: "",
+                    allProgress = allProgress,
+                    earnedBadgeIds = currentBadges,
+                )
+            currentBadges.addAll(newBadges.map { it.id })
 
             val updatedProfile =
                 profile.copy(
@@ -206,15 +140,16 @@ class GamificationEngine
                     currentStreak = streakResult.currentStreak,
                     longestStreak = streakResult.longestStreak,
                     lastActiveDate = streakResult.lastActiveDate,
+                    earnedBadgeIds = currentBadges.toList(),
                 )
             profileRepository.upsertProfile(updatedProfile)
 
             return GamificationResult(
-                xpAwarded = Constants.DAILY_LOGIN_XP,
+                xpAwarded = xpGained,
                 newTotalXp = newTotalXp,
                 newLevel = newLevel,
                 previousLevel = oldLevel,
-                newBadges = emptyList(),
+                newBadges = newBadges,
                 streakInfo = streakResult,
             )
         }
@@ -257,12 +192,12 @@ class GamificationEngine
             )
         }
 
-        private suspend fun evaluateBadges(
+        private fun evaluateBadges(
             profile: UserProfile,
             isPerfect: Boolean,
             elapsedTimeMs: Long,
             structureId: String,
-            allProgress: List<com.hackerrank.app.domain.model.UserProgress>,
+            allProgress: List<UserProgress>,
             earnedBadgeIds: Set<String>,
         ): List<Badge> {
             val newBadges = mutableListOf<Badge>()
@@ -290,7 +225,8 @@ class GamificationEngine
             }
 
             if (BadgeDefinition.SPEED_DEMON.id !in earnedBadgeIds &&
-                elapsedTimeMs < Constants.SPEED_BONUS_THRESHOLD_MS
+                elapsedTimeMs < Constants.SPEED_BONUS_THRESHOLD_MS &&
+                elapsedTimeMs > 0L
             ) {
                 newBadges.add(
                     Badge(
