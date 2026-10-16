@@ -1,12 +1,14 @@
 package com.hackerrank.app.domain.repository
 
-import com.hackerrank.app.data.remote.DailyChallengeResponse
+import com.hackerrank.app.domain.model.DailyChallenge
 import kotlinx.coroutines.flow.Flow
 
 interface DailyChallengeRepository {
-    fun getDailyChallengeState(): Flow<DailyChallengeResponse?>
+    fun getDailyChallengeState(): Flow<DailyChallenge?>
 
-    suspend fun cacheDailyChallengeResponse(response: DailyChallengeResponse)
+    suspend fun getDailyChallenge(today: String): DailyChallenge?
+
+    suspend fun cacheDailyChallenge(challenge: DailyChallenge)
 
     suspend fun setDailyChallengeCompleted(date: String)
 
