@@ -5,7 +5,9 @@ import com.google.gson.Gson
 import com.hackerrank.app.data.local.dao.ProfileDao
 import com.hackerrank.app.data.local.dao.ProgressDao
 import com.hackerrank.app.data.local.dao.QuizResultDao
+import com.hackerrank.app.data.remote.DailyChallengeApi
 import com.hackerrank.app.data.remote.DailyChallengeResponse
+import com.hackerrank.app.domain.model.DailyChallenge
 import com.hackerrank.app.domain.model.RecentActivity
 import com.hackerrank.app.domain.model.UserProfile
 import com.hackerrank.app.domain.model.UserProgress
@@ -27,6 +29,7 @@ class ProgressRepositoryImpl
         private val profileDao: ProfileDao,
         private val quizResultDao: QuizResultDao,
         private val gson: Gson,
+        private val dailyChallengeApi: DailyChallengeApi = DailyChallengeApi(),
         @ApplicationContext private val context: Context,
     ) : ProgressRepository, ProfileRepository, DailyChallengeRepository {
         private val prefs = context.getSharedPreferences("daily_challenge_prefs", Context.MODE_PRIVATE)
@@ -88,7 +91,23 @@ class ProgressRepositoryImpl
             return progressDao.getMasteredCount()
         }
 
-        override fun getDailyChallengeState(): Flow<DailyChallengeResponse?> = _dailyChallengeState
+        override fun getDailyChallengeState(): Flow<DailyChallenge?> = _dailyChallengeState
+
+        override suspend fun getDailyChallenge(today: String): DailyChallenge? {
+            val cached = _dailyChallengeState.value
+            if (cached != null && cached.date == today) {
+                return cached
+            }
+
+            val remote = dailyChallengeApi.fetchToday()
+            if (remote != null && remote.date == today) {
+                val domain = remote.toDomain()
+                cacheDailyChallenge(domain)
+                return domain
+            }
+
+            return cached
+        }
 
         override suspend fun setDailyChallengeCompleted(date: String) {
             prefs.edit().putString("completed_date", date).apply()
@@ -98,22 +117,18 @@ class ProgressRepositoryImpl
             return prefs.getString("completed_date", null) == date
         }
 
-        private fun updateDailyChallengeState(response: DailyChallengeResponse?) {
-            _dailyChallengeState.value = response
-        }
-
-        private fun loadDailyChallenge(): DailyChallengeResponse? {
+        private fun loadDailyChallenge(): DailyChallenge? {
             val json = prefs.getString("cached_response", null) ?: return null
             return try {
-                gson.fromJson(json, DailyChallengeResponse::class.java)
+                gson.fromJson(json, DailyChallengeResponse::class.java)?.toDomain()
             } catch (_: Exception) {
                 null
             }
         }
 
-        override suspend fun cacheDailyChallengeResponse(response: DailyChallengeResponse) {
-            prefs.edit().putString("cached_response", gson.toJson(response)).apply()
-            _dailyChallengeState.value = response
+        override suspend fun cacheDailyChallenge(challenge: DailyChallenge) {
+            prefs.edit().putString("cached_response", gson.toJson(challenge)).apply()
+            _dailyChallengeState.value = challenge
         }
 
         override fun getRecentActivities(): Flow<List<RecentActivity>> {

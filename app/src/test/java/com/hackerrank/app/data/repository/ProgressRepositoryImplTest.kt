@@ -1,6 +1,7 @@
 package com.hackerrank.app.data.repository
 
 import android.content.Context
+import android.content.SharedPreferences
 import app.cash.turbine.test
 import com.google.gson.Gson
 import com.hackerrank.app.data.local.dao.ProfileDao
@@ -8,6 +9,9 @@ import com.hackerrank.app.data.local.dao.ProgressDao
 import com.hackerrank.app.data.local.dao.QuizResultDao
 import com.hackerrank.app.data.local.entity.UserProfileEntity
 import com.hackerrank.app.data.local.entity.UserProgressEntity
+import com.hackerrank.app.data.remote.DailyChallengeApi
+import com.hackerrank.app.data.remote.DailyChallengeResponse
+import com.hackerrank.app.domain.model.DailyChallenge
 import com.hackerrank.app.domain.model.UserProfile
 import com.hackerrank.app.domain.model.UserProgress
 import io.mockk.coEvery
@@ -17,8 +21,11 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 class ProgressRepositoryImplTest {
@@ -26,8 +33,12 @@ class ProgressRepositoryImplTest {
     private val profileDao: ProfileDao = mockk()
     private val quizResultDao: QuizResultDao = mockk()
     private val gson: Gson = Gson()
-    private val context: Context = mockk(relaxed = true)
-    private val repository = ProgressRepositoryImpl(progressDao, profileDao, quizResultDao, gson, context)
+    private val dailyChallengeApi: DailyChallengeApi = mockk()
+    private val sharedPrefs: SharedPreferences = mockk(relaxed = true)
+    private val sharedPrefsEditor: SharedPreferences.Editor = mockk(relaxed = true)
+    private val context: Context = mockk()
+
+    private lateinit var repository: ProgressRepositoryImpl
 
     private val sampleProgressEntity =
         UserProgressEntity(
@@ -48,6 +59,25 @@ class ProgressRepositoryImplTest {
             lastActiveDate = "2026-07-04",
             earnedBadgeIdsJson = "[\"badge1\",\"badge2\"]",
         )
+
+    @Before
+    fun setup() {
+        every { context.getSharedPreferences("daily_challenge_prefs", Context.MODE_PRIVATE) } returns sharedPrefs
+        every { sharedPrefs.getString("cached_response", null) } returns null
+        every { sharedPrefs.getString("completed_date", null) } returns null
+        every { sharedPrefs.edit() } returns sharedPrefsEditor
+        every { sharedPrefsEditor.putString(any(), any()) } returns sharedPrefsEditor
+
+        repository =
+            ProgressRepositoryImpl(
+                progressDao = progressDao,
+                profileDao = profileDao,
+                quizResultDao = quizResultDao,
+                gson = gson,
+                dailyChallengeApi = dailyChallengeApi,
+                context = context,
+            )
+    }
 
     @Test
     fun `getProgressByStructureId maps entity to domain correctly`() =
@@ -190,6 +220,72 @@ class ProgressRepositoryImplTest {
             repository.getMasteredCount().test {
                 assertEquals(3, awaitItem())
                 awaitComplete()
+            }
+        }
+
+    @Test
+    fun `getDailyChallenge fetches from API when cache is empty and caches result`() =
+        runTest {
+            val today = "2026-10-16"
+            coEvery { dailyChallengeApi.fetchToday() } returns
+                DailyChallengeResponse(date = today, problemId = "p1", bonusXp = 25)
+
+            val result = repository.getDailyChallenge(today)
+
+            assertNotNull(result)
+            assertEquals(today, result?.date)
+            assertEquals("p1", result?.problemId)
+            assertEquals(25, result?.bonusXp)
+
+            coVerify { sharedPrefsEditor.putString("cached_response", any()) }
+        }
+
+    @Test
+    fun `getDailyChallenge returns cached challenge directly when fresh`() =
+        runTest {
+            val today = "2026-10-16"
+            repository.cacheDailyChallenge(DailyChallenge(date = today, problemId = "cached_p1", bonusXp = 15))
+
+            val result = repository.getDailyChallenge(today)
+
+            assertNotNull(result)
+            assertEquals("cached_p1", result?.problemId)
+            coVerify(exactly = 0) { dailyChallengeApi.fetchToday() }
+        }
+
+    @Test
+    fun `getDailyChallenge falls back to cached challenge when API returns null`() =
+        runTest {
+            val today = "2026-10-16"
+            val yesterday = "2026-10-15"
+            repository.cacheDailyChallenge(DailyChallenge(date = yesterday, problemId = "old_p1", bonusXp = 10))
+            coEvery { dailyChallengeApi.fetchToday() } returns null
+
+            val result = repository.getDailyChallenge(today)
+
+            assertNotNull(result)
+            assertEquals("old_p1", result?.problemId)
+        }
+
+    @Test
+    fun `isDailyChallengeCompleted checks SharedPreferences date match`() =
+        runTest {
+            val today = "2026-10-16"
+            every { sharedPrefs.getString("completed_date", null) } returns today
+
+            assertTrue(repository.isDailyChallengeCompleted(today))
+            assertFalse(repository.isDailyChallengeCompleted("2026-10-17"))
+        }
+
+    @Test
+    fun `setDailyChallengeCompleted updates SharedPreferences`() =
+        runTest {
+            val today = "2026-10-16"
+            repository.setDailyChallengeCompleted(today)
+
+            coVerify {
+                sharedPrefsEditor.putString("completed_date", today)
+                sharedPrefsEditor.apply()
             }
         }
 }
