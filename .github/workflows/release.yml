@@ -1,14 +1,68 @@
-name: Draft Release
+name: Release Build & Publish
 
 on:
   push:
     branches:
       - main
       - master
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Version name override (e.g. 1.1 or leave empty to use baseVersionName)'
+        required: false
+        default: ''
+      is_draft:
+        description: 'Publish release as draft'
+        type: boolean
+        required: false
+        default: false
+      is_prerelease:
+        description: 'Publish release as pre-release'
+        type: boolean
+        required: false
+        default: false
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
 
 jobs:
+  verify:
+    name: Pre-release Quality Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Grant Execute Permission to Gradlew
+        run: chmod +x gradlew
+
+      - name: Run Style Check (ktlint)
+        run: ./gradlew ktlintCheck
+
+      - name: Run Android Lint (debug + release)
+        run: ./gradlew lintDebug lintRelease
+
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
   build:
-    name: Build & Release
+    name: Build, Sign & Release
+    needs: [verify]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -16,6 +70,9 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -30,11 +87,16 @@ jobs:
       - name: Extract Version Name
         id: get_version
         run: |
-          VERSION_NAME=$(sed -n 's/.*baseVersionName = "\(.*\)".*/\1/p' app/build.gradle.kts | tr -d '[:space:]')
+          if [ -n "${{ github.event.inputs.version_name }}" ]; then
+            VERSION_NAME="${{ github.event.inputs.version_name }}"
+          else
+            VERSION_NAME=$(sed -n 's/.*baseVersionName = "\(.*\)".*/\1/p' app/build.gradle.kts | tr -d '[:space:]')
+          fi
           echo "version=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "FULL_VERSION=${VERSION_NAME}.${{ github.run_number }}" >> $GITHUB_ENV
 
       - name: Build Release APK & Bundle
-        run: ./gradlew assembleRelease bundleRelease -PversionCode=${{ github.run_number }} -PversionName=${{ steps.get_version.outputs.version }}.${{ github.run_number }}
+        run: ./gradlew assembleRelease bundleRelease -PversionCode=${{ github.run_number }} -PversionName=${{ env.FULL_VERSION }}
 
       - name: Gather Build Artifacts
         run: |
@@ -42,7 +104,18 @@ jobs:
           cp app/build/outputs/apk/release/*.apk app/build/outputs/release/
           cp app/build/outputs/bundle/release/*.aab app/build/outputs/release/
 
+      - name: Check Signing Secrets
+        id: check_secrets
+        run: |
+          if [ -n "${{ secrets.SIGNING_KEY }}" ] && [ -n "${{ secrets.KEY_STORE_PASSWORD }}" ] && [ -n "${{ secrets.KEY_PASSWORD }}" ] && [ -n "${{ secrets.ALIAS }}" ]; then
+            echo "has_secrets=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_secrets=false" >> $GITHUB_OUTPUT
+            echo "::warning::Signing secrets not configured. Building unsigned artifacts."
+          fi
+
       - name: Sign Artifacts
+        if: steps.check_secrets.outputs.has_secrets == 'true'
         uses: r0adkll/sign-android-release@v1
         id: sign_app
         with:
@@ -54,20 +127,49 @@ jobs:
         env:
           BUILD_TOOLS_VERSION: "35.0.0"
 
-      - name: Rename Signed Artifacts
+      - name: Prepare Artifacts for Release
         run: |
-          mv app/build/outputs/release/app-release-unsigned-signed.apk app/build/outputs/release/rafiq-v${{ steps.get_version.outputs.version }}.${{ github.run_number }}.apk
-          mv app/build/outputs/release/app-release.aab app/build/outputs/release/rafiq-v${{ steps.get_version.outputs.version }}.${{ github.run_number }}.aab
+          if [ "${{ steps.check_secrets.outputs.has_secrets }}" == "true" ]; then
+            if [ -f app/build/outputs/release/app-release-unsigned-signed.apk ]; then
+              mv app/build/outputs/release/app-release-unsigned-signed.apk app/build/outputs/release/hackerrank-v${{ env.FULL_VERSION }}.apk
+            elif [ -f app/build/outputs/release/app-release-signed.apk ]; then
+              mv app/build/outputs/release/app-release-signed.apk app/build/outputs/release/hackerrank-v${{ env.FULL_VERSION }}.apk
+            fi
+            mv app/build/outputs/release/app-release.aab app/build/outputs/release/hackerrank-v${{ env.FULL_VERSION }}.aab
+          else
+            find app/build/outputs/release -name "*.apk" -exec mv {} app/build/outputs/release/hackerrank-v${{ env.FULL_VERSION }}-unsigned.apk \;
+            find app/build/outputs/release -name "*.aab" -exec mv {} app/build/outputs/release/hackerrank-v${{ env.FULL_VERSION }}-unsigned.aab \;
+          fi
+
+      - name: Upload Release Binaries to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-binaries-v${{ env.FULL_VERSION }}
+          path: |
+            app/build/outputs/release/hackerrank-v*
+          retention-days: 14
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.get_version.outputs.version }}.${{ github.run_number }}
-          name: Release v${{ steps.get_version.outputs.version }}.${{ github.run_number }}
+          tag_name: v${{ env.FULL_VERSION }}
+          name: Release v${{ env.FULL_VERSION }}
           files: |
-            app/build/outputs/release/rafiq-*.apk
-            app/build/outputs/release/rafiq-*.aab
-          draft: false
-          prerelease: false
+            app/build/outputs/release/hackerrank-v*
+          draft: ${{ github.event.inputs.is_draft || false }}
+          prerelease: ${{ github.event.inputs.is_prerelease || false }}
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release Step Summary
+        run: |
+          echo "### 🚀 Release v${{ env.FULL_VERSION }} Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Version** | `v${{ env.FULL_VERSION }}` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Version Code** | `${{ github.run_number }}` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Signed** | ${{ steps.check_secrets.outputs.has_secrets == 'true' && '✅ Yes' || '⚠️ No (Unsigned)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Draft** | `${{ github.event.inputs.is_draft || false }}` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Pre-release** | `${{ github.event.inputs.is_prerelease || false }}` |" >> $GITHUB_STEP_SUMMARY
