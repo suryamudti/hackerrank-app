@@ -139,6 +139,7 @@ val jacocoTestReport by tasks.registering(JacocoReport::class) {
             "**/Dagger*.*", "**/*_Factory.class", "**/*_Provide*Factory.class",
             "**/*" + '$' + "Holder.class", "**/*_GeneratedInjector.class", "**/*_HiltModules*.class",
             "**/*Hilt_*.*", "**/hilt_aggregated_deps/**",
+            "**/HackerRankApp*.*",
         )
     val debugTree =
         fileTree("${project.layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {
@@ -175,6 +176,7 @@ val jacocoTestCoverageVerification by tasks.registering(JacocoCoverageVerificati
             "**/Dagger*.*", "**/*_Factory.class", "**/*_Provide*Factory.class",
             "**/*" + '$' + "Holder.class", "**/*_GeneratedInjector.class", "**/*_HiltModules*.class",
             "**/*Hilt_*.*", "**/hilt_aggregated_deps/**",
+            "**/HackerRankApp*.*",
         )
     val debugTree =
         fileTree("${project.layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {

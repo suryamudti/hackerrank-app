@@ -5,22 +5,30 @@ on:
     branches:
       - main
       - master
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
 
 concurrency:
-  group: pr-check-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  group: pr-check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
 
 jobs:
   lint:
-    name: Lint
+    name: Lint & Style
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -35,9 +43,8 @@ jobs:
       - name: Run Style Check (ktlint)
         run: ./gradlew ktlintCheck
 
-      # lintDebug alone is not enough: the `lint` task only wires up the debug
-      # variant, so release-only checks (e.g. MonochromeLauncherIcon) would be
-      # skipped. Warnings fail the build via warningsAsErrors in app/build.gradle.kts.
+      # lintDebug alone is not enough: the aggregate lint task wires up the debug
+      # variant only. Running both variants ensures release checks gate the build.
       - name: Run Android Lint (debug + release)
         run: ./gradlew lintDebug lintRelease
 
@@ -52,13 +59,26 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+      - name: Generate Lint Step Summary
+        if: always()
+        run: |
+          echo "### 🎨 Code Quality & Lint Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **ktlint (Code Style)** | ${{ job.status == 'success' && '✅ Passed' || '⚠️ Check logs' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Android Lint (debug + release)** | ${{ job.status == 'success' && '✅ Passed (0 warnings/errors)' || '⚠️ Check reports' }} |" >> $GITHUB_STEP_SUMMARY
+
   test:
-    name: Run Unit Tests
+    name: Run Unit Tests & Coverage
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -70,8 +90,8 @@ jobs:
       - name: Grant Execute Permission to Gradlew
         run: chmod +x gradlew
 
-      - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest
+      - name: Run Unit Tests & JaCoCo Coverage
+        run: ./gradlew testDebugUnitTest jacocoTestReport jacocoTestCoverageVerification
 
       - name: Upload Test Report
         if: always()
@@ -81,3 +101,85 @@ jobs:
           path: app/build/reports/tests/testDebugUnitTest/
           if-no-files-found: ignore
           retention-days: 7
+
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-coverage-report
+          path: app/build/reports/jacoco/jacocoTestReport/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Generate Test & Coverage Step Summary
+        if: always()
+        run: |
+          python3 -c '
+          import xml.etree.ElementTree as ET
+          import glob, os
+
+          total_tests = 0
+          failures = 0
+          errors = 0
+          skipped = 0
+          duration = 0.0
+
+          for xml_file in glob.glob("app/build/test-results/testDebugUnitTest/TEST-*.xml"):
+              try:
+                  tree = ET.parse(xml_file)
+                  root = tree.getroot()
+                  total_tests += int(root.attrib.get("tests", 0))
+                  failures += int(root.attrib.get("failures", 0))
+                  errors += int(root.attrib.get("errors", 0))
+                  skipped += int(root.attrib.get("skipped", 0))
+                  duration += float(root.attrib.get("time", 0.0))
+              except Exception:
+                  pass
+
+          passed = total_tests - failures - errors - skipped
+
+          cov_instructions = "N/A"
+          cov_branches = "N/A"
+          cov_lines = "N/A"
+
+          jacoco_file = "app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"
+          if os.path.exists(jacoco_file):
+              try:
+                  tree = ET.parse(jacoco_file)
+                  root = tree.getroot()
+                  for counter in root.findall("counter"):
+                      c_type = counter.attrib.get("type")
+                      missed = int(counter.attrib.get("missed", 0))
+                      covered = int(counter.attrib.get("covered", 0))
+                      total = missed + covered
+                      if total > 0:
+                          pct = f"{(covered / total) * 100:.1f}% ({covered}/{total})"
+                          if c_type == "INSTRUCTION":
+                              cov_instructions = pct
+                          elif c_type == "BRANCH":
+                              cov_branches = pct
+                          elif c_type == "LINE":
+                              cov_lines = pct
+              except Exception:
+                  pass
+
+          summary = f"""### 🧪 Test & JaCoCo Coverage Summary
+
+| Metric | Result |
+| :--- | :--- |
+| **Total Tests** | `{total_tests}` |
+| **Passed** | `✅ {passed}` |
+| **Failures** | `{"❌ " + str(failures) if failures > 0 else "0"}` |
+| **Errors** | `{"💥 " + str(errors) if errors > 0 else "0"}` |
+| **Skipped** | `{skipped}` |
+| **Duration** | `{duration:.2f}s` |
+| **Instruction Coverage** | `{cov_instructions}` |
+| **Branch Coverage** | `{cov_branches}` |
+| **Line Coverage** | `{cov_lines}` |
+"""
+
+          summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary_path:
+              with open(summary_path, "a") as f:
+                  f.write(summary)
+          '
