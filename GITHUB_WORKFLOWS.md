@@ -59,6 +59,8 @@ jobs:
       - name: Run Style Check (ktlint)
         run: ./gradlew ktlintCheck
 
+      # lintDebug alone is not enough: the aggregate lint task wires up the debug
+      # variant only. Running both variants ensures release checks gate the build.
       - name: Run Android Lint (debug + release)
         run: ./gradlew lintDebug lintRelease
 
@@ -127,76 +129,7 @@ jobs:
 
       - name: Generate Test & Coverage Step Summary
         if: always()
-        run: |
-          python3 -c '
-          import xml.etree.ElementTree as ET
-          import glob, os
-
-          total_tests = 0
-          failures = 0
-          errors = 0
-          skipped = 0
-          duration = 0.0
-
-          for xml_file in glob.glob("app/build/test-results/testDebugUnitTest/TEST-*.xml"):
-              try:
-                  tree = ET.parse(xml_file)
-                  root = tree.getroot()
-                  total_tests += int(root.attrib.get("tests", 0))
-                  failures += int(root.attrib.get("failures", 0))
-                  errors += int(root.attrib.get("errors", 0))
-                  skipped += int(root.attrib.get("skipped", 0))
-                  duration += float(root.attrib.get("time", 0.0))
-              except Exception:
-                  pass
-
-          passed = total_tests - failures - errors - skipped
-
-          cov_instructions = "N/A"
-          cov_branches = "N/A"
-          cov_lines = "N/A"
-
-          jacoco_file = "app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"
-          if os.path.exists(jacoco_file):
-              try:
-                  tree = ET.parse(jacoco_file)
-                  root = tree.getroot()
-                  for counter in root.findall("counter"):
-                      c_type = counter.attrib.get("type")
-                      missed = int(counter.attrib.get("missed", 0))
-                      covered = int(counter.attrib.get("covered", 0))
-                      total = missed + covered
-                      if total > 0:
-                          pct = f"{(covered / total) * 100:.1f}% ({covered}/{total})"
-                          if c_type == "INSTRUCTION":
-                              cov_instructions = pct
-                          elif c_type == "BRANCH":
-                              cov_branches = pct
-                          elif c_type == "LINE":
-                              cov_lines = pct
-              except Exception:
-                  pass
-
-          summary = f"""### 🧪 Test & JaCoCo Coverage Summary
-
-| Metric | Result |
-| :--- | :--- |
-| **Total Tests** | `{total_tests}` |
-| **Passed** | `✅ {passed}` |
-| **Failures** | `{"❌ " + str(failures) if failures > 0 else "0"}` |
-| **Errors** | `{"💥 " + str(errors) if errors > 0 else "0"}` |
-| **Skipped** | `{skipped}` |
-| **Duration** | `{duration:.2f}s` |
-| **Instruction Coverage** | `{cov_instructions}` |
-| **Branch Coverage** | `{cov_branches}` |
-| **Line Coverage** | `{cov_lines}` |
-"""
-
-          summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
-          if summary_path:
-              with open(summary_path, "a") as f:
-                  f.write(summary)
-          '
+        run: python3 .github/scripts/generate_test_summary.py
 ```
 
 > **Why `lintDebug lintRelease` and not just `lint`?**
@@ -398,7 +331,7 @@ Both workflows include `gradle/actions/wrapper-validation@v4` to verify the chec
 ### 📊 JaCoCo Code Coverage & Step Summaries
 - **Tasks**: `./gradlew testDebugUnitTest jacocoTestReport jacocoTestCoverageVerification` generates XML & HTML reports and enforces a minimum 30% instruction coverage gate.
 - **Exclusions**: Generated Dagger/Hilt injection classes and the ASM-transformed Application class (`HackerRankApp`) are filtered out to prevent bytecode mismatch errors.
-- **Visual Feedback**: GitHub Action run summaries automatically render Markdown tables breaking down passed/failed test counts and exact instruction/branch/line coverage metrics.
+- **Visual Feedback**: GitHub Action run summaries automatically render Markdown tables breaking down passed/failed test counts and exact instruction/branch/line coverage metrics via `.github/scripts/generate_test_summary.py`.
 
 ### 🚦 Pre-release Quality Gate
 The release workflow runs a dedicated `verify` job before `build`, confirming that code passes formatting (`ktlintCheck`), Android Lint for debug and release, and all unit tests prior to generating release tags or uploading binaries.
