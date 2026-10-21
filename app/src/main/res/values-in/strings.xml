@@ -47,8 +47,6 @@
     <string name="code_copied">Kode disalin ke papan klip</string>
 
     <!-- Cheatsheet -->
-    <string name="cheatsheet_title">Contekan Pemecahan Soal</string>
-    <string name="cheatsheet_subtitle">Pola, kiat &amp; trik untuk menaklukkan tantangan algoritma</string>
     <string name="cheatsheet_search_hint">Cari pola, kiat, rumus…</string>
     <string name="cheatsheet_filter_all">Semua</string>
     <string name="cheatsheet_filter_bookmarked">Tersimpan</string>
@@ -62,8 +60,6 @@
     <string name="cheatsheet_complexity_guide_subtitle">Petunjuk cepat dari nilai N ke target kompleksitas waktu</string>
     <string name="cheatsheet_complexity_time">Waktu: %s</string>
     <string name="cheatsheet_complexity_space">Ruang: %s</string>
-    <string name="bookmark_cheatsheet">Simpan kiat</string>
-    <string name="unbookmark_cheatsheet">Hapus simpanan kiat</string>
     <string name="view_cheatsheet_tips">Kiat &amp; Contekan</string>
 
     <!-- Cheatsheet Categories -->

@@ -47,8 +47,6 @@
     <string name="code_copied">Code copied to clipboard</string>
 
     <!-- Cheatsheet -->
-    <string name="cheatsheet_title">Problem Solving Cheatsheet</string>
-    <string name="cheatsheet_subtitle">Patterns, tips &amp; tricks to master algorithm challenges</string>
     <string name="cheatsheet_search_hint">Search patterns, tips, formulas…</string>
     <string name="cheatsheet_filter_all">All</string>
     <string name="cheatsheet_filter_bookmarked">Saved</string>
@@ -62,8 +60,6 @@
     <string name="cheatsheet_complexity_guide_subtitle">Quick mental mapping from N to expected time complexity</string>
     <string name="cheatsheet_complexity_time">Time: %s</string>
     <string name="cheatsheet_complexity_space">Space: %s</string>
-    <string name="bookmark_cheatsheet">Save tip</string>
-    <string name="unbookmark_cheatsheet">Remove saved tip</string>
     <string name="view_cheatsheet_tips">Tips &amp; Cheatsheet</string>
 
     <!-- Cheatsheet Categories -->
