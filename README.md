@@ -1,154 +1,254 @@
-# HackerRank Data Structures — Learning App
+# 💻 HackerRank Data Structures — Learning App for Android
 
-An Android native app (Kotlin, Jetpack Compose) for learning data structures through structured educational content and MCQ quizzes, with full gamification to drive engagement.
+<p align="center">
+  <a href="https://github.com/suryamudti/hackerrank-app/actions/workflows/pr-check.yml"><img src="https://github.com/suryamudti/hackerrank-app/actions/workflows/pr-check.yml/badge.svg" alt="PR Check"/></a>
+  <a href="https://github.com/suryamudti/hackerrank-app/actions/workflows/release.yml"><img src="https://github.com/suryamudti/hackerrank-app/actions/workflows/release.yml/badge.svg" alt="Release"/></a>
+  <a href="https://kotlinlang.org"><img src="https://img.shields.io/badge/Kotlin-2.0.21-blue.svg?style=flat&logo=kotlin" alt="Kotlin"/></a>
+  <a href="https://developer.android.com/about/versions/oreo"><img src="https://img.shields.io/badge/Min%20SDK-26%2B-brightgreen.svg" alt="Min SDK"/></a>
+  <a href="https://developer.android.com/jetpack/compose"><img src="https://img.shields.io/badge/Jetpack-Compose%20(M3)-4285F4.svg?style=flat&logo=android" alt="Jetpack Compose"/></a>
+  <a href="https://dagger.dev/hilt/"><img src="https://img.shields.io/badge/Hilt-2.51.1-orange.svg" alt="Hilt"/></a>
+</p>
 
-## Features
-
-- **16 Data Structures** across 5 categories: Linear, Trees, Graphs, Hash-Based, and Other.
-- **Educational Content** per structure: explanations, complexity tables, code examples, real-world use cases.
-- **MCQ Quiz Engine** — timed quizzes with instant feedback, scoring, and explanations.
-- **100 Algorithm Problems** — searchable, filterable by difficulty and category, each with approach notes and a Kotlin solution. Solvable problems award XP.
-- **Full Gamification** — XP points, 50 levels, daily streaks, 13 achievement badges.
-- **Progress Tracking** — per-structure mastery %, overall level, longest streak, and recent quiz history.
-- **Local-Only Storage** — all data persisted on-device via Room database.
-- **Bilingual UI** — English and Indonesian (`values-in`) string resources.
-- **Material Design 3** with dynamic color theming (light + dark mode), themed adaptive launcher icon, and edge-to-edge transparency.
-
----
-
-## Technical Architecture & Quality Gates
-
-This project is built targeting a **production-grade architecture**, demonstrating clean separation of concerns, robust error handling, performance optimization, and strict CI/CD quality controls.
-
-### 1. Clean Architecture & MVVM
-- **Strict Layer Separation**: Decoupled ViewModels from repositories using single-responsibility Use Cases (`ObserveBrowseDataUseCase`, `ObserveProblemsUseCase`, `ObserveProgressOverviewUseCase`, `ObserveBadgesUseCase`, `GetDailyChallengeUseCase`, `FinishQuizUseCase`, etc.).
-- **Interface Segregation**: Split repository concerns into focused contracts (`ProfileRepository`, `ProgressRepository`, `DailyChallengeRepository`).
-- **Reactive Flows**: ViewModels observe UI state dynamically by collecting domain model state flows with lifecycle awareness.
-
-### 2. Error Handling & Stability
-- Every core screen implements structured, robust state management using sealed UI states: `Loading`, `Loaded`, `Empty`, and `Error`.
-- **Home Screen & UI Component Stability**:
-  - Safe gradient color index calculation using `Math.floorMod` prevents bounds crashes on structure cards.
-  - Synchronized pull-to-refresh state machine prevents state collision exceptions on `BrowseScreen`.
-  - Fail-safe Gson data mappers provide fallback empty objects to prevent `NullPointerException`s during JSON parsing.
-  - Strict positional string formatting (`%1$d`, `%2$d`) ensures crash-free localized string rendering.
-
-### 3. Comprehensive Test Coverage
-The codebase features exhaustive automated testing across all layers (179 tests total, all passing):
-- **ViewModels & Use Cases**: Boundary conditions, edge-case states, and exception flows tested using MockK and Turbine.
-- **Compose UI & Components**: Complete Robolectric UI tests validating screens, cards, checkmark overlays, and loading indicators.
-- **Room DAOs**: In-memory SQLite testing verifying schema updates and DAO operations.
-- **Integration Tests**: End-to-end integration tests validating quiz completion flows, streak counters, and XP persistence.
-
-### 4. Accessibility (A11y) & UX Polish
-- **Semantic Labels**: Added descriptive `contentDescription` resources to interactive icons, progress bars, and custom animations.
-- **Font Scaling**: Utilized Material 3 typography tokens to support up to 200% system font resizing.
-- **Edge-to-Edge Drawing**: Configured system status and navigation bars to draw transparently, automatically adapting system icon colors to active light/dark themes.
-
-### 5. Static Analysis & Style Gates
-- **Zero-warning baseline**: `ktlintCheck`, `lintDebug`, and `lintRelease` all report *"No issues found"*.
-- **Warnings are errors**: `warningsAsErrors = true` in `app/build.gradle.kts` turns every Android Lint warning into a build failure, so the gate cannot silently erode.
-- **Both variants linted**: Release-only checks (e.g. `MonochromeLauncherIcon`) are exercised explicitly, not left to the debug-only `lint` aggregate task.
-- **i18n correctness**: Quantity-bearing strings use `<plurals>` (e.g. *"Current: 1 day"* vs *"Current: 5 days"*) so translations stay grammatical; genuine false positives are suppressed with a scoped `tools:ignore` rather than a fake plural.
-- **Correct launcher icon**: The manifest references the adaptive `@mipmap/ic_launcher` (with a themed `monochrome` layer) instead of a bare foreground drawable.
+<p align="center">
+<b>HackerRank Data Structures</b> demonstrates modern Android development with Kotlin, Jetpack Compose (Material 3), Coroutines, Flow, Hilt, Navigation Compose, and Room based on <b>MVVM Architecture</b> and <b>Clean Architecture</b> guidelines, featuring interactive data structure guides, timed MCQ quizzes, 100 algorithm problems, and full gamification.
+</p>
 
 ---
 
-## Tech Stack
+## 📥 Download
 
-| Concern | Choice |
+Go to the [Releases](https://github.com/suryamudti/hackerrank-app/releases) section to download the latest APK.
+
+---
+
+## 📸 Screenshots
+
+| Data Structures | Structure Detail | MCQ Quiz | Algorithm Problems |
+| :---: | :---: | :---: | :---: |
+| <img src="figure/structures.png" width="220"/> | <img src="figure/structure_detail.png" width="220"/> | <img src="figure/quiz.png" width="220"/> | <img src="figure/problems.png" width="220"/> |
+
+| Problem Detail | Progress Dashboard | Achievement Badges | Badge Detail |
+| :---: | :---: | :---: | :---: |
+| <img src="figure/problem_detail.png" width="220"/> | <img src="figure/progress.png" width="220"/> | <img src="figure/badges.png" width="220"/> | <img src="figure/badge_detail.png" width="220"/> |
+
+---
+
+## 🌟 Key Features
+
+| Feature | Description |
 |---|---|
-| Language | Kotlin |
-| UI | Jetpack Compose + Material 3 |
-| Navigation | Navigation Compose |
-| Database | Room (SQLite) |
-| DI | Hilt |
-| Async | Kotlin Coroutines + Flow |
-| Architecture | Clean Architecture + MVVM |
-| Style Check | ktlint (`ktlintCheck`) |
-| Static Analysis | Android Lint (`warningsAsErrors = true`, debug + release) |
-| Coverage | JaCoCo |
+| **🗂️ 16 Data Structures** | Categorized across 5 domains: Linear, Trees, Graphs, Hash-Based, and Other, with search and difficulty badges. |
+| **📖 Educational Content** | Comprehensive guides per structure with explanations, time/space complexity tables (`O(1)`, `O(log n)`, `O(n)`), Kotlin code examples, and real-world use cases. |
+| **⏱️ MCQ Quiz Engine** | Timed 30-second per-question quizzes with instant answer verification, explanations, scoring, and mastery calculation. |
+| **💻 100 Algorithm Problems** | Searchable and filterable by difficulty (`Easy`, `Medium`, `Hard`) and category, complete with problem statements, constraints, examples, approach notes, and Kotlin solutions. |
+| **🔥 Daily Challenge** | Remote daily algorithm challenge banner with bonus XP rewards and offline fallback support. |
+| **🏆 Full Gamification** | Experience points (XP), 50 progression levels, daily login/study streaks,confetti celebrations, and 13 unlockable achievement badges. |
+| **📊 Progress Dashboard** | Visual mastery rings, per-structure mastery percentages, category progress bars, streak counters, and recent activity logs. |
+| **🔖 Problem Bookmarks** | Save favorite or challenging algorithm problems locally in Room for quick filtering and review. |
+| **🌐 Bilingual UI** | Full English and Bahasa Indonesia (`values-in`) localization with runtime language switching and grammatical `<plurals>` support. |
+| **🎨 Material Design 3** | Dynamic color theming (Light, Dark, and System modes), custom semantic tokens, adaptive monochrome launcher icon, and edge-to-edge transparency. |
 
 ---
 
-## Project Structure
+## 🛠️ Tech Stack & Open-Source Libraries
+
+### Architecture & Core
+- **[Kotlin](https://kotlinlang.org/)** (2.0.21): Modern, expressive, and concise programming language.
+- **[Android Gradle Plugin](https://developer.android.com/build)** (8.7.0): Modern Android build pipeline.
+- **[Coroutines](https://github.com/Kotlin/kotlinx.coroutines)** + **[Flow](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/)**: Asynchronous and reactive programming streams.
+- **[Hilt](https://dagger.dev/hilt/)** (2.51.1) + **KSP**: Standard dependency injection library for Android.
+- **[Navigation Compose](https://developer.android.com/guide/navigation)** (2.8.0): Declarative navigation graph across bottom-bar destinations and detail routes.
+- **Clean Architecture + MVVM**: Strict separation of concerns across UI, Domain (Use Cases & Models), and Data layers.
+
+### UI & Styling
+- **[Jetpack Compose](https://developer.android.com/jetpack/compose)** (BOM 2024.06.00): Modern declarative UI toolkit.
+- **[Material Design 3](https://m3.material.io/)**: Material 3 components, pull-to-refresh containers, custom `MasteryRing` canvas indicators, and `ConfettiOverlay` celebrations.
+- **Accessibility (A11y)**: Semantic `contentDescription` labels and Material 3 typography tokens supporting up to 200% font scaling.
+
+### Data & Networking
+- **[Room Database](https://developer.android.com/training/data-storage/room)** (2.6.1): Local SQLite persistence for structures, quiz questions, quiz history, user profile, streaks, solved problems, and bookmarks.
+- **[Gson](https://github.com/google/gson)** (2.10.1): JSON serialization/deserialization for initial seed assets and daily challenge payloads.
+- **`HttpURLConnection`**: Lightweight REST client for fetching remote Daily Challenge metadata.
+
+### Quality, Testing & Static Analysis
+- **[JUnit 4](https://junit.org/junit4/)**, **[MockK](https://mockk.io/)** (1.13.12), & **[Turbine](https://github.com/cashapp/turbine)** (1.1.0): Unit testing for ViewModels, Use Cases, GamificationEngine, and reactive Flows.
+- **[Robolectric](https://robolectric.org/)** (4.13) & **Compose UI Test**: JVM-based Compose UI component, screen, and Room DAO integration testing (179 tests total).
+- **[ktlint](https://pinterest.github.io/ktlint/)** (12.1.1): Kotlin code style and formatting enforcement (`ktlintCheck`).
+- **Android Lint**: Strict static analysis with `warningsAsErrors = true` across both `debug` and `release` variants.
+- **[JaCoCo](https://www.jacoco.org/jacoco/)**: Automated unit test code coverage reporting and minimum coverage threshold verification.
+
+---
+
+## 🏗️ Architecture & Project Structure
+
+**HackerRank Data Structures** follows **Clean Architecture** and Google's recommended [Guide to app architecture](https://developer.android.com/topic/architecture).
+
+### Project Structure
 
 ```
-app/
-├── core/                   # Theme, navigation, constants
+app/src/main/java/com/hackerrank/app/
+├── core/                   # Theme, NavigationCompose graph, LocaleManager, Constants
 ├── data/
-│   ├── local/              # Room database, DAOs, entities
-│   ├── remote/             # Daily challenge API client
-│   ├── repository/         # Repository implementations
-│   └── seed/               # Seed data loader
-├── di/                     # Hilt modules
+│   ├── local/              # Room database (HackerRankDatabase), DAOs, Entities
+│   ├── remote/             # DailyChallengeApi client & DTOs
+│   ├── repository/         # Repository implementations & entity-domain mappers
+│   └── seed/               # JSON asset seed initializer & fallback data
+├── di/                     # Hilt dependency injection modules
 ├── domain/
-│   ├── gamification/       # XP, streak, badge engine
-│   ├── model/              # Domain models
-│   ├── repository/         # Repository interfaces
-│   └── usecase/            # Business logic use cases
+│   ├── gamification/       # GamificationEngine (XP, levels, streaks, 13 badges)
+│   ├── model/              # Immutable domain models
+│   ├── repository/         # Focused repository interfaces
+│   └── usecase/            # Single-responsibility business logic use cases
 └── ui/
-    ├── achievements/       # Badge gallery
-    ├── badge/              # Badge detail screen
-    ├── browse/             # Home screen with structure grid
-    ├── components/         # Shared composables (design system)
-    ├── detail/             # Structure detail view
-    ├── problems/           # Algorithm problem list + detail
-    ├── progress/           # Dashboard (XP, streaks, mastery)
-    └── quiz/               # MCQ quiz engine
+    ├── achievements/       # Badge gallery screen & ViewModel
+    ├── badge/              # Badge detail screen & ViewModel
+    ├── browse/             # Data structures home screen & ViewModel
+    ├── components/         # Shared design system composables (MasteryRing, CodeBlock, etc.)
+    ├── detail/             # Structure detail view & ViewModel
+    ├── problems/           # Algorithm problems list, Daily Challenge banner & detail screen
+    ├── progress/           # User progress dashboard & ViewModel
+    └── quiz/               # Timed MCQ quiz engine & ViewModel
 ```
+
+### Layer Architecture Overview
+
+```mermaid
+graph TD
+    subgraph UI ["UI Layer (ui)"]
+        UI_Screen["Jetpack Compose Screens"]
+        UI_VM["Hilt ViewModels"]
+        UI_Screen -->|"Observe UI State"| UI_VM
+        UI_VM -->|"Emit Intent / User Events"| UI_Screen
+    end
+
+    subgraph Domain ["Domain Layer (domain)"]
+        Domain_UC["Use Cases"]
+        Domain_Game["GamificationEngine"]
+        Domain_Model["Domain Models"]
+        Domain_Repo["Repository Interfaces"]
+        UI_VM -->|"Executes"| Domain_UC
+        Domain_UC -->|"Evaluates XP & Badges"| Domain_Game
+        Domain_UC -->|"Invokes"| Domain_Repo
+    end
+
+    subgraph Data ["Data Layer (data)"]
+        Data_RepoImpl["Repository Implementations"]
+        Data_Room["Room Local Database"]
+        Data_Remote["DailyChallengeApi"]
+        Data_Seed["SeedInitializer (JSON Assets)"]
+
+        Domain_Repo -.->|"implements"| Data_RepoImpl
+        Data_RepoImpl --> Data_Room
+        Data_RepoImpl --> Data_Remote
+        Data_Seed --> Data_Room
+    end
+
+    subgraph Core ["Core Layer (core)"]
+        Core_Utils["AppTheme, NavGraph, LocaleManager, Constants"]
+    end
+
+    UI --> Core
+    Domain --> Core
+    Data --> Core
+```
+
+### Architecture & Quality Highlights
+- **Offline-First & Self-Seeding**: `SeedInitializer` populates the Room database on first launch from bundled JSON assets (`seed/structures.json`, `seed/quizzes.json`, `seed/problems.json`) with compile-time Kotlin fallbacks.
+- **Interface Segregation**: Repository contracts are split by domain concern (`ContentRepository`, `ProblemRepository`, `QuizRepository`, `ProgressRepository`, `ProfileRepository`, `DailyChallengeRepository`).
+- **Unidirectional Data Flow (UDF)**: ViewModels expose sealed immutable `StateFlow<UiState>` (`Loading`, `Loaded`, `Error`) to Compose screens.
+- **Zero-Warning Quality Gate**: `ktlintCheck`, `lintDebug`, and `lintRelease` run with `warningsAsErrors = true`, backed by 179 unit, DAO, Robolectric UI, and integration tests.
 
 ---
 
-## Getting Started
+## 🌐 Data Sources & APIs
 
-1. Clone the repo: `git clone https://github.com/suryamudti/hackerrank-app.git`
-2. Open in Android Studio.
-3. Sync Gradle and run on emulator or device (API 26+).
+- **Data Structures & Quizzes**: Bundled JSON seed assets (`app/src/main/assets/seed/structures.json` and `seed/quizzes.json`) covering 16 data structures and timed MCQ question banks, persisted in `HackerRankDatabase`.
+- **Algorithm Problems**: Bundled JSON corpus (`app/src/main/assets/seed/problems.json`) containing 100 curated problems across Arrays, Strings, Linked Lists, Stacks & Queues, Trees, Graphs, Dynamic Programming, Sorting & Searching, Hashing, and Recursion.
+- **Daily Challenge API**: Fetches daily challenge metadata from `https://raw.githubusercontent.com/suryamudti/hackerrank-app/main/daily-challenge.json` via `DailyChallengeApi` with deterministic local fallback when offline.
+- **User Progress & Gamification**: Stored 100% locally on-device in SQLite via Room (`user_profile`, `user_progress`, `quiz_results`, `solved_problems`, `bookmarked_problems`).
+
+---
+
+## 🚀 Building & Setup
+
+### Prerequisites
+- **Android Studio** Ladybug (2024.2+) or newer
+- **JDK**: 17+
+- **Android SDK**: 34 (minSdk 26, targetSdk 34)
+- **Environment**: Set `JAVA_HOME` pointing to JDK 17 / Android Studio JBR.
 
 ### Git Pre-Commit Hook Setup
-To enable automated pre-commit quality checks before every commit, run:
-```bash
+
+To enable automated pre-commit quality checks (`ktlintCheck` + `lintDebug`) before every commit:
+
+```powershell
 git config core.hooksPath .githooks
 ```
-The hook runs `ktlintCheck` + `lintDebug`, so style problems surface before you push.
 
-### Local Quality Commands
-Run these commands in terminal to check project quality locally:
-- **Style Checking**: `./gradlew ktlintCheck`
-- **Lint Check**: `./gradlew lintDebug lintRelease` (see note below)
-- **Unit & Integration Tests**: `./gradlew testDebugUnitTest`
-- **Coverage Verification**: `./gradlew jacocoTestCoverageVerification`
-- **JaCoCo Test Coverage Report**: `./gradlew jacocoTestReport`
+### Build APK
 
-> **Why not just `./gradlew lint`?** In AGP 8.7 the aggregate `lint` task only wires up the
-> **debug** variant. Release-only checks such as `MonochromeLauncherIcon` are invisible to it,
-> even though `checkReleaseBuilds = true` means they gate the release build. Naming both
-> variants explicitly keeps local runs and CI aligned.
+```powershell
+# Set JAVA_HOME (Windows PowerShell example; Temurin JDK 17 recommended)
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.19.10-hotspot"
 
-Reports are written to `app/build/reports/lint-results-debug.html` and
-`app/build/reports/lint-results-release.html`.
+# Build debug APK
+.\gradlew assembleDebug
+```
 
----
+The compiled APK will be located at:
+`app/build/outputs/apk/debug/app-debug.apk`
 
-## CI/CD Pipeline
+Install on the emulator:
 
-Automated checks are configured using GitHub Actions under `.github/workflows/`:
+```powershell
+adb -s emulator-5554 install -r app\build\outputs\apk\debug\app-debug.apk
+```
 
-- **PR Check (`pr-check.yml`)** — two parallel jobs on every pull request:
-  - **`Lint`** — `ktlintCheck` plus Android Lint for the **debug and release** variants.
-    Lint runs with `warningsAsErrors = true`, so *any* warning fails the job rather than
-    scrolling past in the log. HTML reports are uploaded as artifacts for inspection.
-  - **`Run Unit Tests`** — the full unit and integration suite (179 tests).
-  - Concurrency is keyed on the PR number, so superseded runs are cancelled automatically.
-- **Release Build (`release.yml`)**: Automatically packages and drafts a signed release bundle on merge to `main`/`master`.
+### Running Tests & Quality Gates
 
-Both `Lint` and `Run Unit Tests` should be selected as required status checks under
-**Settings ➔ Branches ➔ Branch protection rules** so neither can be bypassed.
+```powershell
+.\gradlew ktlintCheck                    # Kotlin style check
+.\gradlew lintDebug lintRelease          # Android Lint (debug + release variants)
+.\gradlew testDebugUnitTest              # Unit, DAO & Robolectric UI tests (179 tests)
+.\gradlew jacocoTestReport               # Generate JaCoCo HTML/XML coverage report
+.\gradlew jacocoTestCoverageVerification # Verify minimum coverage threshold
+```
 
 ---
 
-## License
+## 🔄 CI/CD Pipeline
 
-MIT
+Automated checks and releases are configured via GitHub Actions under `.github/workflows/`:
 
+- **PR Check (`pr-check.yml`)** — runs two parallel jobs on every pull request and push to `main`/`master`:
+  - **`Lint & Style`**: Executes `ktlintCheck` and `lintDebug lintRelease` with `warningsAsErrors = true`. Uploads HTML lint reports as workflow artifacts.
+  - **`Run Unit Tests & Coverage`**: Executes the full 179-test suite (`testDebugUnitTest`), generates JaCoCo coverage reports, and enforces coverage thresholds.
+- **Release Build (`release.yml`)** — runs verification gates and automatically builds, signs, and publishes release APK/AAB bundles to GitHub Releases on merge to `main`/`master`.
+
+---
+
+## 📄 License
+
+```
+MIT License
+
+Copyright (c) 2026 Surya Mudti
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
