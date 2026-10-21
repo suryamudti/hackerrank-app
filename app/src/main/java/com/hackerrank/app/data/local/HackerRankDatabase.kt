@@ -2,6 +2,7 @@ package com.hackerrank.app.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.hackerrank.app.data.local.dao.BookmarkedCheatsheetDao
 import com.hackerrank.app.data.local.dao.BookmarkedProblemDao
 import com.hackerrank.app.data.local.dao.DataStructureDao
 import com.hackerrank.app.data.local.dao.ProblemDao
@@ -10,6 +11,7 @@ import com.hackerrank.app.data.local.dao.ProgressDao
 import com.hackerrank.app.data.local.dao.QuizQuestionDao
 import com.hackerrank.app.data.local.dao.QuizResultDao
 import com.hackerrank.app.data.local.dao.SolvedProblemDao
+import com.hackerrank.app.data.local.entity.BookmarkedCheatsheetEntity
 import com.hackerrank.app.data.local.entity.BookmarkedProblemEntity
 import com.hackerrank.app.data.local.entity.DataStructureEntity
 import com.hackerrank.app.data.local.entity.ProblemEntity
@@ -29,8 +31,9 @@ import com.hackerrank.app.data.local.entity.UserProgressEntity
         SolvedProblemEntity::class,
         QuizResultEntity::class,
         BookmarkedProblemEntity::class,
+        BookmarkedCheatsheetEntity::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = false,
 )
 abstract class HackerRankDatabase : RoomDatabase() {
@@ -49,4 +52,6 @@ abstract class HackerRankDatabase : RoomDatabase() {
     abstract fun quizResultDao(): QuizResultDao
 
     abstract fun bookmarkedProblemDao(): BookmarkedProblemDao
+
+    abstract fun bookmarkedCheatsheetDao(): BookmarkedCheatsheetDao
 }

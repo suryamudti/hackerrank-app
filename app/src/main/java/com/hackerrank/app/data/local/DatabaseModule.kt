@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.gson.Gson
+import com.hackerrank.app.data.local.dao.BookmarkedCheatsheetDao
 import com.hackerrank.app.data.local.dao.BookmarkedProblemDao
 import com.hackerrank.app.data.local.dao.DataStructureDao
 import com.hackerrank.app.data.local.dao.ProblemDao
@@ -28,24 +29,12 @@ object DatabaseModule {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
                     """
-                    CREATE TABLE IF NOT EXISTS `problems` (
-                        `id` TEXT NOT NULL PRIMARY KEY,
-                        `title` TEXT NOT NULL,
-                        `description` TEXT NOT NULL,
-                        `solutionCode` TEXT NOT NULL,
-                        `approachExplanation` TEXT NOT NULL,
-                        `difficulty` TEXT NOT NULL,
-                        `category` TEXT NOT NULL,
-                        `orderIndex` INTEGER NOT NULL
-                    )
+                    CREATE TABLE IF NOT EXISTS `problems` (\n                        `id` TEXT NOT NULL PRIMARY KEY,\n                        `title` TEXT NOT NULL,\n                        `description` TEXT NOT NULL,\n                        `solutionCode` TEXT NOT NULL,\n                        `approachExplanation` TEXT NOT NULL,\n                        `difficulty` TEXT NOT NULL,\n                        `category` TEXT NOT NULL,\n                        `orderIndex` INTEGER NOT NULL\n                    )
                     """.trimIndent(),
                 )
                 db.execSQL(
                     """
-                    CREATE TABLE IF NOT EXISTS `solved_problems` (
-                        `problemId` TEXT NOT NULL PRIMARY KEY,
-                        `solvedAt` INTEGER NOT NULL
-                    )
+                    CREATE TABLE IF NOT EXISTS `solved_problems` (\n                        `problemId` TEXT NOT NULL PRIMARY KEY,\n                        `solvedAt` INTEGER NOT NULL\n                    )
                     """.trimIndent(),
                 )
             }
@@ -99,6 +88,20 @@ object DatabaseModule {
             }
         }
 
+    private val MIGRATION_6_7 =
+        object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `bookmarked_cheatsheets` (
+                        `cheatsheetId` TEXT NOT NULL PRIMARY KEY,
+                        `bookmarkedAt` INTEGER NOT NULL
+                    )
+                    """.trimIndent(),
+                )
+            }
+        }
+
     @Provides
     @Singleton
     fun provideDatabase(
@@ -109,7 +112,7 @@ object DatabaseModule {
             HackerRankDatabase::class.java,
             "hackerrank_app.db",
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
             .build()
     }
 
@@ -136,6 +139,9 @@ object DatabaseModule {
 
     @Provides
     fun provideBookmarkedProblemDao(database: HackerRankDatabase): BookmarkedProblemDao = database.bookmarkedProblemDao()
+
+    @Provides
+    fun provideBookmarkedCheatsheetDao(database: HackerRankDatabase): BookmarkedCheatsheetDao = database.bookmarkedCheatsheetDao()
 
     @Provides
     @Singleton

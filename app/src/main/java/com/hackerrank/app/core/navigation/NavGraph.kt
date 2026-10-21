@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.TipsAndUpdates
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -36,6 +37,7 @@ import com.hackerrank.app.core.LocalThemeManager
 import com.hackerrank.app.ui.achievements.AchievementsScreen
 import com.hackerrank.app.ui.badge.BadgeDetailScreen
 import com.hackerrank.app.ui.browse.BrowseScreen
+import com.hackerrank.app.ui.cheatsheet.CheatsheetScreen
 import com.hackerrank.app.ui.detail.DetailScreen
 import com.hackerrank.app.ui.problems.ProblemDetailScreen
 import com.hackerrank.app.ui.problems.ProblemsScreen
@@ -47,6 +49,8 @@ sealed class Screen(val route: String, val labelRes: Int, val icon: ImageVector)
     data object Browse : Screen("browse", R.string.nav_structures, Icons.Default.Home)
 
     data object Problems : Screen("problems", R.string.nav_problems, Icons.Default.Code)
+
+    data object Cheatsheet : Screen("cheatsheet", R.string.nav_cheatsheet, Icons.Default.TipsAndUpdates)
 
     data object Progress : Screen("progress", R.string.nav_progress, Icons.Default.Star)
 
@@ -74,7 +78,7 @@ sealed class DetailRoute(val route: String) {
     }
 }
 
-val bottomNavScreens = listOf(Screen.Browse, Screen.Problems, Screen.Progress, Screen.Achievements)
+val bottomNavScreens = listOf(Screen.Browse, Screen.Problems, Screen.Cheatsheet, Screen.Progress, Screen.Achievements)
 
 @Composable
 fun NavGraph() {
@@ -141,6 +145,14 @@ fun NavGraph() {
                     )
                 }
 
+                composable(Screen.Cheatsheet.route) {
+                    CheatsheetScreen(
+                        onProblemClick = { id ->
+                            navController.navigate(DetailRoute.ProblemDetail.createRoute(id))
+                        },
+                    )
+                }
+
                 composable(Screen.Progress.route) {
                     ProgressScreen(
                         onError = { msg ->
@@ -200,6 +212,7 @@ fun NavGraph() {
                         problemId = problemId,
                         isDailyChallenge = isDailyChallenge,
                         onBackClick = { navController.popBackStack() },
+                        onCheatsheetClick = { navController.navigate(Screen.Cheatsheet.route) },
                     )
                 }
 

@@ -10,6 +10,7 @@
     <!-- Navigation -->
     <string name="nav_structures">Structures</string>
     <string name="nav_problems">Problems</string>
+    <string name="nav_cheatsheet">Cheatsheet</string>
     <string name="nav_progress">Progress</string>
     <string name="nav_badges">Badges</string>
 
@@ -44,6 +45,32 @@
     <string name="example_output">Output: </string>
     <string name="code_copy">Copy code</string>
     <string name="code_copied">Code copied to clipboard</string>
+
+    <!-- Cheatsheet -->
+    <string name="cheatsheet_search_hint">Search patterns, tips, formulas…</string>
+    <string name="cheatsheet_filter_all">All</string>
+    <string name="cheatsheet_filter_bookmarked">Saved</string>
+    <string name="cheatsheet_no_results_title">No Cheatsheets Found</string>
+    <string name="cheatsheet_no_results_message">No cheatsheets match your current search or filter criteria.</string>
+    <string name="cheatsheet_when_to_use">When to Use / Clues</string>
+    <string name="cheatsheet_tips_pitfalls">Tips &amp; Common Pitfalls</string>
+    <string name="cheatsheet_template">Kotlin Template</string>
+    <string name="cheatsheet_related_problems">Practice Problems</string>
+    <string name="cheatsheet_complexity_guide_title">Constraint to Big-O Guide</string>
+    <string name="cheatsheet_complexity_guide_subtitle">Quick mental mapping from N to expected time complexity</string>
+    <string name="cheatsheet_complexity_time">Time: %s</string>
+    <string name="cheatsheet_complexity_space">Space: %s</string>
+    <string name="view_cheatsheet_tips">Tips &amp; Cheatsheet</string>
+
+    <!-- Cheatsheet Categories -->
+    <string name="cs_cat_arrays_strings">Arrays &amp; Strings</string>
+    <string name="cs_cat_two_pointers_sliding_window">Two Pointers &amp; Window</string>
+    <string name="cs_cat_binary_search">Binary Search</string>
+    <string name="cs_cat_stacks_queues">Stacks &amp; Queues</string>
+    <string name="cs_cat_trees_graphs">Trees &amp; Graphs</string>
+    <string name="cs_cat_dynamic_programming">Dynamic Programming</string>
+    <string name="cs_cat_bit_math">Bit &amp; Math</string>
+    <string name="cs_cat_backtracking_greedy">Backtracking &amp; Greedy</string>
 
     <!-- Progress -->
     <string name="progress_no_progress_title">No Progress Yet</string>

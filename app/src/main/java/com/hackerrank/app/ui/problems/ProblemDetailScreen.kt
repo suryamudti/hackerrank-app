@@ -64,6 +64,7 @@ fun ProblemDetailScreen(
     problemId: String,
     isDailyChallenge: Boolean = false,
     onBackClick: () -> Unit,
+    onCheatsheetClick: () -> Unit = {},
     viewModel: ProblemDetailViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(problemId, isDailyChallenge) {
@@ -120,6 +121,12 @@ fun ProblemDetailScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onCheatsheetClick) {
+                        Icon(
+                            imageVector = Icons.Default.Lightbulb,
+                            contentDescription = stringResource(R.string.view_cheatsheet_tips),
+                        )
+                    }
                     if (uiState is ProblemDetailUiState.Loaded) {
                         val isBookmarked = (uiState as ProblemDetailUiState.Loaded).isBookmarked
                         BookmarkButton(

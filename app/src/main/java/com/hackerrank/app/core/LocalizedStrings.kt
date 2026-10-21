@@ -5,6 +5,7 @@ import androidx.compose.ui.res.stringResource
 import com.hackerrank.app.R
 import com.hackerrank.app.domain.model.Badge
 import com.hackerrank.app.domain.model.BadgeDefinition
+import com.hackerrank.app.domain.model.CheatsheetCategory
 import com.hackerrank.app.domain.model.DataStructureCategory
 import com.hackerrank.app.domain.model.Difficulty
 import com.hackerrank.app.domain.model.ProblemCategory
@@ -47,6 +48,21 @@ fun ProblemCategory.localizedName(): String =
             ProblemCategory.RECURSION_MATH -> R.string.pc_recursion_math
             ProblemCategory.BIT_MANIPULATION -> R.string.pc_bit_manipulation
             ProblemCategory.MISCELLANEOUS -> R.string.pc_miscellaneous
+        },
+    )
+
+@Composable
+fun CheatsheetCategory.localizedName(): String =
+    stringResource(
+        when (this) {
+            CheatsheetCategory.ARRAYS_STRINGS -> R.string.cs_cat_arrays_strings
+            CheatsheetCategory.TWO_POINTERS_SLIDING_WINDOW -> R.string.cs_cat_two_pointers_sliding_window
+            CheatsheetCategory.BINARY_SEARCH -> R.string.cs_cat_binary_search
+            CheatsheetCategory.STACKS_QUEUES -> R.string.cs_cat_stacks_queues
+            CheatsheetCategory.TREES_GRAPHS -> R.string.cs_cat_trees_graphs
+            CheatsheetCategory.DYNAMIC_PROGRAMMING -> R.string.cs_cat_dynamic_programming
+            CheatsheetCategory.BIT_MATH -> R.string.cs_cat_bit_math
+            CheatsheetCategory.BACKTRACKING_GREEDY -> R.string.cs_cat_backtracking_greedy
         },
     )
 
