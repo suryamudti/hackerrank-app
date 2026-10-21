@@ -1,9 +1,11 @@
 package com.hackerrank.app.di
 
+import com.hackerrank.app.data.repository.CheatsheetRepositoryImpl
 import com.hackerrank.app.data.repository.ContentRepositoryImpl
 import com.hackerrank.app.data.repository.ProblemRepositoryImpl
 import com.hackerrank.app.data.repository.ProgressRepositoryImpl
 import com.hackerrank.app.data.repository.QuizRepositoryImpl
+import com.hackerrank.app.domain.repository.CheatsheetRepository
 import com.hackerrank.app.domain.repository.ContentRepository
 import com.hackerrank.app.domain.repository.DailyChallengeRepository
 import com.hackerrank.app.domain.repository.ProblemRepository
@@ -42,4 +44,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindProblemRepository(impl: ProblemRepositoryImpl): ProblemRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCheatsheetRepository(impl: CheatsheetRepositoryImpl): CheatsheetRepository
 }

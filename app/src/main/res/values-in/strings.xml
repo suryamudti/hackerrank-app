@@ -10,6 +10,7 @@
     <!-- Navigation -->
     <string name="nav_structures">Struktur</string>
     <string name="nav_problems">Soal</string>
+    <string name="nav_cheatsheet">Contekan</string>
     <string name="nav_progress">Kemajuan</string>
     <string name="nav_badges">Lencana</string>
 
@@ -44,6 +45,36 @@
     <string name="example_output">Keluaran: </string>
     <string name="code_copy">Salin kode</string>
     <string name="code_copied">Kode disalin ke papan klip</string>
+
+    <!-- Cheatsheet -->
+    <string name="cheatsheet_title">Contekan Pemecahan Soal</string>
+    <string name="cheatsheet_subtitle">Pola, kiat &amp; trik untuk menaklukkan tantangan algoritma</string>
+    <string name="cheatsheet_search_hint">Cari pola, kiat, rumus…</string>
+    <string name="cheatsheet_filter_all">Semua</string>
+    <string name="cheatsheet_filter_bookmarked">Tersimpan</string>
+    <string name="cheatsheet_no_results_title">Tidak Ada Contekan</string>
+    <string name="cheatsheet_no_results_message">Tidak ada contekan yang cocok dengan pencarian atau filter saat ini.</string>
+    <string name="cheatsheet_when_to_use">Kapan Digunakan / Ciri-Ciri</string>
+    <string name="cheatsheet_tips_pitfalls">Kiat &amp; Kesalahan Umum</string>
+    <string name="cheatsheet_template">Templat Kotlin</string>
+    <string name="cheatsheet_related_problems">Latihan Soal Terkait</string>
+    <string name="cheatsheet_complexity_guide_title">Panduan Batasan ke Big-O</string>
+    <string name="cheatsheet_complexity_guide_subtitle">Petunjuk cepat dari nilai N ke target kompleksitas waktu</string>
+    <string name="cheatsheet_complexity_time">Waktu: %s</string>
+    <string name="cheatsheet_complexity_space">Ruang: %s</string>
+    <string name="bookmark_cheatsheet">Simpan kiat</string>
+    <string name="unbookmark_cheatsheet">Hapus simpanan kiat</string>
+    <string name="view_cheatsheet_tips">Kiat &amp; Contekan</string>
+
+    <!-- Cheatsheet Categories -->
+    <string name="cs_cat_arrays_strings">Larik &amp; String</string>
+    <string name="cs_cat_two_pointers_sliding_window">Dua Penunjuk &amp; Jendela</string>
+    <string name="cs_cat_binary_search">Pencarian Biner</string>
+    <string name="cs_cat_stacks_queues">Tumpukan &amp; Antrean</string>
+    <string name="cs_cat_trees_graphs">Pohon &amp; Graf</string>
+    <string name="cs_cat_dynamic_programming">Pemrograman Dinamis</string>
+    <string name="cs_cat_bit_math">Bit &amp; Matematika</string>
+    <string name="cs_cat_backtracking_greedy">Pelacakan Balik &amp; Rakus</string>
 
     <!-- Progress -->
     <string name="progress_no_progress_title">Belum Ada Kemajuan</string>
@@ -100,7 +131,7 @@
     <string name="quiz_level_up">Naik Level! Sekarang level %d</string>
     <string name="quiz_badge_earned">Lencana: %s</string>
     <string name="action_back">Kembali</string>
-    <string name="action_retry">Ulangi</string>
+    <string name="action_retry">Coba Lagi</string>
     <string name="quiz_retry_desc">Ulangi kuis</string>
     <string name="quiz_go_back">Kembali</string>
     <string name="quiz_solved">Terpecahkan</string>
@@ -108,7 +139,7 @@
     <string name="quiz_back_to_results">Kembali ke hasil</string>
     <string name="quiz_option_desc">Opsi %1$s: %2$s</string>
     <string name="quiz_option_correct_suffix"> - Jawaban benar</string>
-    <string name="quiz_option_incorrect_suffix"> - Jawabanmu (salah)</string>
+    <string name="quiz_option_incorrect_suffix"> - Jawaban Anda (salah)</string>
     <string name="quiz_review_explanation">Penjelasan: %1$s</string>
 
     <!-- Accessibility -->
@@ -117,7 +148,7 @@
     <string name="desc_clear_search">Hapus pencarian</string>
 
     <!-- Categories and Difficulties -->
-    <string name="category_linear">Linear</string>
+    <string name="category_linear">Linier</string>
     <string name="category_trees">Pohon</string>
     <string name="category_graphs">Graf</string>
     <string name="category_hash_based">Berbasis Hash</string>
@@ -127,14 +158,14 @@
     <string name="difficulty_hard">Sulit</string>
 
     <!-- Problem Categories -->
-    <string name="pc_arrays">Array</string>
+    <string name="pc_arrays">Larik</string>
     <string name="pc_strings">String</string>
-    <string name="pc_linked_lists">Linked List</string>
-    <string name="pc_stacks_queues">Stack &amp; Queue</string>
+    <string name="pc_linked_lists">Senarai Berantai</string>
+    <string name="pc_stacks_queues">Tumpukan &amp; Antrean</string>
     <string name="pc_trees">Pohon</string>
     <string name="pc_graphs">Graf</string>
     <string name="pc_dynamic_programming">Pemrograman Dinamis</string>
-    <string name="pc_sorting_searching">Sortir &amp; Cari</string>
+    <string name="pc_sorting_searching">Penyortiran &amp; Pencarian</string>
     <string name="pc_hash_based">Berbasis Hash</string>
     <string name="pc_recursion_math">Rekursi &amp; Matematika</string>
     <string name="pc_bit_manipulation">Manipulasi Bit</string>
