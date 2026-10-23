@@ -48,6 +48,7 @@ import com.hackerrank.app.R
 import com.hackerrank.app.core.Constants
 import com.hackerrank.app.core.localizedName
 import com.hackerrank.app.domain.model.Difficulty
+import com.hackerrank.app.domain.model.ProblemCategory
 import com.hackerrank.app.ui.components.EmptyState
 import com.hackerrank.app.ui.components.badge.DifficultyBadge
 import com.hackerrank.app.ui.components.badge.DifficultyBadgeVariant
@@ -64,7 +65,7 @@ fun ProblemDetailScreen(
     problemId: String,
     isDailyChallenge: Boolean = false,
     onBackClick: () -> Unit,
-    onCheatsheetClick: () -> Unit = {},
+    onCheatsheetClick: (ProblemCategory?) -> Unit = {},
     viewModel: ProblemDetailViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(problemId, isDailyChallenge) {
@@ -121,7 +122,8 @@ fun ProblemDetailScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onCheatsheetClick) {
+                    val currentCategory = (uiState as? ProblemDetailUiState.Loaded)?.problem?.category
+                    IconButton(onClick = { onCheatsheetClick(currentCategory) }) {
                         Icon(
                             imageVector = Icons.Default.Lightbulb,
                             contentDescription = stringResource(R.string.view_cheatsheet_tips),

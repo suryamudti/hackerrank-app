@@ -61,16 +61,12 @@
     <string name="cheatsheet_complexity_time">Time: %s</string>
     <string name="cheatsheet_complexity_space">Space: %s</string>
     <string name="view_cheatsheet_tips">Tips &amp; Cheatsheet</string>
-
-    <!-- Cheatsheet Categories -->
-    <string name="cs_cat_arrays_strings">Arrays &amp; Strings</string>
-    <string name="cs_cat_two_pointers_sliding_window">Two Pointers &amp; Window</string>
-    <string name="cs_cat_binary_search">Binary Search</string>
-    <string name="cs_cat_stacks_queues">Stacks &amp; Queues</string>
-    <string name="cs_cat_trees_graphs">Trees &amp; Graphs</string>
-    <string name="cs_cat_dynamic_programming">Dynamic Programming</string>
-    <string name="cs_cat_bit_math">Bit &amp; Math</string>
-    <string name="cs_cat_backtracking_greedy">Backtracking &amp; Greedy</string>
+    <string name="cheatsheet_category_guide_suffix">%s Survival Guide</string>
+    <string name="cheatsheet_category_core_concept">Core Concept &amp; Invariant</string>
+    <string name="cheatsheet_category_target_complexity">Target Complexity</string>
+    <string name="cheatsheet_category_kotlin_tools">Essential Kotlin APIs</string>
+    <string name="cheatsheet_category_pitfalls">Common Traps &amp; Edge Cases</string>
+    <string name="cheatsheet_category_key_patterns">Top Patterns</string>
 
     <!-- Progress -->
     <string name="progress_no_progress_title">No Progress Yet</string>
