@@ -1,10 +1,12 @@
 package com.hackerrank.app.ui.cheatsheet
 
+import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.hackerrank.app.MainDispatcherRule
-import com.hackerrank.app.domain.model.CheatsheetCategory
+import com.hackerrank.app.domain.model.CategoryGuide
 import com.hackerrank.app.domain.model.CheatsheetItem
 import com.hackerrank.app.domain.model.ComplexityRule
+import com.hackerrank.app.domain.model.ProblemCategory
 import com.hackerrank.app.domain.usecase.CheatsheetsData
 import com.hackerrank.app.domain.usecase.ObserveCheatsheetsUseCase
 import com.hackerrank.app.domain.usecase.ToggleCheatsheetBookmarkUseCase
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -34,7 +37,7 @@ class CheatsheetViewModelTest {
             CheatsheetItem(
                 id = "cs1",
                 title = "Two Pointers Technique",
-                category = CheatsheetCategory.TWO_POINTERS_SLIDING_WINDOW,
+                category = ProblemCategory.ARRAYS,
                 summary = "Two pointers summary",
                 whenToUse = listOf("Sorted array"),
                 keyTricks = listOf("Left and right bounds"),
@@ -46,15 +49,29 @@ class CheatsheetViewModelTest {
             CheatsheetItem(
                 id = "cs2",
                 title = "Binary Search",
-                category = CheatsheetCategory.BINARY_SEARCH,
+                category = ProblemCategory.SORTING_SEARCHING,
                 summary = "Binary search halving space",
                 whenToUse = listOf("Monotonic condition"),
                 keyTricks = listOf("mid calculation"),
                 codeTemplate = "code2",
                 timeComplexity = "O(log N)",
                 spaceComplexity = "O(1)",
-                relatedProblemIds = listOf("p069"),
+                relatedProblemIds = listOf("p079"),
             ),
+        )
+
+    private val sampleGuides =
+        mapOf(
+            ProblemCategory.ARRAYS to
+                CategoryGuide(
+                    category = ProblemCategory.ARRAYS,
+                    title = "Arrays Survival Guide",
+                    coreConcept = "Contiguous memory layout",
+                    timeSpaceTargets = "O(N) time, O(1) space",
+                    essentialKotlinTools = listOf("IntArray", "indices"),
+                    criticalEdgeCases = listOf("Empty array", "Duplicates"),
+                    topPatterns = listOf("Two Pointers", "Prefix Sum"),
+                ),
         )
 
     private val sampleData =
@@ -62,6 +79,7 @@ class CheatsheetViewModelTest {
             cheatsheets = sampleItems,
             bookmarkedIds = setOf("cs1"),
             complexityRules = listOf(ComplexityRule("N <= 10", "O(N!)", "Backtracking")),
+            categoryGuides = sampleGuides,
         )
 
     @Before
@@ -72,7 +90,7 @@ class CheatsheetViewModelTest {
     @Test
     fun `initial uiState is loaded with all items`() =
         runTest {
-            val viewModel = CheatsheetViewModel(observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
+            val viewModel = CheatsheetViewModel(SavedStateHandle(), observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
 
             viewModel.uiState.test {
                 val state = awaitItem()
@@ -86,9 +104,26 @@ class CheatsheetViewModelTest {
         }
 
     @Test
+    fun `savedStateHandle category initializes selectedCategory`() =
+        runTest {
+            val handle = SavedStateHandle(mapOf("category" to "ARRAYS"))
+            val viewModel = CheatsheetViewModel(handle, observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
+
+            viewModel.uiState.test {
+                val state = awaitItem() as CheatsheetUiState.Loaded
+                assertEquals(ProblemCategory.ARRAYS, state.selectedCategory)
+                assertEquals(1, state.filteredCheatsheets.size)
+                assertEquals("cs1", state.filteredCheatsheets[0].id)
+                assertNotNull(state.activeCategoryGuide)
+                assertEquals("Arrays Survival Guide", state.activeCategoryGuide?.title)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
     fun `search filters items by title and summary`() =
         runTest {
-            val viewModel = CheatsheetViewModel(observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
+            val viewModel = CheatsheetViewModel(SavedStateHandle(), observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
 
             viewModel.uiState.test {
                 awaitItem() // initial
@@ -104,15 +139,15 @@ class CheatsheetViewModelTest {
     @Test
     fun `category selection filters items by category`() =
         runTest {
-            val viewModel = CheatsheetViewModel(observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
+            val viewModel = CheatsheetViewModel(SavedStateHandle(), observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
 
             viewModel.uiState.test {
                 awaitItem() // initial
-                viewModel.onCategorySelected(CheatsheetCategory.BINARY_SEARCH)
+                viewModel.onCategorySelected(ProblemCategory.SORTING_SEARCHING)
 
                 val state = awaitItem() as CheatsheetUiState.Loaded
                 assertEquals(1, state.filteredCheatsheets.size)
-                assertEquals(CheatsheetCategory.BINARY_SEARCH, state.filteredCheatsheets[0].category)
+                assertEquals(ProblemCategory.SORTING_SEARCHING, state.filteredCheatsheets[0].category)
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -120,7 +155,7 @@ class CheatsheetViewModelTest {
     @Test
     fun `bookmark filter displays only saved items`() =
         runTest {
-            val viewModel = CheatsheetViewModel(observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
+            val viewModel = CheatsheetViewModel(SavedStateHandle(), observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
 
             viewModel.uiState.test {
                 awaitItem() // initial
@@ -136,7 +171,7 @@ class CheatsheetViewModelTest {
     @Test
     fun `toggleCardExpanded expands and collapses card`() =
         runTest {
-            val viewModel = CheatsheetViewModel(observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
+            val viewModel = CheatsheetViewModel(SavedStateHandle(), observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
 
             viewModel.uiState.test {
                 val initial = awaitItem() as CheatsheetUiState.Loaded
@@ -156,7 +191,7 @@ class CheatsheetViewModelTest {
     @Test
     fun `toggleComplexityGuide flips guide visibility`() =
         runTest {
-            val viewModel = CheatsheetViewModel(observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
+            val viewModel = CheatsheetViewModel(SavedStateHandle(), observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
 
             viewModel.uiState.test {
                 val initial = awaitItem() as CheatsheetUiState.Loaded
@@ -170,9 +205,25 @@ class CheatsheetViewModelTest {
         }
 
     @Test
+    fun `toggleCategoryGuide flips category guide visibility`() =
+        runTest {
+            val viewModel = CheatsheetViewModel(SavedStateHandle(), observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
+
+            viewModel.uiState.test {
+                val initial = awaitItem() as CheatsheetUiState.Loaded
+                assertTrue(initial.showCategoryGuide)
+
+                viewModel.toggleCategoryGuide()
+                val toggled = awaitItem() as CheatsheetUiState.Loaded
+                assertFalse(toggled.showCategoryGuide)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
     fun `toggleBookmark triggers use case`() =
         runTest {
-            val viewModel = CheatsheetViewModel(observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
+            val viewModel = CheatsheetViewModel(SavedStateHandle(), observeCheatsheetsUseCase, toggleCheatsheetBookmarkUseCase)
 
             viewModel.toggleBookmark("cs1")
 

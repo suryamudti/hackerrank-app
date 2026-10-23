@@ -56,9 +56,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hackerrank.app.R
 import com.hackerrank.app.core.localizedName
-import com.hackerrank.app.domain.model.CheatsheetCategory
+import com.hackerrank.app.domain.model.CategoryGuide
 import com.hackerrank.app.domain.model.CheatsheetItem
 import com.hackerrank.app.domain.model.ComplexityRule
+import com.hackerrank.app.domain.model.ProblemCategory
 import com.hackerrank.app.ui.components.EmptyState
 import com.hackerrank.app.ui.components.button.BookmarkButton
 import com.hackerrank.app.ui.components.code.CodeBlock
@@ -87,6 +88,7 @@ fun CheatsheetScreen(
                     onToggleBookmarkedOnly = viewModel::onToggleBookmarkedOnly,
                     onToggleCardExpanded = viewModel::toggleCardExpanded,
                     onToggleComplexityGuide = viewModel::toggleComplexityGuide,
+                    onToggleCategoryGuide = viewModel::toggleCategoryGuide,
                     onToggleBookmark = viewModel::toggleBookmark,
                     onProblemClick = onProblemClick,
                 )
@@ -99,10 +101,11 @@ fun CheatsheetScreen(
 private fun CheatsheetContent(
     state: CheatsheetUiState.Loaded,
     onSearchQueryChanged: (String) -> Unit,
-    onCategorySelected: (CheatsheetCategory?) -> Unit,
+    onCategorySelected: (ProblemCategory?) -> Unit,
     onToggleBookmarkedOnly: () -> Unit,
     onToggleCardExpanded: (String) -> Unit,
     onToggleComplexityGuide: () -> Unit,
+    onToggleCategoryGuide: () -> Unit,
     onToggleBookmark: (String) -> Unit,
     onProblemClick: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -130,17 +133,28 @@ private fun CheatsheetContent(
                 message = stringResource(R.string.cheatsheet_no_results_message),
             )
         } else {
+            val activeGuide = state.activeCategoryGuide
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                item(key = "complexity_guide") {
-                    ComplexityGuideCard(
-                        rules = state.complexityRules,
-                        isExpanded = state.showComplexityGuide,
-                        onToggleExpand = onToggleComplexityGuide,
-                    )
+                if (activeGuide != null) {
+                    item(key = "category_guide_${activeGuide.category.name}") {
+                        CategoryGuideCard(
+                            guide = activeGuide,
+                            isExpanded = state.showCategoryGuide,
+                            onToggleExpand = onToggleCategoryGuide,
+                        )
+                    }
+                } else {
+                    item(key = "complexity_guide") {
+                        ComplexityGuideCard(
+                            rules = state.complexityRules,
+                            isExpanded = state.showComplexityGuide,
+                            onToggleExpand = onToggleComplexityGuide,
+                        )
+                    }
                 }
 
                 items(state.filteredCheatsheets, key = { it.id }) { item ->
@@ -163,8 +177,8 @@ private fun CheatsheetContent(
 
 @Composable
 private fun CheatsheetFilterRow(
-    selectedCategory: CheatsheetCategory?,
-    onCategoryClick: (CheatsheetCategory?) -> Unit,
+    selectedCategory: ProblemCategory?,
+    onCategoryClick: (ProblemCategory?) -> Unit,
     showBookmarkedOnly: Boolean,
     onBookmarkToggle: () -> Unit,
 ) {
@@ -193,12 +207,197 @@ private fun CheatsheetFilterRow(
             onClick = { onCategoryClick(null) },
             label = { Text(stringResource(R.string.cheatsheet_filter_all)) },
         )
-        CheatsheetCategory.entries.forEach { category ->
+        ProblemCategory.entries.forEach { category ->
             FilterChip(
                 selected = selectedCategory == category,
                 onClick = { onCategoryClick(category) },
                 label = { Text(category.localizedName()) },
             )
+        }
+    }
+}
+
+@Composable
+private fun CategoryGuideCard(
+    guide: CategoryGuide,
+    isExpanded: Boolean,
+    onToggleExpand: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val rotationState by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = "catGuideChevronRotation",
+    )
+
+    Card(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .animateContentSize()
+                .clickable { onToggleExpand() },
+        shape = MaterialTheme.shapes.large,
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
+            ),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.TipsAndUpdates,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(24.dp),
+                    )
+                    Column {
+                        Text(
+                            text = stringResource(R.string.cheatsheet_category_guide_suffix, guide.category.localizedName()),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        )
+                        Text(
+                            text = guide.timeSpaceTargets,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.85f),
+                        )
+                    }
+                }
+                IconButton(onClick = onToggleExpand) {
+                    Icon(
+                        imageVector = Icons.Default.ExpandMore,
+                        contentDescription = null,
+                        modifier = Modifier.rotate(rotationState),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                }
+            }
+
+            AnimatedVisibility(visible = isExpanded) {
+                Column(
+                    modifier = Modifier.padding(top = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = stringResource(R.string.cheatsheet_category_core_concept),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+                        Text(
+                            text = guide.coreConcept,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = stringResource(R.string.cheatsheet_category_target_complexity),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+                        Text(
+                            text = guide.timeSpaceTargets,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = stringResource(R.string.cheatsheet_category_kotlin_tools),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+                        guide.essentialKotlinTools.forEach { tool ->
+                            Row(
+                                modifier = Modifier.padding(start = 6.dp),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
+                                Text(
+                                    text = "•",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.secondary,
+                                )
+                                Text(
+                                    text = tool,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                        }
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = stringResource(R.string.cheatsheet_category_pitfalls),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                        guide.criticalEdgeCases.forEach { pitfall ->
+                            Row(
+                                modifier = Modifier.padding(start = 6.dp),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
+                                Text(
+                                    text = "⚠",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                                Text(
+                                    text = pitfall,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                        }
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = stringResource(R.string.cheatsheet_category_key_patterns),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+                        guide.topPatterns.forEach { pattern ->
+                            Row(
+                                modifier = Modifier.padding(start = 6.dp),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
+                                Text(
+                                    text = "✓",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                                Text(
+                                    text = pattern,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -348,7 +547,6 @@ private fun CheatsheetCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Header Row: Category Badge + Bookmark + Chevron
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -386,7 +584,6 @@ private fun CheatsheetCard(
 
             Spacer(Modifier.height(8.dp))
 
-            // Title
             Text(
                 text = item.title,
                 style = MaterialTheme.typography.titleMedium,
@@ -397,14 +594,12 @@ private fun CheatsheetCard(
 
             Spacer(Modifier.height(4.dp))
 
-            // Summary
             Text(
                 text = item.summary,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            // Complexity badges preview
             Spacer(Modifier.height(8.dp))
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -422,7 +617,6 @@ private fun CheatsheetCard(
                 )
             }
 
-            // Expanded Details
             AnimatedVisibility(visible = isExpanded) {
                 Column(
                     modifier = Modifier.padding(top = 16.dp),
@@ -430,7 +624,6 @@ private fun CheatsheetCard(
                 ) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
-                    // Section 1: When to Use
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -469,7 +662,6 @@ private fun CheatsheetCard(
                         }
                     }
 
-                    // Section 2: Key Tips & Pitfalls
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -506,7 +698,6 @@ private fun CheatsheetCard(
                         }
                     }
 
-                    // Section 3: Kotlin Template
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(
                             text = stringResource(R.string.cheatsheet_template),
@@ -517,7 +708,6 @@ private fun CheatsheetCard(
                         CodeBlock(code = item.codeTemplate)
                     }
 
-                    // Section 4: Related Problems (Clickable!)
                     if (item.relatedProblemIds.isNotEmpty()) {
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text(
@@ -533,15 +723,10 @@ private fun CheatsheetCard(
                                 item.relatedProblemIds.forEach { problemId ->
                                     SuggestionChip(
                                         onClick = { onProblemClick(problemId) },
-                                        label = {
-                                            Text(
-                                                text = "Problem $problemId",
-                                                style = MaterialTheme.typography.labelSmall,
-                                            )
-                                        },
+                                        label = { Text(problemId.uppercase()) },
                                         colors =
                                             SuggestionChipDefaults.suggestionChipColors(
-                                                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
                                             ),
                                     )
                                 }
@@ -559,18 +744,19 @@ private fun ComplexityBadge(
     label: String,
     containerColor: Color,
     contentColor: Color,
+    modifier: Modifier = Modifier,
 ) {
     Surface(
-        shape = RoundedCornerShape(4.dp),
+        shape = RoundedCornerShape(6.dp),
         color = containerColor,
+        modifier = modifier,
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Medium,
             color = contentColor,
-            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
         )
     }
 }
