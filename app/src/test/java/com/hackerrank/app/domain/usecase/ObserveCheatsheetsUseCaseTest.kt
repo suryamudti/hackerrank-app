@@ -1,9 +1,10 @@
 package com.hackerrank.app.domain.usecase
 
 import app.cash.turbine.test
-import com.hackerrank.app.domain.model.CheatsheetCategory
+import com.hackerrank.app.domain.model.CategoryGuide
 import com.hackerrank.app.domain.model.CheatsheetItem
 import com.hackerrank.app.domain.model.ComplexityRule
+import com.hackerrank.app.domain.model.ProblemCategory
 import com.hackerrank.app.domain.repository.CheatsheetRepository
 import io.mockk.every
 import io.mockk.mockk
@@ -21,7 +22,7 @@ class ObserveCheatsheetsUseCaseTest {
         CheatsheetItem(
             id = "cs1",
             title = "Two Pointers",
-            category = CheatsheetCategory.TWO_POINTERS_SLIDING_WINDOW,
+            category = ProblemCategory.ARRAYS,
             summary = "Two pointers summary",
             whenToUse = listOf("Sorted array"),
             keyTricks = listOf("Left and right"),
@@ -38,12 +39,24 @@ class ObserveCheatsheetsUseCaseTest {
             algorithms = "Permutations",
         )
 
+    private val sampleGuide =
+        CategoryGuide(
+            category = ProblemCategory.ARRAYS,
+            title = "Arrays Guide",
+            coreConcept = "Contiguous elements",
+            timeSpaceTargets = "O(N) time, O(1) space",
+            essentialKotlinTools = listOf("IntArray"),
+            criticalEdgeCases = listOf("Empty array"),
+            topPatterns = listOf("Two Pointers"),
+        )
+
     @Test
     fun `combines cheatsheets and bookmarked IDs successfully`() =
         runTest {
             every { repository.getAllCheatsheets() } returns flowOf(listOf(sampleCheatsheet))
             every { repository.getBookmarkedCheatsheetIds() } returns flowOf(setOf("cs1"))
             every { repository.getComplexityRules() } returns listOf(sampleRule)
+            every { repository.getCategoryGuides() } returns mapOf(ProblemCategory.ARRAYS to sampleGuide)
 
             useCase().test {
                 val item = awaitItem()
@@ -51,6 +64,8 @@ class ObserveCheatsheetsUseCaseTest {
                 assertEquals("cs1", item.cheatsheets[0].id)
                 assertTrue(item.bookmarkedIds.contains("cs1"))
                 assertEquals(1, item.complexityRules.size)
+                assertEquals(1, item.categoryGuides.size)
+                assertEquals("Arrays Guide", item.categoryGuides[ProblemCategory.ARRAYS]?.title)
                 awaitComplete()
             }
         }

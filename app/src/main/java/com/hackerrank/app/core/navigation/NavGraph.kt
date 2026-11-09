@@ -34,6 +34,7 @@ import androidx.navigation.navArgument
 import com.hackerrank.app.R
 import com.hackerrank.app.core.LocalLocaleManager
 import com.hackerrank.app.core.LocalThemeManager
+import com.hackerrank.app.domain.model.ProblemCategory
 import com.hackerrank.app.ui.achievements.AchievementsScreen
 import com.hackerrank.app.ui.badge.BadgeDetailScreen
 import com.hackerrank.app.ui.browse.BrowseScreen
@@ -50,7 +51,10 @@ sealed class Screen(val route: String, val labelRes: Int, val icon: ImageVector)
 
     data object Problems : Screen("problems", R.string.nav_problems, Icons.Default.Code)
 
-    data object Cheatsheet : Screen("cheatsheet", R.string.nav_cheatsheet, Icons.Default.TipsAndUpdates)
+    data object Cheatsheet : Screen("cheatsheet?category={category}", R.string.nav_cheatsheet, Icons.Default.TipsAndUpdates) {
+        fun createRoute(category: ProblemCategory? = null): String =
+            if (category != null) "cheatsheet?category=${category.name}" else "cheatsheet"
+    }
 
     data object Progress : Screen("progress", R.string.nav_progress, Icons.Default.Star)
 
@@ -68,9 +72,9 @@ sealed class DetailRoute(val route: String) {
 
     data object ProblemDetail : DetailRoute("problem/{problemId}?isDailyChallenge={isDailyChallenge}") {
         fun createRoute(
-            id: String,
+            problemId: String,
             isDailyChallenge: Boolean = false,
-        ) = if (isDailyChallenge) "problem/$id?isDailyChallenge=true" else "problem/$id"
+        ) = "problem/$problemId?isDailyChallenge=$isDailyChallenge"
     }
 
     data object BadgeDetail : DetailRoute("badge/{badgeId}") {
@@ -100,7 +104,8 @@ fun NavGraph() {
                     NavigationBarItem(
                         selected = selected,
                         onClick = {
-                            navController.navigate(screen.route) {
+                            val targetRoute = if (screen is Screen.Cheatsheet) screen.createRoute() else screen.route
+                            navController.navigate(targetRoute) {
                                 popUpTo(navController.graph.findStartDestination().id) {
                                     saveState = true
                                 }
@@ -145,7 +150,17 @@ fun NavGraph() {
                     )
                 }
 
-                composable(Screen.Cheatsheet.route) {
+                composable(
+                    route = Screen.Cheatsheet.route,
+                    arguments =
+                        listOf(
+                            navArgument("category") {
+                                type = NavType.StringType
+                                nullable = true
+                                defaultValue = null
+                            },
+                        ),
+                ) {
                     CheatsheetScreen(
                         onProblemClick = { id ->
                             navController.navigate(DetailRoute.ProblemDetail.createRoute(id))
@@ -176,11 +191,13 @@ fun NavGraph() {
                     route = DetailRoute.StructureDetail.route,
                     arguments = listOf(navArgument("structureSlug") { type = NavType.StringType }),
                 ) { backStackEntry ->
-                    val slug = backStackEntry.arguments?.getString("structureSlug") ?: return@composable
+                    val structureSlug = backStackEntry.arguments?.getString("structureSlug") ?: return@composable
                     DetailScreen(
-                        structureSlug = slug,
+                        structureSlug = structureSlug,
                         onBackClick = { navController.popBackStack() },
-                        onQuizClick = { navController.navigate(DetailRoute.Quiz.createRoute(slug)) },
+                        onQuizClick = {
+                            navController.navigate(DetailRoute.Quiz.createRoute(structureSlug))
+                        },
                     )
                 }
 
@@ -188,9 +205,9 @@ fun NavGraph() {
                     route = DetailRoute.Quiz.route,
                     arguments = listOf(navArgument("structureSlug") { type = NavType.StringType }),
                 ) { backStackEntry ->
-                    val slug = backStackEntry.arguments?.getString("structureSlug") ?: return@composable
+                    val structureSlug = backStackEntry.arguments?.getString("structureSlug") ?: return@composable
                     QuizScreen(
-                        structureSlug = slug,
+                        structureSlug = structureSlug,
                         onBackClick = { navController.popBackStack() },
                     )
                 }
@@ -212,7 +229,9 @@ fun NavGraph() {
                         problemId = problemId,
                         isDailyChallenge = isDailyChallenge,
                         onBackClick = { navController.popBackStack() },
-                        onCheatsheetClick = { navController.navigate(Screen.Cheatsheet.route) },
+                        onCheatsheetClick = { category ->
+                            navController.navigate(Screen.Cheatsheet.createRoute(category))
+                        },
                     )
                 }
 

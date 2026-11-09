@@ -61,16 +61,12 @@
     <string name="cheatsheet_complexity_time">Waktu: %s</string>
     <string name="cheatsheet_complexity_space">Ruang: %s</string>
     <string name="view_cheatsheet_tips">Kiat &amp; Contekan</string>
-
-    <!-- Cheatsheet Categories -->
-    <string name="cs_cat_arrays_strings">Larik &amp; String</string>
-    <string name="cs_cat_two_pointers_sliding_window">Dua Penunjuk &amp; Jendela</string>
-    <string name="cs_cat_binary_search">Pencarian Biner</string>
-    <string name="cs_cat_stacks_queues">Tumpukan &amp; Antrean</string>
-    <string name="cs_cat_trees_graphs">Pohon &amp; Graf</string>
-    <string name="cs_cat_dynamic_programming">Pemrograman Dinamis</string>
-    <string name="cs_cat_bit_math">Bit &amp; Matematika</string>
-    <string name="cs_cat_backtracking_greedy">Pelacakan Balik &amp; Rakus</string>
+    <string name="cheatsheet_category_guide_suffix">Panduan Kilat %s</string>
+    <string name="cheatsheet_category_core_concept">Konsep Utama &amp; Invarian</string>
+    <string name="cheatsheet_category_target_complexity">Target Kompleksitas</string>
+    <string name="cheatsheet_category_kotlin_tools">Alat &amp; API Kotlin Penting</string>
+    <string name="cheatsheet_category_pitfalls">Jebakan Umum &amp; Kasus Khusus</string>
+    <string name="cheatsheet_category_key_patterns">Pola Kunci</string>
 
     <!-- Progress -->
     <string name="progress_no_progress_title">Belum Ada Kemajuan</string>

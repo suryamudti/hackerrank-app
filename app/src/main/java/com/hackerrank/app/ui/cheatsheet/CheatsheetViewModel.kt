@@ -1,8 +1,9 @@
 package com.hackerrank.app.ui.cheatsheet
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hackerrank.app.domain.model.CheatsheetCategory
+import com.hackerrank.app.domain.model.ProblemCategory
 import com.hackerrank.app.domain.usecase.CheatsheetsData
 import com.hackerrank.app.domain.usecase.ObserveCheatsheetsUseCase
 import com.hackerrank.app.domain.usecase.ToggleCheatsheetBookmarkUseCase
@@ -19,14 +20,22 @@ import javax.inject.Inject
 class CheatsheetViewModel
     @Inject
     constructor(
+        savedStateHandle: SavedStateHandle,
         observeCheatsheetsUseCase: ObserveCheatsheetsUseCase,
         private val toggleBookmarkUseCase: ToggleCheatsheetBookmarkUseCase,
     ) : ViewModel() {
+        private val initialCategoryName: String? = savedStateHandle["category"]
+        private val initialCategory: ProblemCategory? =
+            initialCategoryName?.let { name ->
+                runCatching { ProblemCategory.valueOf(name) }.getOrNull()
+            }
+
         private val searchQuery = MutableStateFlow("")
-        private val selectedCategory = MutableStateFlow<CheatsheetCategory?>(null)
+        private val selectedCategory = MutableStateFlow<ProblemCategory?>(initialCategory)
         private val showOnlyBookmarked = MutableStateFlow(false)
         private val expandedCardIds = MutableStateFlow<Set<String>>(emptySet())
         private val showComplexityGuide = MutableStateFlow(true)
+        private val showCategoryGuide = MutableStateFlow(true)
 
         @Suppress("UNCHECKED_CAST")
         val uiState: StateFlow<CheatsheetUiState> =
@@ -37,13 +46,15 @@ class CheatsheetViewModel
                 showOnlyBookmarked,
                 expandedCardIds,
                 showComplexityGuide,
+                showCategoryGuide,
             ) { params ->
                 val data = params[0] as CheatsheetsData
                 val query = params[1] as String
-                val category = params[2] as CheatsheetCategory?
+                val category = params[2] as ProblemCategory?
                 val onlyBookmarked = params[3] as Boolean
                 val expanded = params[4] as Set<String>
                 val guideVisible = params[5] as Boolean
+                val catGuideVisible = params[6] as Boolean
 
                 val filtered =
                     data.cheatsheets.filter { item ->
@@ -65,11 +76,13 @@ class CheatsheetViewModel
                     filteredCheatsheets = filtered,
                     bookmarkedIds = data.bookmarkedIds,
                     complexityRules = data.complexityRules,
+                    categoryGuides = data.categoryGuides,
                     searchQuery = query,
                     selectedCategory = category,
                     showOnlyBookmarked = onlyBookmarked,
                     expandedCardIds = expanded,
                     showComplexityGuide = guideVisible,
+                    showCategoryGuide = catGuideVisible,
                 )
             }.stateIn(
                 scope = viewModelScope,
@@ -81,7 +94,7 @@ class CheatsheetViewModel
             searchQuery.value = query
         }
 
-        fun onCategorySelected(category: CheatsheetCategory?) {
+        fun onCategorySelected(category: ProblemCategory?) {
             selectedCategory.value = category
         }
 
@@ -101,6 +114,10 @@ class CheatsheetViewModel
 
         fun toggleComplexityGuide() {
             showComplexityGuide.value = !showComplexityGuide.value
+        }
+
+        fun toggleCategoryGuide() {
+            showCategoryGuide.value = !showCategoryGuide.value
         }
 
         fun toggleBookmark(id: String) {

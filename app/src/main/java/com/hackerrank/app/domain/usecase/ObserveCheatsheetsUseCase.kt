@@ -1,7 +1,9 @@
 package com.hackerrank.app.domain.usecase
 
+import com.hackerrank.app.domain.model.CategoryGuide
 import com.hackerrank.app.domain.model.CheatsheetItem
 import com.hackerrank.app.domain.model.ComplexityRule
+import com.hackerrank.app.domain.model.ProblemCategory
 import com.hackerrank.app.domain.repository.CheatsheetRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -11,6 +13,7 @@ data class CheatsheetsData(
     val cheatsheets: List<CheatsheetItem>,
     val bookmarkedIds: Set<String>,
     val complexityRules: List<ComplexityRule>,
+    val categoryGuides: Map<ProblemCategory, CategoryGuide> = emptyMap(),
 )
 
 class ObserveCheatsheetsUseCase
@@ -27,6 +30,7 @@ class ObserveCheatsheetsUseCase
                     cheatsheets = cheatsheets,
                     bookmarkedIds = bookmarkedIds,
                     complexityRules = cheatsheetRepository.getComplexityRules(),
+                    categoryGuides = cheatsheetRepository.getCategoryGuides(),
                 )
             }
     }

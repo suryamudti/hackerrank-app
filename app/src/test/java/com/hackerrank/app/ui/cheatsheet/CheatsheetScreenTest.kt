@@ -5,9 +5,10 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import com.hackerrank.app.domain.model.CheatsheetCategory
+import com.hackerrank.app.domain.model.CategoryGuide
 import com.hackerrank.app.domain.model.CheatsheetItem
 import com.hackerrank.app.domain.model.ComplexityRule
+import com.hackerrank.app.domain.model.ProblemCategory
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +29,7 @@ class CheatsheetScreenTest {
             CheatsheetItem(
                 id = "cs1",
                 title = "Two Pointers Technique",
-                category = CheatsheetCategory.TWO_POINTERS_SLIDING_WINDOW,
+                category = ProblemCategory.ARRAYS,
                 summary = "Two pointers summary text",
                 whenToUse = listOf("Sorted array"),
                 keyTricks = listOf("Left and right"),
@@ -46,6 +47,20 @@ class CheatsheetScreenTest {
                 maxTimeComplexity = "O(N!)",
                 algorithms = "Permutations",
             ),
+        )
+
+    private val sampleGuides =
+        mapOf(
+            ProblemCategory.ARRAYS to
+                CategoryGuide(
+                    category = ProblemCategory.ARRAYS,
+                    title = "Arrays Survival Guide",
+                    coreConcept = "Contiguous elements in memory",
+                    timeSpaceTargets = "O(N) time, O(1) space",
+                    essentialKotlinTools = listOf("IntArray"),
+                    criticalEdgeCases = listOf("Empty array"),
+                    topPatterns = listOf("Two Pointers"),
+                ),
         )
 
     @Test
@@ -70,6 +85,32 @@ class CheatsheetScreenTest {
 
         composeTestRule.onNodeWithTag("cheatsheetSearchField").assertIsDisplayed()
         composeTestRule.onNodeWithText("Two Pointers Technique", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun categorySelected_displaysCategorySurvivalGuide() {
+        val viewModel: CheatsheetViewModel = mockk(relaxed = true)
+        every { viewModel.uiState } returns
+            MutableStateFlow(
+                CheatsheetUiState.Loaded(
+                    allCheatsheets = sampleCheatsheets,
+                    filteredCheatsheets = sampleCheatsheets,
+                    bookmarkedIds = emptySet(),
+                    complexityRules = sampleRules,
+                    categoryGuides = sampleGuides,
+                    selectedCategory = ProblemCategory.ARRAYS,
+                    searchQuery = "",
+                ),
+            )
+
+        composeTestRule.setContent {
+            MaterialTheme {
+                CheatsheetScreen(onProblemClick = {}, viewModel = viewModel)
+            }
+        }
+
+        composeTestRule.onNodeWithText("Arrays Survival Guide", useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithText("Contiguous elements in memory", useUnmergedTree = true).assertExists()
     }
 
     @Test

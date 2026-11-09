@@ -2,7 +2,7 @@ package com.hackerrank.app.data.repository
 
 import app.cash.turbine.test
 import com.hackerrank.app.data.local.dao.BookmarkedCheatsheetDao
-import com.hackerrank.app.domain.model.CheatsheetCategory
+import com.hackerrank.app.domain.model.ProblemCategory
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -30,7 +30,7 @@ class CheatsheetRepositoryImplTest {
             repository.getAllCheatsheets().test {
                 val list = awaitItem()
                 assertTrue(list.isNotEmpty())
-                assertTrue(list.any { it.id == "cs_two_pointers" })
+                assertTrue(list.any { it.id == "cs_arrays_two_pointers" })
                 awaitComplete()
             }
         }
@@ -38,10 +38,10 @@ class CheatsheetRepositoryImplTest {
     @Test
     fun `getCheatsheetById returns matched item`() =
         runTest {
-            repository.getCheatsheetById("cs_sliding_window").test {
+            repository.getCheatsheetById("cs_strings_sliding_window").test {
                 val item = awaitItem()
                 assertNotNull(item)
-                assertEquals("Sliding Window Pattern", item?.title)
+                assertEquals("Sliding Window on Strings", item?.title)
                 awaitComplete()
             }
         }
@@ -49,13 +49,22 @@ class CheatsheetRepositoryImplTest {
     @Test
     fun `getCheatsheetsByCategory returns category items`() =
         runTest {
-            repository.getCheatsheetsByCategory(CheatsheetCategory.BINARY_SEARCH).test {
+            repository.getCheatsheetsByCategory(ProblemCategory.SORTING_SEARCHING).test {
                 val list = awaitItem()
                 assertTrue(list.isNotEmpty())
-                assertTrue(list.all { it.category == CheatsheetCategory.BINARY_SEARCH })
+                assertTrue(list.all { it.category == ProblemCategory.SORTING_SEARCHING })
                 awaitComplete()
             }
         }
+
+    @Test
+    fun `getCategoryGuides covers all 12 problem categories`() {
+        val guides = repository.getCategoryGuides()
+        assertEquals(12, guides.size)
+        ProblemCategory.entries.forEach { category ->
+            assertNotNull("Category guide must exist for $category", guides[category])
+        }
+    }
 
     @Test
     fun `getBookmarkedCheatsheetIds converts dao list to set`() =
